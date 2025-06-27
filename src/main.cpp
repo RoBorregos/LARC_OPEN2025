@@ -1,18 +1,33 @@
+/**
+ * LARC 2025
+ *
+ * @Roborregos
+ */
+
 #include <Arduino.h>
+#include <Wire.h>
+#include "pose2d.hpp"
+#include "robot/statemanager.hpp"
+#include "subsystem/Drive/Drive.hpp"
 
-// put function declarations here:
-int myFunction(int, int);
+StateManager state_manager;
 
-void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+const unsigned long UPDATE_INTERVAL = 50;
+
+double state_start_time = 0;
+
+void setup()
+{
+  Serial.begin(9600);
+  Wire.begin();
+
+  state_manager.setState(RobotState::PICK_LOW_LEVEL);
+  interrupts();
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-}
+void loop()
+{
+  state_manager.update();
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+  delay(UPDATE_INTERVAL);
 }
