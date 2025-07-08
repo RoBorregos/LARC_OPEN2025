@@ -3,5 +3,5 @@
 echo "Downloading dataset..."
 python model/download.py
 
-echo "Training model..."
-python model/model.py
+# echo "Training model..."
+# python model/model.py
