@@ -1,3 +1,7 @@
+# Requirements for the project
+# This file is used to install the necessary packages for the project.
+# use pip install -r requirements.txt to install the packages
+
 numpy
 
 ultralytics
@@ -6,4 +10,10 @@ matplotlib
 
 opencv-python
 
-gdown
+pillow-heif
+
+google-api-python-client 
+
+google-auth-httplib2 
+
+google-auth-oauthlib
