@@ -23,9 +23,9 @@ from pillow_heif import register_heif_opener
 register_heif_opener()
 
 # --- Configuration ---
-SERVICE_ACCOUNT_FILE = r"vision\model\vision-larc.json"
+SERVICE_ACCOUNT_FILE = os.path.join("vision", "model", "vision-larc.json")
 FOLDER_ID = "1tGUKke8N-33MbegT78y3Nzx0cq5wmleR"
-DEST_FOLDER = r"vision\model\dataset"
+DEST_FOLDER = os.path.join("vision", "model", "dataset")
 SCOPES = ["https://www.googleapis.com/auth/drive"]
 API_NAME = "drive"
 API_VERSION = "v3"
