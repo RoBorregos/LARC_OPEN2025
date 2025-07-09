@@ -13,3 +13,8 @@
 vision/model/vision-larc.json
 
 vision/model/dataset
+vision/model/labels
+
+yolovenv
+
+runs

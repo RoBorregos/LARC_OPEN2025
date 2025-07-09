@@ -1,0 +1,9 @@
+path: vision/model          # Root to the dataset
+train: dataset/train         # Root to training images
+val: dataset/val             # Root to validation images
+
+#Classes
+names:
+  0: mature
+  1: immature
+  2: tree
