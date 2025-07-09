@@ -4,6 +4,6 @@ val: dataset/val             # Root to validation images
 
 #Classes
 names:
-  0: mature
-  1: immature
-  2: tree
+  0: tree
+  1: overmature
+  2: mature
