@@ -9,6 +9,7 @@
 #include "pose2d.hpp"
 #include "robot/statemanager.hpp"
 #include "subsystem/Drive/Drive.hpp"
+#include "subsystem/DistanceSensors/DistanceSensors.hpp"
 
 StateManager state_manager;
 
@@ -20,14 +21,13 @@ void setup()
 {
   Serial.begin(9600);
   Wire.begin();
-
-  state_manager.setState(RobotState::PICK_LOW_LEVEL);
-  interrupts();
 }
 
 void loop()
 {
-  state_manager.update();
-
-  delay(UPDATE_INTERVAL);
+  if(DistanceSensors::getCurrentDistance < 10){
+    acceptInput(0, 200, 0);
+  }else{
+    acceptInput(200, 0, 0);
+  }
 }
