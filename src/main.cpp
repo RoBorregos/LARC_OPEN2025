@@ -12,6 +12,8 @@
 #include "subsystem/DistanceSensors/DistanceSensors.hpp"
 
 StateManager state_manager;
+DistanceSensors distance_sensor;
+Drive drive;
 
 const unsigned long UPDATE_INTERVAL = 50;
 
@@ -23,11 +25,13 @@ void setup()
   Wire.begin();
 }
 
+
 void loop()
 {
-  if(DistanceSensors::getCurrentDistance < 10){
-    acceptInput(0, 200, 0);
-  }else{
-    acceptInput(200, 0, 0);
+  if (distance_sensor.getCurrentDistance() < 10) {
+    drive.acceptInput(0, 200, 0);
+  } else {
+    drive.acceptInput(200, 0, 0);
   }
 }
+
