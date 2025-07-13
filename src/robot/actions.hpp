@@ -5,7 +5,7 @@
 #include "../subsystem/Gripper/Gripper.hpp"
 #include "../subsystem/LowerSorter/LowerSorter.hpp"
 #include "../subsystem/UpperSorter/UpperSorter.hpp"
-#include "../subsystem/LineSensor/LineSensor.h"
+#include "../subsystem/LineSensor/LineSensor.hpp"
 #include "../subsystem/Vision/Camera.hpp"
 #include "PID_v1.h"
 

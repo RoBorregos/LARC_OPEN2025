@@ -31,13 +31,14 @@ void setup()
 void loop()
 {
   
-  drive.acceptInput(200,0,0);  
+  drive.moveLeft(200);  
+  drive.moveRight(200);
   
   //  if (distance_sensor.getCurrentDistance() < 10 && line_sensor.leftDetected == 0 || line_sensor.rightDetected == 0) {
-if (distance_sensor.getCurrentDistance() < 10) {    
-    drive.acceptInput(0, 200, 0);
-  } else {
-    drive.acceptInput(0, -200, 0);
-  }
+  if (distance_sensor.getCurrentDistance() < 10) {    
+      drive.acceptInput(0, 200, 0);
+    } else {
+      drive.acceptInput(0, -200, 0);
+    }
 }
 

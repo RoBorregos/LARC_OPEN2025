@@ -24,7 +24,6 @@ bool globalUpdate()
     lower_sorter_.update();
     upper_sorter_.update();
     camera_.update();
-    line_sensor_.update();
 
     return true;
 }
