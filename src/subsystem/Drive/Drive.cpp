@@ -10,13 +10,13 @@
 
 Drive::Drive() : 
     front_left_(DCMotor(Pins::kUpperMotors[0], Pins::kUpperMotors[1], Pins::kPwmPin[0], 
-               false, Pins::kEncoders[0], LOW, 1, DriveConstants::kWheelDiameter)),
+               true, Pins::kEncoders[0], LOW, 1, DriveConstants::kWheelDiameter)),
     front_right_(DCMotor(Pins::kUpperMotors[2], Pins::kUpperMotors[3], Pins::kPwmPin[1], 
-                true, Pins::kEncoders[1], LOW, 2, DriveConstants::kWheelDiameter)),
+                false, Pins::kEncoders[1], LOW, 2, DriveConstants::kWheelDiameter)),
     back_left_(DCMotor(Pins::kLowerMotors[0], Pins::kLowerMotors[1], Pins::kPwmPin[2], 
-               false, Pins::kEncoders[2], HIGH, 3, DriveConstants::kWheelDiameter)),
+               true, Pins::kEncoders[2], HIGH, 3, DriveConstants::kWheelDiameter)),
     back_right_(DCMotor(Pins::kLowerMotors[2], Pins::kLowerMotors[3], Pins::kPwmPin[3], 
-                true, Pins::kEncoders[3], LOW, 4, DriveConstants::kWheelDiameter)),
+                false, Pins::kEncoders[3], LOW, 4, DriveConstants::kWheelDiameter)),
     bno_(),
     robot_constants_(0.3, 0.3),
     odometry_(0, 0, Rotation2D(0), &bno_, &robot_constants_),
@@ -102,13 +102,32 @@ void Drive::moveBackward(int speed) {
 void Drive::moveLeft(int speed) {
     front_left_.move(-speed);
     front_right_.move(speed);
-    back_left_.move(-speed);
-    back_right_.move(speed);
+    back_left_.move(speed);
+    back_right_.move(-speed);
 }
 
 void Drive::moveRight(int speed) {
     front_left_.move(speed);
     front_right_.move(-speed);
-    back_left_.move(speed);
-    back_right_.move(-speed);
+    back_left_.move(-speed);
+    back_right_.move(speed);
+}
+
+void Drive::motorTest() {
+    front_left_.move(100);
+    delay(5000);
+    front_left_.move(0);
+    delay(5000);
+    front_right_.move(100);
+    delay(5000);
+    front_right_.move(0);
+    delay(5000);
+    back_left_.move(100);
+    delay(5000);
+    back_left_.move(0);
+    delay(5000);
+    back_right_.move(100);
+    // delay(5000);
+    // back_right_.move(0);
+    // delay(5000);
 }
