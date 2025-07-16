@@ -11,11 +11,17 @@
 #include "subsystem/Drive/Drive.hpp"
 #include "subsystem/DistanceSensors/DistanceSensors.hpp"
 #include "subsystem/LineSensor/LineSensor.hpp"
+#include "subsystem/UpperSorter/UpperSorter.hpp"
+#include "subsystem/LowerSorter/LowerSorter.hpp"
+#include "subsystem/Gripper/Gripper.hpp"
 
 StateManager state_manager;
 DistanceSensors distance_sensor;
 Drive drive;
 LineSensor line_sensor;
+LowerSorter lower_sorter;
+UpperSorter upper_sorter;
+Gripper gripper;
 
 const unsigned long UPDATE_INTERVAL = 50;
 
@@ -30,15 +36,11 @@ void setup()
 
 void loop()
 {
-  
-  drive.moveLeft(200);  
-  drive.moveRight(200);
-  
-  //  if (distance_sensor.getCurrentDistance() < 10 && line_sensor.leftDetected == 0 || line_sensor.rightDetected == 0) {
-  if (distance_sensor.getCurrentDistance() < 10) {    
-      drive.acceptInput(0, 200, 0);
-    } else {
-      drive.acceptInput(0, -200, 0);
-    }
+  distance_sensor.getCurrentDistance();
+  line_sensor.leftDetected();
+  line_sensor.rightDetected();
+  upper_sorter.setState(0);
+  lower_sorter.setState(1);
+  gripper.setState(1);
 }
 
