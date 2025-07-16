@@ -25,11 +25,11 @@ unsigned long StateManager::getTimeSpent() {
 
 void StateManager::stateTransition() {
     switch (state_) {
-        case RobotState::INIT: {
+        /* case RobotState::INIT: {
             setState(RobotState::EXIT_START);
             break;
         }
-        /* case RobotState::EXIT_START: {
+        case RobotState::EXIT_START: {
             setState(RobotState::GO_TREES);
             break;
         }
@@ -63,10 +63,10 @@ void StateManager::stateTransition() {
                 current_beans_ = 0;
             }
             break;
-        } */
+        }        
         case RobotState::PICK_LOW_LEVEL: {
             setState(RobotState::IDLE);
-            /* direction_ = false;
+            direction_ = false;
             current_beans_++;
             if (current_beans_>=low_level_beans_) {
                 if (current_tree_ == 1) {
@@ -75,10 +75,10 @@ void StateManager::stateTransition() {
                     setState(RobotState::IDLE);
                 }
                 current_beans_ = 0;
-            } */
+            } 
             break;
         }
-        /* case RobotState::GO_STORAGES: {
+         case RobotState::GO_STORAGES: {
             setState(RobotState::GO_RIGHT_LINE);
             break;
         }
@@ -110,11 +110,12 @@ void StateManager::update() {
     
     // Execute the current state's action and get completion status
     switch (state_) {
-        /* case RobotState::INIT: {
+        case RobotState::INIT: {
             action_completed = initStart();
             break;
         }
-        case RobotState::EXIT_START: {
+
+        /*case RobotState::EXIT_START: {
             action_completed = exitStart(getTimeSpent());
             break;
         }
@@ -137,12 +138,12 @@ void StateManager::update() {
         case RobotState::PICK_MID_LEVEL: {
             action_completed = pickBean(getTimeSpent(), 2);
             break;
-        } */
+        } 
         case RobotState::PICK_LOW_LEVEL: {
             action_completed = pickBean(getTimeSpent(), 1);
             break;
         }
-        /* case RobotState::GO_STORAGES: {
+        case RobotState::GO_STORAGES: {
             action_completed = goStorageZone(getTimeSpent());
             break;
         }
