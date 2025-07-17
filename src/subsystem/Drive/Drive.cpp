@@ -28,7 +28,7 @@ Drive::Drive() :
 void Drive::update() {
     bno_.update();
     
-    ChassisSpeed drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), true);
+    ChassisSpeed drive_speed;
     switch (drive_state_) {
         case DriveState::HEADING_LOCK:
             {
@@ -39,7 +39,7 @@ void Drive::update() {
             break;
         case DriveState::FIELD_ORIENTED:
             {
-                desired_chassis_speed_ = drive_speed;
+                desired_chassis_speed_ = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), true);
             }
             break;
         case DriveState::ROBOT_ORIENTED:
