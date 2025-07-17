@@ -127,7 +127,7 @@ void Drive::motorTest() {
     back_left_.move(0);
     delay(5000);
     back_right_.move(100);
-    // delay(5000);
-    // back_right_.move(0);
-    // delay(5000);
+    delay(5000);
+    back_right_.move(0);
+    delay(5000);
 }
