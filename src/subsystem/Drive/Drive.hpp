@@ -2,7 +2,7 @@
  * @file drive.hpp
  * @date 22/04/2025
  * @author Juan Pablo Gutiérrez
- *  
+ *
  * @brief Header file for the Drive class, which controls the robot's drive system.
  */
 
@@ -31,10 +31,11 @@ public:
     void moveRight(int speed);
     void motorTest();
     Pose2D getPose();
-    void update() const override;
+    void update() override;
     void setState(int state) override;
     void acceptInput(float vx, float vy, float omega);
     void acceptHeadingInput(Rotation2D heading);
+
 private:
     void move(ChassisSpeed chassis_speed);
     void moveXYOmega(ChassisSpeed chassis_speed);
@@ -46,7 +47,8 @@ private:
     RobotConstants robot_constants_;
     Odometry odometry_;
 
-    enum class DriveState {
+    enum class DriveState
+    {
         HEADING_LOCK = 0,
         FIELD_ORIENTED = 1,
         ROBOT_ORIENTED = 2,

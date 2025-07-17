@@ -21,7 +21,7 @@ class Elevator : public System
 public:
     Elevator();
 
-    void update() const override;           
+    void update() override;
     void setState(int state) override;
     void setTargetPosition(int position);
     int getCurrentPosition();
