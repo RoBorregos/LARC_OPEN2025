@@ -21,11 +21,11 @@ void setup()
 {
   Serial.begin(9600);
   Wire.begin();
-  
   //state_manager.setState(RobotState::INIT);
   
   interrupts();
 }
+
 
 void loop()
 {
@@ -43,3 +43,4 @@ void loop()
 
   delay(UPDATE_INTERVAL);
 }
+

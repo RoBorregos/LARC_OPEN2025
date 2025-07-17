@@ -10,6 +10,7 @@
 #define LINESENSOR_H
 
 #include <Arduino.h>
+#include "constants/pins.h"
 
 /*class LineSensor {
   private:
@@ -30,14 +31,15 @@ private:
   unsigned long left_detection_time_ = 0;
   unsigned long right_detection_time_ = 0;
 
+  int rightPin = Pins::kLineSensorRight;
+  int leftPin = Pins::kLineSensorLeft;
+
 public:
   LineSensor();
 
-  void update();
-
   bool leftDetected();
   bool rightDetected();
-  bool bothDetectedWithin500ms();
+  // bool bothDetectedWithin500ms();
 };
 
 #endif
