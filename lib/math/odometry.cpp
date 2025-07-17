@@ -4,6 +4,7 @@
  * @author Juan Pablo Gutiérrez
  *  
  * @brief Implementation file for the Odometry class, which is the class for the odometry.
+ * TODO: NOT DONE YET
  */
 
 #include "odometry.hpp"
