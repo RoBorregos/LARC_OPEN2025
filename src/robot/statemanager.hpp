@@ -15,18 +15,7 @@
 class StateManager {
 private:
 
-    RobotState state_;
-
-    const int mid_level_beans_ = 4; // REGO //2 para ROBO
-    const int low_level_beans_ = 3; // REGO 3 o 2 // 1 para ROBO
-
-    // Control variables
-    long start_time_ = 0;
-    bool direction_ = true; // 0 or false = left | 1 or true = right
-    int current_tree_ = 0;
-    int current_beans_ = 0;
-    bool droped_SOBREMADURO = false; // 0 or MADURO = left | 1 or SOBREMADURO
-    long state_start_time_ = 0; 
+    RobotState global_state_;
 
 public:
     StateManager();

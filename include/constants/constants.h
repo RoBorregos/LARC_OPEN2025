@@ -13,6 +13,10 @@
 
 namespace Constants {
 
+    namespace SystemConstants {
+        constexpr float kUpdateInterval = 50.0; // in ms -> 20Hz
+    }
+
     namespace ElevatorConstants {
         constexpr float kUpperLevel = -25000.0; 
         constexpr float kMidLevel = -15000.0; 
