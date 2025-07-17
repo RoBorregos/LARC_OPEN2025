@@ -1,8 +1,8 @@
 /**
- * @file actions.cpp
- * @brief File for the actions of the robot
+ * @file tasks.cpp
+ * @brief File for the tasks of the robot
  * @author Juan Pablo Gutiérrz
- * @date 2025-05-06
+ * @date 2025-07-16
  */
 #include "tasks.h"
 
