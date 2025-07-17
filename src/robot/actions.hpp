@@ -1,22 +1,8 @@
 #pragma once
 
-#include "../subsystem/Drive/Drive.hpp"
-#include "../subsystem/Elevator/Elevator.hpp"
-#include "../subsystem/Gripper/Gripper.hpp"
-#include "../subsystem/LowerSorter/LowerSorter.hpp"
-#include "../subsystem/UpperSorter/UpperSorter.hpp"
-#include "../subsystem/LineSensor/LineSensor.hpp"
-#include "../subsystem/Vision/Camera.hpp"
 #include "PID_v1.h"
-
-extern Drive drive_;
-extern Elevator elevator_;
-extern Gripper gripper_;
-extern LowerSorter lower_sorter_;
-extern UpperSorter upper_sorter_;
-extern PIDController centerPID_;
-extern LineSensor line_sensor_;
-extern Camera camera_;
+#include "robot_instances.h"
+#include "../lib/math/pose2d.hpp"
 
 bool centerWithObject(double elapsed_time);
 bool alignWithObject(double elapsed_time, float desired_distance);

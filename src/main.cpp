@@ -9,19 +9,9 @@
 #include "pose2d.hpp"
 #include "robot/statemanager.hpp"
 #include "subsystem/Drive/Drive.hpp"
-#include "subsystem/DistanceSensors/DistanceSensors.hpp"
-#include "subsystem/LineSensor/LineSensor.hpp"
-#include "subsystem/UpperSorter/UpperSorter.hpp"
-#include "subsystem/LowerSorter/LowerSorter.hpp"
-#include "subsystem/Gripper/Gripper.hpp"
+#include "robot/robot_instances.h"
 
-StateManager state_manager;
-DistanceSensors distance_sensor;
-Drive drive;
-LineSensor line_sensor;
-LowerSorter lower_sorter;
-UpperSorter upper_sorter;
-Gripper gripper;
+//StateManager state_manager;
 
 const unsigned long UPDATE_INTERVAL = 50;
 
@@ -31,16 +21,26 @@ void setup()
 {
   Serial.begin(9600);
   Wire.begin();
+  //state_manager.setState(RobotState::INIT);
+  
+  interrupts();
 }
 
 
 void loop()
 {
-  distance_sensor.getCurrentDistance();
-  line_sensor.leftDetected();
-  line_sensor.rightDetected();
-  upper_sorter.setState(0);
-  lower_sorter.setState(1);
-  gripper.setState(1);
+  //state_manager.update();
+  //drive_.update();
+
+  drive_.moveForward(100);
+  delay(10000);
+  drive_.moveBackward(100);
+  delay(10000);
+  drive_.moveLeft(100);
+  delay(10000);
+  drive_.moveRight(100);
+  delay(10000);
+
+  delay(UPDATE_INTERVAL);
 }
 

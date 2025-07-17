@@ -29,6 +29,7 @@ public:
     void moveBackward(int speed);
     void moveLeft(int speed);
     void moveRight(int speed);
+    void motorTest();
     Pose2D getPose();
     void update() override;
     void setState(int state) override;
