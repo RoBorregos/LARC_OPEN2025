@@ -31,7 +31,7 @@ public:
     void moveRight(int speed);
     void motorTest();
     Pose2D getPose();
-    void update() override;
+    void update() const override;
     void setState(int state) override;
     void acceptInput(float vx, float vy, float omega);
     void acceptHeadingInput(Rotation2D heading);

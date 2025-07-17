@@ -12,8 +12,8 @@
 class System {
 public:
     System();
-    virtual void update();
-    virtual void setState(int state);
+    virtual void update() const = 0;
+    virtual void setState(int state) = 0;
 };
 
 #endif //SYSTEM_HPP

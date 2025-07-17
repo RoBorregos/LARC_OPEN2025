@@ -19,7 +19,7 @@ using namespace Constants;
 class Gripper : public System {
     public:
         Gripper();
-        void update() override;
+        void update() const override;
         void setState(int state) override;
     private:
         PWMServo servo;
