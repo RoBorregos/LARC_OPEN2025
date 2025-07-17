@@ -10,14 +10,12 @@ Communication::Communication(){
 string Communication::getCommand() {
     string msg = readCommunication();
 
-    if (msg == "START") {
-        // Acción para START
-    } else if (msg == "STOP") {
-        // Acción para STOP
-    } else if (msg == "RESET") {
-        // Acción para RESET
-    } else {
-        // Acción por defecto o mensaje desconocido
+    if (msg == "TREE") {
+        // TODO Whats the logic behind
+    } else if (msg == "BEAN") {
+        
+    }
+    else {
     }
 
     return msg;
