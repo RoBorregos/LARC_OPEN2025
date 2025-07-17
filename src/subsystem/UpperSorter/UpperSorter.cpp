@@ -8,29 +8,34 @@
 
 #include "UpperSorter.hpp"
 
-UpperSorter::UpperSorter() {
+UpperSorter::UpperSorter()
+{
     servo.attach(Pins::kUpperSorterServoPin);
     delay(100);
 }
 
-void UpperSorter::update() {
-    switch (upper_sorter_state_) {
-        case UpperSorterState::LEFT:
-            move(UpperSorterConstants::kLeftAngle);
-            break;
-        case UpperSorterState::CENTER:
-            move(UpperSorterConstants::kCenterAngle);
-            break;
-        case UpperSorterState::RIGHT:
-            move(UpperSorterConstants::kRightAngle);
-            break;
+void UpperSorter::update()
+{
+    switch (upper_sorter_state_)
+    {
+    case UpperSorterState::LEFT:
+        move(UpperSorterConstants::kLeftAngle);
+        break;
+    case UpperSorterState::CENTER:
+        move(UpperSorterConstants::kCenterAngle);
+        break;
+    case UpperSorterState::RIGHT:
+        move(UpperSorterConstants::kRightAngle);
+        break;
     }
 }
 
-void UpperSorter::setState(int state) {
+void UpperSorter::setState(int state)
+{
     upper_sorter_state_ = static_cast<UpperSorterState>(state);
 }
 
-void UpperSorter::move(int angle) { 
+void UpperSorter::move(int angle)
+{
     servo.write(angle);
 }
