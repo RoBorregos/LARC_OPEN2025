@@ -41,6 +41,9 @@ namespace Pins {
     constexpr uint8_t kLimitPin = 12;
 
     constexpr uint8_t kDistanceAnalog = 41;
+
+    constexpr uint8_t kRx = 21;
+    constexpr uint8_t kTx = 20;
 }
 
 #endif
