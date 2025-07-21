@@ -1,11 +1,13 @@
 #include "DistanceSensors.hpp"
 
 DistanceSensors::DistanceSensors() {
-    pinMode(analogPin, INPUT);
+    pinMode(leftDistanceSensor, INPUT);
+    pinMode(rightDistanceSensor, INPUT);
+    pinMode(gripperDistanceSensor, INPUT);
 }
 
-float DistanceSensors::readSharpDistance() {
-    int analogValue = analogRead(analogPin);
+float DistanceSensors::readSharpDistance(int sensorPin) {
+    int analogValue = analogRead(sensorPin);
 
     float voltage = analogValue * (3.3 / 1023.0);
     float distanceCm = 27.728 * pow(voltage, -1.2045);
@@ -16,7 +18,14 @@ float DistanceSensors::readSharpDistance() {
     return distanceCm;
 }
 
-float DistanceSensors::getCurrentDistance() {
-    currentDistanceCm = readSharpDistance();
-    return currentDistanceCm;
+float DistanceSensors::getLeftDistance() {
+    return readSharpDistance(leftDistanceSensor);
+}
+
+float DistanceSensors::getRightDistance() {
+    return readSharpDistance(rightDistanceSensor);
+}
+
+float DistanceSensors::getGripperDistance() {
+    return readSharpDistance(gripperDistanceSensor);
 }
