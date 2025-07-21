@@ -1,8 +1,14 @@
 #pragma once
 
 #include "../subsystem/Drive/Drive.hpp"
+#include "../subsystem/DistanceSensors/DistanceSensors.hpp"
+#include "../subsystem/LineSensor/LineSensor.hpp"
+#include "../subsystem/Communication/Communication.hpp"
 
 extern Drive drive_;
+extern LineSensor line_sensor_;
+extern DistanceSensors* distance_sensor_;
+extern Communication* com_;
 // extern Elevator elevator_;
 // extern Gripper gripper_;
 // extern LowerSorter lower_sorter_;
