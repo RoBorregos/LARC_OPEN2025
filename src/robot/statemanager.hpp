@@ -12,6 +12,7 @@
 #include "RobotState.h"
 #include "../subsystem/Elevator/Elevator.hpp"
 #include "tasks.h"
+#include "robot_instances.h"
 class StateManager {
 private:
 

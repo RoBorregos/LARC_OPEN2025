@@ -40,14 +40,17 @@ void StateManager::update()
         break;
     }
 
-    /*case RobotState::EXIT_START: {
-        action_completed = exitStart(getTimeSpent());
+    case RobotState::EXIT_START: {
+        drive_.acceptInput(0,200,0);
         break;
     }
     case RobotState::GO_TREES: {
-        action_completed = goTreeZone(getTimeSpent());
+        if(com_.getCommand() == "DETECTED TREEE"){
+            drive_.acceptInput(0,200,0);
+        }
         break;
     }
+    /*
     case RobotState::AVOID_POOL: { //TODO:
         action_completed = avoidPool(getTimeSpent());
         break;
@@ -60,14 +63,25 @@ void StateManager::update()
         action_completed = searchForTrees(getTimeSpent(), direction_);
         break;
     }
+    */
     case RobotState::PICK_MID_LEVEL: {
-        action_completed = pickBean(getTimeSpent(), 2);
+        elevator_.setState(2);
+        if(com_.getCommand() ==  "BEAN DETECTED"){
+            gripper_.setState(1);
+            delay(1000);
+            gripper_.setState(1);
+        }
         break;
     }
     case RobotState::PICK_LOW_LEVEL: {
-        action_completed = pickBean(getTimeSpent(), 1);
+        if(com_.getCommand() ==  "BEAN DETECTED"){
+            gripper_.setState(1);
+            delay(1000);
+            gripper_.setState(1);
+        }
         break;
     }
+    /*
     case RobotState::GO_STORAGES: {
         action_completed = goStorageZone(getTimeSpent());
         break;
@@ -84,10 +98,11 @@ void StateManager::update()
         action_completed = goStorage(getTimeSpent(), 3);  // FETCH_STOREHOUSE_SOBREMADURO
         break;
     }
+    */
     case RobotState::DROP_BEANS: {
-        action_completed = dropBeans(getTimeSpent(), droped_SOBREMADURO+2);
+        lower_sorter_.setState(0);
         break;
-    } */
+    } 
     default:
         break;
     }
