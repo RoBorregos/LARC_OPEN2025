@@ -31,8 +31,8 @@ private:
   unsigned long left_detection_time_ = 0;
   unsigned long right_detection_time_ = 0;
 
-  int rightPin = Pins::kLineSensorRight;
-  int leftPin = Pins::kLineSensorLeft;
+  int rightPin = Pins::kLineSensorRightPin;
+  int leftPin = Pins::kLineSensorLeftPin;
 
 public:
   LineSensor();

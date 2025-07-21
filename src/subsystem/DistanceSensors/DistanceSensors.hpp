@@ -12,7 +12,7 @@ public:
     DistanceSensors();
     float getCurrentDistance(); 
 private:
-    int analogPin = Pins::kDistanceAnalog; 
+    int analogPin = Pins::kDistanceSensor; 
     float currentDistanceCm = 0.0;
 
     float readSharpDistance();
