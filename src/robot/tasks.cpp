@@ -20,7 +20,7 @@ void exitStart()
 
 void avoidPool()
 {
-    float distance = distance_sensor_->getCurrentDistance();
+    float distance = distance_sensor_.getCurrentDistance();
     
     if(distance < 10){
         drive_.acceptInput(200,0,0);
@@ -30,7 +30,7 @@ void avoidPool()
 }
 
 void goToTrees(){
-    if(com_->getCommand() == "Tree")
+    if(com_.getCommand() == "Tree")
     {
         // TODO: Add the actions to perform when the command is received
     }
