@@ -45,6 +45,10 @@ namespace Pins {
 
     constexpr uint8_t kDistanceLeft = 41;
     constexpr uint8_t kDistanceRight = 21;
-}
 
+    // Elevator Pines
+    constexpr uint8_t kIna1 = 22;
+    constexpr uint8_t kIna2 = 21;
+    constexpr uint8_t kPwmElevator = 19;
+}
 #endif
