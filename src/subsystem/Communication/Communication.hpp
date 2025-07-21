@@ -13,10 +13,6 @@ class Communication : public System {
     public:
         Communication();
         string getCommand();
-
     private:
-        int rxPin = Pins::kRx;
-        int txPin = Pins::kTx;
-
         string readCommunication();
 };
