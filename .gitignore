@@ -4,3 +4,6 @@
 .vscode/launch.json
 .vscode/ipch
 .vscode/*
+
+vision/model/dataset
+vision/model/vision-larc.json
