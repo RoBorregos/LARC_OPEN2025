@@ -10,20 +10,26 @@
 
 Elevator::Elevator()
     : motor_(Pins::kIna1, Pins::kIna2, Pins::kPwmElevator, ElevatorConstants::kInverted, Pins::kEncoderElevator, ElevatorConstants::kEncoderActiveState, 5),
-    pid_controller_(ElevatorConstants::kP, ElevatorConstants::kI, ElevatorConstants::kD)
+      pid_controller_(ElevatorConstants::kP, ElevatorConstants::kI, ElevatorConstants::kD),
+      limit_button_(Pins::kLimitElevator)
 {
     pid_controller_.setOutputLimits(-255, 255);
     pid_controller_.setEnabled(true);
+
+    limit_button_.setDebounceTime(50);
 }
 
 void Elevator::update()
 {
+    limit_button_.loop();
+
     current_position_ = motor_.getPositionMeters();
 
     double output = pid_controller_.update(current_position_, target_position_);
     motor_.move(output);
 
-    if (getLimitState()) {
+    if (getLimitState())
+    {
         resetPosition(ElevatorConstants::kIdleLevel);
     }
 }
@@ -50,8 +56,7 @@ void Elevator::setState(int state)
 
 bool Elevator::getLimitState()
 {
-    // TODO: Implement limit state
-    return false;
+    return limit_button_.isPressed();
 }
 
 void Elevator::resetPosition(double position)
