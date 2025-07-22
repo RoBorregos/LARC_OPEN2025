@@ -28,6 +28,8 @@ void Drive::update()
 {
     bno_.update();
 
+    Serial.println(bno_.getYaw());
+
     ChassisSpeed drive_speed;
     switch (drive_state_)
     {

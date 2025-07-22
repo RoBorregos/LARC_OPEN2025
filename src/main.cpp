@@ -17,14 +17,13 @@ void setup()
   Wire.begin();
 
   // FreeRTOS setup
-  // setupTasks();
+  setupTasks();
 
   // Start RTOS scheduler
-  // vTaskStartScheduler();
+  vTaskStartScheduler();
 }
 
 // This is not used in RTOS
-void loop() {
-  
-
+void loop()
+{
 }

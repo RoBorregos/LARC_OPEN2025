@@ -9,7 +9,7 @@
 
 using namespace Constants;
 
-TaskHandle_t globalUpdateTaskHandle;
+extern TaskHandle_t globalUpdateTaskHandle;
 
 void setupTasks();
 

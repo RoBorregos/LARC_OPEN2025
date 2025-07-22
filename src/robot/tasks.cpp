@@ -6,6 +6,8 @@
  */
 #include "tasks.h"
 
+TaskHandle_t globalUpdateTaskHandle;
+
 void initStart()
 {
     drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
@@ -38,7 +40,7 @@ void goToTrees(){
 
 void setupTasks()
 {
-    xTaskCreate(globalUpdateTask, "Global Update Task", 10000, NULL, 1, &globalUpdateTaskHandle);
+    xTaskCreate(globalUpdateTask, "Global Update Task", 2048, NULL, 1, &globalUpdateTaskHandle);
 }
 
 void globalUpdateTask(void *pvParameters)
@@ -46,6 +48,8 @@ void globalUpdateTask(void *pvParameters)
     while (true)
     {
         drive_.update();
+        drive_.setState(0);
+        drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
         // gripper_.update();
         // elevator_.update();
         // lower_sorter_.update();
