@@ -1,7 +1,7 @@
 /*
- * @file LineSensor.h
- * @date 07/05/2025
- * @author Brisma Alvarez Valdez
+ * @file LineSensor.hpp
+ * @date 21/07/2025
+ * @author Hector Tovar
  *
  * @brief Head file of the Line Sensor
  */
@@ -11,18 +11,6 @@
 
 #include <Arduino.h>
 #include "constants/pins.h"
-
-/*class LineSensor {
-  private:
-    int leftPin;
-    int rightPin;
-
-  public:
-    LineSensor();
-    void begin();
-    bool leftDetected();
-    bool rightDetected();
-};*/
 
 class LineSensor {
 private:

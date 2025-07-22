@@ -1,7 +1,7 @@
 /*
  * @file LineSensor.cpp
- * @date 07/05/2025
- * @author Brisma Alvarez Valdez
+ * @date 21/07/2025
+ * @author Hector Tovar
  *
  * @brief Cpp file of the Almacen class to control two servos.
  */
