@@ -36,7 +36,6 @@ void Elevator::update()
 
 void Elevator::setState(int state)
 {
-    int target_pos = 0;
     switch (state)
     {
     case 0: // HOME

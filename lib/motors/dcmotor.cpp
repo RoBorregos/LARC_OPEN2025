@@ -8,7 +8,7 @@
 
 #include "dcmotor.hpp"
 
-DCMotor *DCMotor::instances[4] = {nullptr, nullptr, nullptr, nullptr};
+DCMotor *DCMotor::instances[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};
 
 DCMotor::DCMotor(int in1, int in2, int pwm, bool inverted,
                  int encoder_pin, int encoder_active_state, int instance_num, float diameter)
@@ -32,7 +32,7 @@ DCMotor::DCMotor(int in1, int in2, int pwm, bool inverted,
 }
 
 DCMotor::DCMotor(int in1, int in2, int pwm, bool inverted,
-                 int encoder_pin, int encoder_active_state, int instance_num, float diameter)
+                 int encoder_pin, int encoder_active_state, int instance_num)
     : instance_num_(instance_num - 1),
       encoder_pin_(encoder_pin)
 {

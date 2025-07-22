@@ -40,7 +40,7 @@ private:
     int pwm_pin_;
     bool inverted_;
 
-    static DCMotor *instances[4]; // Array for up to 4 motors
+    static DCMotor *instances[5]; // Array for up to 4 motors
     int instance_num_;
     volatile int encoder_count_ = 0;
     int encoder_pin_;
