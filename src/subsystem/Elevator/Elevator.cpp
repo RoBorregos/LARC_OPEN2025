@@ -12,18 +12,15 @@ Elevator::Elevator() : current_position_(ElevatorConstants::kIdleLevel)
 {
 }
 
+Elevator::Elevator(){
+    pinMode(Pins::kPwmElevator,INPUT);
+    pinMode(Pins::kIna1, INPUT);
+    pinMode(Pins::kIna2, INPUT);
+}
+
 void Elevator::update()
 {
-    if (Serial.available())
-    {
-        String command = Serial.readStringUntil('\n');
-        command.trim();
-
-        if (command.toInt() != 0 || command == "0")
-        {
-            current_position_ = command.toInt();
-        }
-    }
+    current_position_;
 }
 
 bool Elevator::getLimitState()

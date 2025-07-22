@@ -51,7 +51,7 @@ void globalUpdateTask(void *pvParameters)
         drive_.setState(0);
         drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
         // gripper_.update();
-        // elevator_.update();
+        elevator_.update();
         // lower_sorter_.update();
         // upper_sorter_.update();
         // camera_.update();
