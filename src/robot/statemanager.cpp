@@ -40,19 +40,20 @@ void StateManager::update()
         break;
     }
 
-    case RobotState::EXIT_START: {
-        drive_.acceptInput(0,200,0);
-        break;
-    }
-    case RobotState::GO_TREES: {
-        if(com_.getCommand() == "DETECTED TREEE"){
-            drive_.acceptInput(0,200,0);
-        }
-        break;
-    }
+    // case RobotState::EXIT_START: {
+    //     drive_.acceptInput(0,200,0);
+    //     break;
+    // }
+    // case RobotState::GO_TREES: {
+    //     if(com_.getCommand() == "DETECTED TREEE"){
+    //         drive_.acceptInput(0,200,0);
+    //     }
+    //     break;
+    // }
     /*
     case RobotState::AVOID_POOL: { //TODO:
         action_completed = avoidPool(getTimeSpent());
+        gripper_.setState(1);
         break;
     }
     case RobotState::GO_LEFT_LINE: {
@@ -64,23 +65,22 @@ void StateManager::update()
         break;
     }
     */
-    case RobotState::PICK_MID_LEVEL: {
-        elevator_.setState(2);
-        if(com_.getCommand() ==  "BEAN DETECTED"){
-            gripper_.setState(1);
-            delay(1000);
-            gripper_.setState(1);
-        }
-        break;
-    }
-    case RobotState::PICK_LOW_LEVEL: {
-        if(com_.getCommand() ==  "BEAN DETECTED"){
-            gripper_.setState(1);
-            delay(1000);
-            gripper_.setState(1);
-        }
-        break;
-    }
+    // case RobotState::PICK_MID_LEVEL: {
+    //     elevator_.setState(2);
+    //     if(com_.getCommand() ==  "BEAN DETECTED"){
+    //         gripper_.setState(1);
+    //         delay(1000);
+    //         gripper_.setState(1);
+    //     }
+    //     break;
+    // }
+    // case RobotState::PICK_LOW_LEVEL: {
+    //     if(com_.getCommand() ==  "BEAN DETECTED"){
+    //         gripper_.setState(1);
+    //         delay(1000);
+    //     }
+    //     break;
+    // }
     /*
     case RobotState::GO_STORAGES: {
         action_completed = goStorageZone(getTimeSpent());
@@ -99,10 +99,10 @@ void StateManager::update()
         break;
     }
     */
-    case RobotState::DROP_BEANS: {
-        lower_sorter_.setState(0);
-        break;
-    } 
+    // case RobotState::DROP_BEANS: {
+    //     lower_sorter_.setState(0);
+    //     break;
+    // } 
     default:
         break;
     }
