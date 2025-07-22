@@ -18,14 +18,18 @@ namespace Constants {
     }
 
     namespace ElevatorConstants {
-        constexpr float kUpperLevel = -25000.0; 
-        constexpr float kMidLevel = -15000.0; 
-        constexpr float kLowerLevel = -10000.0;
+        constexpr float kUpperLevel = 0.0; 
+        constexpr float kMidLevel = 0.0; 
+        constexpr float kLowerLevel = 0.0;
         constexpr float kIdleLevel = 0.0; 
 
         constexpr float kP = 0.01;
         constexpr float kI = 0.00;
         constexpr float kD = 0.00;
+
+        constexpr bool kInverted = true;
+        constexpr bool kEncoderActiveState = LOW;
+
     }
 
     namespace GripperConstants {

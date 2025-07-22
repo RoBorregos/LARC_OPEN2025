@@ -50,5 +50,6 @@ namespace Pins {
     constexpr uint8_t kIna1 = 23;
     constexpr uint8_t kIna2 = 22;
     constexpr uint8_t kPwmElevator = 19;
+    constexpr uint8_t kEncoderElevator = 1;
 }
 #endif
