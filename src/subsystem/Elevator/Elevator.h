@@ -12,6 +12,8 @@
 #include "constants/constants.h"
 #include "../systems/system.hpp"
 #include "constants/pins.h"
+#include "dcmotor.hpp"
+#include "controllers/PIDController.hpp"
 
 using namespace Constants;
 
@@ -23,12 +25,9 @@ public:
 
     void update() override;
     void setState(int state) override;
-    void setTargetPosition(int position);
     int getCurrentPosition();
-
-private:
-    float actual_position_cm;
-    float target_position_cm;
+    
+    private:
 
     void Move(int steps);
     void resetPosition(double position);
@@ -46,5 +45,7 @@ private:
     ElevatorState elevator_state_ = ElevatorState::HOME;
 
     int current_position_ = 0;
-    int limitPin = -1;
+    int target_position_ = 0;
+    DCMotor motor_;
+    PIDController pid_controller_;
 };

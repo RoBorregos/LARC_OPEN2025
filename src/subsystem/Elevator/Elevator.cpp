@@ -5,45 +5,27 @@
  *
  * @brief Implementation of the Elevador class to control a stepper motor
  */
-#include "Elevator.hpp"
+#include "Elevator.h"
 #include <Arduino.h>
 
-Elevator::Elevator() : current_position_(ElevatorConstants::kIdleLevel)
+Elevator::Elevator()
+    : motor_(Pins::kIna1, Pins::kIna2, Pins::kPwmElevator, ElevatorConstants::kInverted, Pins::kEncoderElevator, ElevatorConstants::kEncoderActiveState, 5),
+    pid_controller_(ElevatorConstants::kP, ElevatorConstants::kI, ElevatorConstants::kD)
 {
-}
-
-Elevator::Elevator(){
-    pinMode(Pins::kPwmElevator,INPUT);
-    pinMode(Pins::kIna1, INPUT);
-    pinMode(Pins::kIna2, INPUT);
+    pid_controller_.setOutputLimits(-255, 255);
+    pid_controller_.setEnabled(true);
 }
 
 void Elevator::update()
 {
-    current_position_;
-}
+    current_position_ = motor_.getPositionMeters();
 
-bool Elevator::getLimitState()
-{
-    return digitalRead(limitPin) == LOW;
-}
+    double output = pid_controller_.update(current_position_, target_position_);
+    motor_.move(output);
 
-void Elevator::resetPosition(double position)
-{
-    Serial.print("SET_POSITION:");
-    Serial.println(position);
-}
-
-void Elevator::setTargetPosition(int position)
-{
-    Serial.print("SET_TARGET:");
-    Serial.println(position);
-}
-
-int Elevator::getCurrentPosition()
-{
-    Serial.println("GET_POS");
-    return current_position_;
+    if (getLimitState()) {
+        resetPosition(ElevatorConstants::kIdleLevel);
+    }
 }
 
 void Elevator::setState(int state)
@@ -52,17 +34,33 @@ void Elevator::setState(int state)
     switch (state)
     {
     case 0: // HOME
-        target_pos = ElevatorConstants::kIdleLevel;
+        target_position_ = ElevatorConstants::kIdleLevel;
         break;
     case 1: // LOWER
-        target_pos = ElevatorConstants::kLowerLevel;
+        target_position_ = ElevatorConstants::kLowerLevel;
         break;
     case 2: // MID
-        target_pos = ElevatorConstants::kMidLevel;
+        target_position_ = ElevatorConstants::kMidLevel;
         break;
     case 3: // UPPER
-        target_pos = ElevatorConstants::kUpperLevel;
+        target_position_ = ElevatorConstants::kUpperLevel;
         break;
     }
-    setTargetPosition(target_pos);
+}
+
+bool Elevator::getLimitState()
+{
+    // TODO: Implement limit state
+    return false;
+}
+
+void Elevator::resetPosition(double position)
+{
+    Serial.println(position);
+    current_position_ = position;
+}
+
+int Elevator::getCurrentPosition()
+{
+    return current_position_;
 }
