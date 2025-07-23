@@ -29,3 +29,9 @@ float DistanceSensors::getRightDistance() {
 float DistanceSensors::getGripperDistance() {
     return readSharpDistance(gripperDistanceSensor);
 }
+
+void DistanceSensors::update() {}
+
+void DistanceSensors::setState(int state) {
+    (void)state;
+}

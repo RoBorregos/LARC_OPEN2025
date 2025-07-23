@@ -10,6 +10,8 @@ using namespace Constants;
 class DistanceSensors : public System {
 public:
     DistanceSensors();
+    void update() override;
+    void setState(int state) override;
     float getCurrentDistance(); 
     float getLeftDistance();
     float getRightDistance();

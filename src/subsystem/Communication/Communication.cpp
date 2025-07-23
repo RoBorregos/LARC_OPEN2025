@@ -99,3 +99,11 @@ string Communication::readCommunication() {
     }
     return "";
 }
+
+void Communication::update() {
+    // Communication update logic if needed
+}
+
+void Communication::setState(int state) {
+    (void)state;
+}

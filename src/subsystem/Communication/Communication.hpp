@@ -12,6 +12,8 @@ using namespace std;
 class Communication : public System {
     public:
         Communication();
+        void update() override;
+        void setState(int state) override;
         string getCommand();
     private:
         string readCommunication();

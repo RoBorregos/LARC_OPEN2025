@@ -9,3 +9,5 @@ Elevator elevator_;
 Gripper gripper_;
 LowerSorter lower_sorter_;
 UpperSorter upper_sorter_;
+DistanceSensors distance_sensor_;
+Communication com_;
