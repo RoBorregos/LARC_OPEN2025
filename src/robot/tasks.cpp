@@ -5,58 +5,57 @@
  * @date 2025-07-16
  */
 #include "tasks.h"
+#include "robot_instances.h"
+#include "../lib/math/rotation2d.hpp"
+#include "../include/RobotState.h"
 
-TaskHandle_t globalUpdateTaskHandle;
+// Task handles
+TaskHandle_t stateManagerTaskHandle;
+TaskHandle_t driveTaskHandle;
 
-void initStart()
-{
-    drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
-    drive_.acceptInput(0, 0, 0);
-    drive_.setState(0);
-}
-
-void exitStart()
-{
-    drive_.acceptInput(0,200,0);
-}
-
-void avoidPool()
-{
-    float distance = distance_sensor_.getCurrentDistance();
-    
-    if(distance < 10){
-        drive_.acceptInput(200,0,0);
-    }else{
-        drive_.acceptInput(0,200,0);
-    }
-}
-
-void goToTrees(){
-    if(com_.getCommand() == "Tree")
-    {
-        // TODO: Add the actions to perform when the command is received
-    }
-}
+// Queues for inter-task communication
+QueueHandle_t stateCommandQueue;
+QueueHandle_t driveCommandQueue;
 
 void setupTasks()
 {
-    xTaskCreate(globalUpdateTask, "Global Update Task", 2048, NULL, 1, &globalUpdateTaskHandle);
+    // Create communication structures
+    stateCommandQueue = xQueueCreate(5, sizeof(StateCommand));
+    driveCommandQueue = xQueueCreate(3, sizeof(DriveCommand));
+    
+    // Create tasks
+    xTaskCreate(driveTask, "Drive Task", 2048, NULL, 2, &driveTaskHandle);
 }
 
-void globalUpdateTask(void *pvParameters)
+void driveTask(void *pvParameters)
 {
+    DriveCommand driveCommand;
+    
     while (true)
     {
         drive_.update();
-        drive_.setState(0);
-        drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
-        // gripper_.update();
-        elevator_.update();
-        // lower_sorter_.update();
-        // upper_sorter_.update();
-        // camera_.update();
-        // line_sensor_.update();
+
+        if (xQueueReceive(driveCommandQueue, &driveCommand, 0) == pdTRUE)
+        {
+            drive_.setState(driveCommand.state);
+            drive_.acceptInput(driveCommand.left, driveCommand.right, driveCommand.omega);
+            drive_.acceptHeadingInput(driveCommand.heading);
+        }
 
         vTaskDelay(pdMS_TO_TICKS(SystemConstants::kUpdateInterval));
     }
+}
+
+
+bool sendDriveCommand(float left, float right, float omega, Rotation2D heading, int state)
+{
+    DriveCommand command = {
+        .left = left,
+        .right = right,
+        .omega = omega,
+        .heading = heading,
+        .state = state
+    };
+    
+    return xQueueSend(driveCommandQueue, &command, 0) == pdTRUE;
 }
