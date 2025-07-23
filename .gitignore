@@ -6,6 +6,8 @@
 
 .vscode/launch.json
 
+.vscode/settings.json
+
 .vscode/ipch
 
 .env
@@ -17,3 +19,5 @@ vision/model/dataset
 yolovenv
 
 runs
+
+.venv
