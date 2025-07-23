@@ -12,20 +12,29 @@
 // Task handles
 TaskHandle_t stateManagerTaskHandle;
 TaskHandle_t driveTaskHandle;
+TaskHandle_t elevatorTaskHandle;
 
 // Queues for inter-task communication
 QueueHandle_t stateCommandQueue;
 QueueHandle_t driveCommandQueue;
+QueueHandle_t elevatorCommandQueue;
 
 void setupTasks()
 {
     // Create communication structures
     stateCommandQueue = xQueueCreate(5, sizeof(StateCommand));
     driveCommandQueue = xQueueCreate(3, sizeof(DriveCommand));
+    elevatorCommandQueue = xQueueCreate(3, sizeof(ElevatorCommand));
     
     // Create tasks
     xTaskCreate(driveTask, "Drive Task", 2048, NULL, 2, &driveTaskHandle);
+    xTaskCreate(elevatorTask, "Elevator Task", 2048, NULL, 2, &elevatorTaskHandle);
+
+    Serial.println("Tasks setup complete");
+
 }
+
+/// ----------------------------- Subsystems Tasks -----------------------------
 
 void driveTask(void *pvParameters)
 {
@@ -37,6 +46,7 @@ void driveTask(void *pvParameters)
 
         if (xQueueReceive(driveCommandQueue, &driveCommand, 0) == pdTRUE)
         {
+            Serial.println("Drive command received");
             drive_.setState(driveCommand.state);
             drive_.acceptInput(driveCommand.left, driveCommand.right, driveCommand.omega);
             drive_.acceptHeadingInput(driveCommand.heading);
@@ -46,6 +56,25 @@ void driveTask(void *pvParameters)
     }
 }
 
+void elevatorTask(void *pvParameters)
+{
+    ElevatorCommand elevatorCommand;
+    
+    while (true)
+    {
+        elevator_.update();
+
+        if (xQueueReceive(elevatorCommandQueue, &elevatorCommand, 0) == pdTRUE)
+        {
+            Serial.println("Elevator command received");
+            elevator_.setState(elevatorCommand.state);
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(SystemConstants::kUpdateInterval));
+    }
+}
+
+/// ----------------------------- Communication Functions -----------------------------
 
 bool sendDriveCommand(float left, float right, float omega, Rotation2D heading, int state)
 {
@@ -58,4 +87,13 @@ bool sendDriveCommand(float left, float right, float omega, Rotation2D heading, 
     };
     
     return xQueueSend(driveCommandQueue, &command, 0) == pdTRUE;
+}
+
+bool sendElevatorCommand(int state)
+{
+    ElevatorCommand command = {
+        .state = state
+    };
+    
+    return xQueueSend(elevatorCommandQueue, &command, 0) == pdTRUE;
 }

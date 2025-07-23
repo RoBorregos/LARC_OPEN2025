@@ -15,19 +15,23 @@ using namespace Constants;
 // Task handles
 extern TaskHandle_t stateManagerTaskHandle;
 extern TaskHandle_t driveTaskHandle;
+extern TaskHandle_t elevatorTaskHandle;
 
 // Queues for inter-task communication
 extern QueueHandle_t stateCommandQueue;
 extern QueueHandle_t driveCommandQueue;
+extern QueueHandle_t elevatorCommandQueue;
 
 // Task function declarations
 void setupTasks();
 void driveTask(void *pvParameters);
+void elevatorTask(void *pvParameters);
 
 // Communication helper functions
 bool sendDriveCommand(float left, float right, float omega, Rotation2D heading, int state);
-// Communication structures
+bool sendElevatorCommand(int state);
 
+// Communication structures
 struct StateCommand
 {
     RobotState targetState;
@@ -41,5 +45,10 @@ struct DriveCommand
     float right;
     float omega;
     Rotation2D heading;
+    int state;
+};
+
+struct ElevatorCommand
+{
     int state;
 };
