@@ -9,9 +9,11 @@
 #ifndef ROBOTSTATE_H
 #define ROBOTSTATE_H
 
-enum class RobotState {
+enum class RobotState
+{
+    IDLE,
     INIT,
-    //CALIBRATE, //(si lo hacemos bien)
+    // CALIBRATE, //(si lo hacemos bien)
     EXIT_START,
     GO_TREES,
     AVOID_POOL,
@@ -23,9 +25,8 @@ enum class RobotState {
     MOVE_NEXT_TREE,
     GO_STORAGES,
     GO_STORAGE_MADURO,
-    GO_STORAGE_SOBREMADURO, //Robo no tendrá esto
+    GO_STORAGE_SOBREMADURO, // Robo no tendrá esto
     DROP_BEANS,
-    IDLE,
 };
 
-#endif //ROBOTSTATE_H
+#endif // ROBOTSTATE_H
