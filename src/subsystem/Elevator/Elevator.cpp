@@ -8,7 +8,14 @@
 #include "Elevator.hpp"
 #include <Arduino.h>
 
-Elevator::Elevator() : current_position_(ElevatorConstants::kIdleLevel) {
+Elevator::Elevator(){
+    pinMode(limitPin,INPUT);
+    pinMode(kINA1,OUTPUT);
+    pinMode(kINA2,OUTPUT);
+    pinMode(kPwmElevator, OUTPUT);
+
+    digitalWrite(kINA1, HIGH);
+    digitalWrite(kINA2, LOW);
 }
 
 void Elevator::update() {

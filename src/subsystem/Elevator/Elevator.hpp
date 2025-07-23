@@ -46,5 +46,8 @@ private:
     ElevatorState elevator_state_ = ElevatorState::HOME;
 
     int current_position_ = 0;
-    int limitPin = -1;
+    int limitPin = Pins::kLimitPin;
+    int kPwmElevator = Pins::kPwmPin[5];
+    int kINA1 = Pins::kElevatorINA[1];
+    int kINA2 = Pins::kElevatorINA[2];
 };
