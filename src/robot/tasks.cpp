@@ -237,7 +237,6 @@ void pickMiddleLevelTask(){
         sendStateCommand(RobotState::GO_STORAGES);
         Serial.println("Exiting pick mid level task, moving to Go Storages state");
     }
-   
 }
 
 void goToStorageTask()
@@ -245,13 +244,12 @@ void goToStorageTask()
     // This task would contain logic to navigate to the storage area
     // For now, we will just simulate it with a delay
     Serial.println("Going to storage...");
-    drive_.acceptInput(0,0,180);
+    sendDriveCommand(0,-200,0,Rotation2D(0),0);
     vTaskDelay(pdMS_TO_TICKS(3000));
-    drive_.acceptInput(0,200,0);
+    sendDriveCommand(0,0,0,Rotation2D(0),0);
     vTaskDelay(pdMS_TO_TICKS(5000));
 
     Serial.println("Reached storage, dropping beans...");
-
 }
 
 /// ----------------------------- Communication Functions -----------------------------
