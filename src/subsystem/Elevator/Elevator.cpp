@@ -12,13 +12,8 @@ Elevator::Elevator() : current_position_(ElevatorConstants::kIdleLevel) {
 }
 
 void Elevator::update() {
-    if (Serial.available()) {
-        String command = Serial.readStringUntil('\n');
-        command.trim();
-        
-        if (command.toInt() != 0 || command == "0") {
-            current_position_ = command.toInt();
-        }
+    if (getLimitState()) {
+        current_position_ = ElevatorConstants::kIdleLevel;
     }
 }
 
