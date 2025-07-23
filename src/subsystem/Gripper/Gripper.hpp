@@ -16,18 +16,21 @@
 
 using namespace Constants;
 
-class Gripper : public System {
-    public:
-        Gripper();
-        void update() override;
-        void setState(int state) override;
-    private:
-        PWMServo servo;
-        void move(int angle);
-        enum class GripperState {
-            CLOSED = 0,
-            OPEN = 1,
-        };
+class Gripper : public System
+{
+public:
+    Gripper();
+    void update() override;
+    void setState(int state) override;
 
-        GripperState gripper_state_ = GripperState::OPEN;
+private:
+    PWMServo servo;
+    void move(int angle);
+    enum class GripperState
+    {
+        CLOSED = 0,
+        OPEN = 1,
+    };
+
+    GripperState gripper_state_ = GripperState::OPEN;
 };
