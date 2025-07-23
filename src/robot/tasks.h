@@ -21,15 +21,24 @@ extern TaskHandle_t elevatorTaskHandle;
 extern QueueHandle_t stateCommandQueue;
 extern QueueHandle_t driveCommandQueue;
 extern QueueHandle_t elevatorCommandQueue;
+extern QueueHandle_t gripperCommandQueue;
+extern QueueHandle_t lowerSorterCommandQueue;
+extern QueueHandle_t upperSorterCommandQueue;
 
 // Task function declarations
 void setupTasks();
 void driveTask(void *pvParameters);
 void elevatorTask(void *pvParameters);
+void gripperTask(void *pvParameters);
+void lowerSorterTask(void *pvParameters);
+void upperSorterTask(void *pvParameters);
 
 // Communication helper functions
 bool sendDriveCommand(float left, float right, float omega, Rotation2D heading, int state);
 bool sendElevatorCommand(int state);
+bool sendGripperCommand(int state);
+bool sendLowerSorterCommand(int state);
+bool sendUpperSorterCommand(int state);
 
 // Communication structures
 struct StateCommand
@@ -49,6 +58,21 @@ struct DriveCommand
 };
 
 struct ElevatorCommand
+{
+    int state;
+};
+
+struct GripperCommand
+{
+    int state;
+};
+
+struct LowerSorterCommand
+{
+    int state;
+};
+
+struct UpperSorterCommand
 {
     int state;
 };
