@@ -6,9 +6,9 @@
 namespace Pins {
     constexpr uint8_t kPwmPin[5] = {
         12, // PWM2 UPPER LEFT MOTOR 
-        24,  // PWM4 UPPER RIGHT MOTOR
+        24, // PWM4 UPPER RIGHT MOTOR
         25, // PWM3 BOTTOM LEFT MOTOR
-        26,  //  PWM1 BOTTOM RIGHT MOTOR
+        26, // PWM1 BOTTOM RIGHT MOTOR
         19  // PWM FOR THE ELEVATOR
     };
     
@@ -26,7 +26,7 @@ namespace Pins {
         9  // IN4.2 LOWER RIGHT MOTOR
     };  
 
-    constexpr uint8_t kElevator[2] = {
+    constexpr uint8_t kElevatorINA[2] = {
         10,
         11
     };
@@ -40,8 +40,8 @@ namespace Pins {
         32, // ENC3B
         23, // ENC4A
         22, // ENC4B
-        21, // ENCELEVATORA
-        20  // ENCELEVATOR5B
+        21, // ENC ELEVATORA
+        20  // ENC ELEVATORB
     };
 
     constexpr uint8_t kGripperServoPin = 15;
