@@ -13,8 +13,12 @@
 using namespace Constants;
 
 // Task handles
-extern TaskHandle_t stateManagerTaskHandle;
-extern TaskHandle_t globalUpdateTaskHandle;
+extern TaskHandle_t stateManageTaskHandle;
+extern TaskHandle_t driveTaskHandle;
+extern TaskHandle_t elevatorTaskHandle;
+extern TaskHandle_t gripperTaskHandle;
+extern TaskHandle_t lowerSorterTaskHandle;
+extern TaskHandle_t upperSorterTaskHandle;
 
 // Queues for inter-task communication
 extern QueueHandle_t stateCommandQueue;
@@ -26,7 +30,12 @@ extern QueueHandle_t upperSorterCommandQueue;
 
 // Task function declarations
 void setupTasks();
-void globalUpdateTask(void *pvParameters);
+void stateManageTask(void *pvParameters);
+void driveTask(void *pvParameters);
+void elevatorTask(void *pvParameters);
+void gripperTask(void *pvParameters);
+void lowerSorterTask(void *pvParameters);
+void upperSorterTask(void *pvParameters);
 
 // Communication helper functions
 bool sendDriveCommand(float left, float right, float omega, Rotation2D heading, int state);
@@ -34,6 +43,10 @@ bool sendElevatorCommand(int state);
 bool sendGripperCommand(int state);
 bool sendLowerSorterCommand(int state);
 bool sendUpperSorterCommand(int state);
+bool sendStateCommand(RobotState state);
+
+// State transition helper functions
+bool isValidStateTransition(RobotState currentState, RobotState targetState);
 
 // Communication structures
 struct StateCommand
@@ -71,3 +84,7 @@ struct UpperSorterCommand
 {
     int state;
 };
+
+/// ----------------------------- Global Variables -----------------------------
+
+int beansCounter;
