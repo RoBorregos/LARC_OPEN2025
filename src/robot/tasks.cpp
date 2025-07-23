@@ -11,11 +11,8 @@
 
 // Task handles
 TaskHandle_t stateManagerTaskHandle;
-TaskHandle_t driveTaskHandle;
-TaskHandle_t elevatorTaskHandle;
-TaskHandle_t gripperTaskHandle;
-TaskHandle_t lowerSorterTaskHandle;
-TaskHandle_t upperSorterTaskHandle;
+TaskHandle_t globalUpdateTaskHandle;
+
 // Queues for inter-task communication
 QueueHandle_t stateCommandQueue;
 QueueHandle_t driveCommandQueue;
@@ -23,6 +20,7 @@ QueueHandle_t elevatorCommandQueue;
 QueueHandle_t gripperCommandQueue;
 QueueHandle_t lowerSorterCommandQueue;
 QueueHandle_t upperSorterCommandQueue;
+
 void setupTasks()
 {
     // Create communication structures
@@ -34,25 +32,29 @@ void setupTasks()
     upperSorterCommandQueue = xQueueCreate(3, sizeof(UpperSorterCommand));
     
     // Create tasks
-    xTaskCreate(driveTask, "Drive Task", 2048, NULL, 2, &driveTaskHandle);
-    xTaskCreate(elevatorTask, "Elevator Task", 2048, NULL, 2, &elevatorTaskHandle);
-    xTaskCreate(gripperTask, "Gripper Task", 2048, NULL, 2, &gripperTaskHandle);
-    xTaskCreate(lowerSorterTask, "Lower Sorter Task", 2048, NULL, 2, &lowerSorterTaskHandle);
-    xTaskCreate(upperSorterTask, "Upper Sorter Task", 2048, NULL, 2, &upperSorterTaskHandle);
-        
+    xTaskCreate(globalUpdateTask, "Global Update Task", 2048, NULL, 2, &globalUpdateTaskHandle);
+
     Serial.println("Tasks setup complete");
 }
 
 /// ----------------------------- Subsystems Tasks -----------------------------
 
-void driveTask(void *pvParameters)
+void globalUpdateTask(void *pvParameters)
 {
     DriveCommand driveCommand;
+    ElevatorCommand elevatorCommand;
+    GripperCommand gripperCommand;
+    LowerSorterCommand lowerSorterCommand;
+    UpperSorterCommand upperSorterCommand;
 
     while (true)
     {
         drive_.update();
-
+        elevator_.update();
+        gripper_.update();
+        lower_sorter_.update();
+        upper_sorter_.update();
+        
         if (xQueueReceive(driveCommandQueue, &driveCommand, 0) == pdTRUE)
         {
             Serial.println("Drive command received");
@@ -61,81 +63,35 @@ void driveTask(void *pvParameters)
             drive_.acceptHeadingInput(driveCommand.heading);
         }
 
-        vTaskDelay(pdMS_TO_TICKS(SystemConstants::kUpdateInterval));
-    }
-}
-
-void elevatorTask(void *pvParameters)
-{
-    ElevatorCommand elevatorCommand;
-
-    while (true)
-    {
-        elevator_.update();
-
         if (xQueueReceive(elevatorCommandQueue, &elevatorCommand, 0) == pdTRUE)
         {
             Serial.println("Elevator command received");
             elevator_.setState(elevatorCommand.state);
         }
-
-        vTaskDelay(pdMS_TO_TICKS(SystemConstants::kUpdateInterval));
-    }
-}
-
-void gripperTask(void *pvParameters)
-{
-    GripperCommand gripperCommand;
-
-    while (true)
-    {
-        gripper_.update();
-
+        
         if (xQueueReceive(gripperCommandQueue, &gripperCommand, 0) == pdTRUE)
         {
             Serial.println("Gripper command received");
             gripper_.setState(gripperCommand.state);
         }
-    }
-
-    vTaskDelay(pdMS_TO_TICKS(SystemConstants::kUpdateInterval));
-}
-
-void lowerSorterTask(void *pvParameters)
-{
-    LowerSorterCommand lowerSorterCommand;
-    
-    while (true)
-    {
-        lower_sorter_.update();
-
+        
         if (xQueueReceive(lowerSorterCommandQueue, &lowerSorterCommand, 0) == pdTRUE)
         {
             Serial.println("Lower sorter command received");
             lower_sorter_.setState(lowerSorterCommand.state);
         }
-
-        vTaskDelay(pdMS_TO_TICKS(SystemConstants::kUpdateInterval));
-    }
-}
-
-void upperSorterTask(void *pvParameters)
-{
-    UpperSorterCommand upperSorterCommand;
-    
-    while (true)
-    {
-        upper_sorter_.update();   
         
         if (xQueueReceive(upperSorterCommandQueue, &upperSorterCommand, 0) == pdTRUE)
         {
             Serial.println("Upper sorter command received");
             upper_sorter_.setState(upperSorterCommand.state);
         }
+    
 
+        Serial.println("Global update task");
         vTaskDelay(pdMS_TO_TICKS(SystemConstants::kUpdateInterval));
     }
-}   
+}
 
 /// ----------------------------- Communication Functions -----------------------------
 

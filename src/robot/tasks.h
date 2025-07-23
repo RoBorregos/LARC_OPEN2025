@@ -14,8 +14,7 @@ using namespace Constants;
 
 // Task handles
 extern TaskHandle_t stateManagerTaskHandle;
-extern TaskHandle_t driveTaskHandle;
-extern TaskHandle_t elevatorTaskHandle;
+extern TaskHandle_t globalUpdateTaskHandle;
 
 // Queues for inter-task communication
 extern QueueHandle_t stateCommandQueue;
@@ -27,11 +26,7 @@ extern QueueHandle_t upperSorterCommandQueue;
 
 // Task function declarations
 void setupTasks();
-void driveTask(void *pvParameters);
-void elevatorTask(void *pvParameters);
-void gripperTask(void *pvParameters);
-void lowerSorterTask(void *pvParameters);
-void upperSorterTask(void *pvParameters);
+void globalUpdateTask(void *pvParameters);
 
 // Communication helper functions
 bool sendDriveCommand(float left, float right, float omega, Rotation2D heading, int state);
