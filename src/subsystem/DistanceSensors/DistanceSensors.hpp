@@ -11,9 +11,15 @@ class DistanceSensors : public System {
 public:
     DistanceSensors();
     float getCurrentDistance(); 
+    float getLeftDistance();
+    float getRightDistance();
+    float getGripperDistance();
 private:
-    int analogPin = Pins::kDistanceSensor; 
+    int rightDistanceSensor = Pins::kRightDistanceSensor;
+    int leftDistanceSensor = Pins::kLeftDistanceSensor;
+    int gripperDistanceSensor = Pins::kGripperDistanceSensor;
+    
     float currentDistanceCm = 0.0;
 
-    float readSharpDistance();
+    float readSharpDistance(int sensorPin);
 };
