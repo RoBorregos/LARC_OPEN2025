@@ -1,55 +1,43 @@
-from enum import Enum
+from enum import Enum, IntEnum
 import smbus
 import time
 
-import communication as comm
-
-class Function(Enum):
+class Function(IntEnum):
     NONE = 0
-    GETCOLOR = 1
-    GETCENTEROFFSETX = 2
-    GETCENTEROFFSETY = 3
-    GETOBJECTAREA = 4
+    DETECT_BEAN = 1
+    DETECT_OBJECT = 2
 
-# I2C bus (0 for older models, 1 for newer models like Pi 2/3/4)
-bus = smbus.SMBus(1)
+# Constants
+I2C_BUS = 1 # I2C bus (0 for older models, 1 for newer models like Pi 2/3/4)
+ARDUINO_ADDRESS = 8 # I2C address of the Arduino
+RESPONSE_BUFFER_SIZE = 32
+RESPONSE_DELAY = 0.1
 
-# I2C address of the Arduino
-ARDUINO_ADDRESS = 8
+bus = smbus.SMBus(I2C_BUS)
 
-def send_message(message):
-    # Convert the message string into a byte array
-    bus.write_i2c_block_data(ARDUINO_ADDRESS, 0, [ord(c) for c in message])
-    print(f"Sent message: {message}")
+def send_message(message: str) -> None:
+    '''Send a message to Arduino via I2C.'''
+    try:
+        bus.write_i2c_block_data(ARDUINO_ADDRESS, 0, [ord(c) for c in message]) # Convert the message string into a byte array
+        print(f"Sent message: {message}")
+    except Exception as e:
+        print(f"Error sending message: {e}")
 
-def receive_response():
-    # Read the response from the Arduino
-    time.sleep(0.1)  # Wait a bit for the Arduino to process
-    response = bus.read_i2c_block_data(ARDUINO_ADDRESS, 0, 32)
-    return ''.join([chr(b) for b in response]).strip()
+def receive_response() -> str:
+    '''Receive response from Arduino via I2C.'''
+    try:
+        time.sleep(RESPONSE_DELAY)
+        response = bus.read_i2c_block_data(ARDUINO_ADDRESS, 0, RESPONSE_BUFFER_SIZE)
+        return ''.join([chr(b) for b in response if b != 0]).strip()
+    except Exception as e:
+        print(f"Error receiving response: {e}")
+        return ""
 
-while True:
-    send_message("GIVE_INSTRUCTION")  # Send the command to Arduino
-    response = receive_response()
-
-    if (response is not None):
-        response = int(response)
-        match response:
-            case Function.NONE:
-                break
-            case Function.GETCOLOR:
-                send_message(comm.getColor())
-                break
-            case Function.GETCENTEROFFSETX:
-                send_message(comm.getCenterOffsetX())
-                break
-            case Function.GETCENTEROFFSETY:
-                send_message(comm.getCenterOffsetY())
-                break
-            case Function.GETOBJECTAREA:
-                send_message(comm.getObjectArea())
-                break
-
-
-    print(f"Arduino says: {response}")
-    time.sleep(1)  # Adjust the time interval as needed
+def process_command(command: str) -> Function:
+    '''Process the command received from Arduino and return the corresponding Function.'''
+    if command == "DETECT_BEAN":
+        return Function.DETECT_BEAN
+    elif command == "DETECT_OBJECT":
+        return Function.DETECT_OBJECT
+    else:
+        return Function.NONE
