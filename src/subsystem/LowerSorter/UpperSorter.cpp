@@ -8,29 +8,34 @@
 
 #include "LowerSorter.hpp"
 
-LowerSorter::LowerSorter() {
+LowerSorter::LowerSorter()
+{
     servo.attach(Pins::kLowerSorterServoPin);
     delay(100);
 }
 
-void LowerSorter::update() {
-    switch (lower_sorter_state_) {
-        case LowerSorterState::LEFT:
-            move(LowerSorterConstants::kLeftAngle);
-            break;
-        case LowerSorterState::CENTER:
-            move(LowerSorterConstants::kCenterAngle);
-            break;
-        case LowerSorterState::RIGHT:
-            move(LowerSorterConstants::kRightAngle);
-            break;
+void LowerSorter::update()
+{
+    switch (lower_sorter_state_)
+    {
+    case LowerSorterState::LEFT:
+        move(LowerSorterConstants::kLeftAngle);
+        break;
+    case LowerSorterState::CENTER:
+        move(LowerSorterConstants::kCenterAngle);
+        break;
+    case LowerSorterState::RIGHT:
+        move(LowerSorterConstants::kRightAngle);
+        break;
     }
 }
 
-void LowerSorter::setState(int state) {
+void LowerSorter::setState(int state)
+{
     lower_sorter_state_ = static_cast<LowerSorterState>(state);
 }
 
-void LowerSorter::move(int angle) { 
+void LowerSorter::move(int angle)
+{
     servo.write(angle);
 }

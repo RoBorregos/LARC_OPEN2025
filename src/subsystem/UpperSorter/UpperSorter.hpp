@@ -16,19 +16,22 @@
 
 using namespace Constants;
 
-class UpperSorter : public System {
-    public:
-        UpperSorter();
-        void update() override;
-        void setState(int state) override;
-    private:
-        PWMServo servo;
-        void move(int angle);
-        enum class UpperSorterState {
-            LEFT = 0,
-            CENTER = 1,
-            RIGHT = 2,
-        };
+class UpperSorter : public System
+{
+public:
+    UpperSorter();
+    void update() override;
+    void setState(int state) override;
 
-        UpperSorterState upper_sorter_state_ = UpperSorterState::CENTER;
+private:
+    PWMServo servo;
+    void move(int angle);
+    enum class UpperSorterState
+    {
+        LEFT = 0,
+        CENTER = 1,
+        RIGHT = 2,
+    };
+
+    UpperSorterState upper_sorter_state_ = UpperSorterState::CENTER;
 };

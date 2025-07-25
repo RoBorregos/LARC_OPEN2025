@@ -1,4 +1,4 @@
-#include "actions.hpp"
+#include "robot/robot_instances.h"
 #include "constants/constants.h"
 
 using namespace Constants;
@@ -9,7 +9,5 @@ Elevator elevator_;
 Gripper gripper_;
 LowerSorter lower_sorter_;
 UpperSorter upper_sorter_;
-Camera camera_;
-PIDController centerPID_(VisionConstants::kCenterPIDKp, VisionConstants::kCenterPIDKi, VisionConstants::kCenterPIDKd, 
-                        VisionConstants::kCenterPIDOutputMin, VisionConstants::kCenterPIDOutputMax);
-LineSensor line_sensor_; 
+DistanceSensors distance_sensor_;
+Communication com_;

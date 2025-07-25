@@ -6,28 +6,24 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "pose2d.hpp"
-#include "robot/statemanager.hpp"
-#include "subsystem/Drive/Drive.hpp"
+#include <FreeRTOS.h>
+#include <task.h>
 
-StateManager state_manager;
-
-const unsigned long UPDATE_INTERVAL = 50;
-
-double state_start_time = 0;
+#include "robot/tasks.h"
 
 void setup()
 {
   Serial.begin(9600);
   Wire.begin();
 
-  state_manager.setState(RobotState::PICK_LOW_LEVEL);
-  interrupts();
+  // FreeRTOS setup
+  setupTasks();
+
+  // Start RTOS scheduler
+  vTaskStartScheduler();
 }
 
+// This is not used in RTOS
 void loop()
 {
-  state_manager.update();
-
-  delay(UPDATE_INTERVAL);
 }
