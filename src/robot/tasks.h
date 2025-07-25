@@ -37,6 +37,12 @@ void gripperTask(void *pvParameters);
 void lowerSorterTask(void *pvParameters);
 void upperSorterTask(void *pvParameters);
 
+// Subsystem tasks
+void exitInitTask();
+void pickLowLevelTask();
+void pickMiddleLevelTask();
+void goToStorageTask();
+
 // Communication helper functions
 bool sendDriveCommand(float left, float right, float omega, Rotation2D heading, int state);
 bool sendElevatorCommand(int state);
