@@ -15,6 +15,7 @@ void goTreesTask();
 void pickLowLevelTask();
 void pickMiddleLevelTask();
 void goToStorageTask();
+void InitTask();
 
 // Task handles
 TaskHandle_t stateManageTaskHandle;
@@ -79,8 +80,8 @@ void stateManageTask(void *pvParameters)
         
         switch (currentState)
         {
-        // case RobotState::IDLE:
-        //     break;
+        case RobotState::IDLE:
+            break;
         case RobotState::INIT:
             Serial.println("Robot is initializing...");
             InitTask();
@@ -195,7 +196,7 @@ void InitTask()
 
 void exitInitTask()
 {
-    if(com_.getCommand() == "INIT"){
+    if(com_.getCommand() == "START"){
         sendDriveCommand(0, 200, 0, Rotation2D(0), 0);
 
         if (distance_sensor_.getLeftDistance() < 15 && distance_sensor_.getRightDistance() < 15)
