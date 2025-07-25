@@ -9,6 +9,13 @@
 #include "../lib/math/rotation2d.hpp"
 #include "../include/RobotState.h"
 
+// Forward declarations for state task functions
+void exitInitTask();
+void goTreesTask();
+void pickLowLevelTask();
+void pickMiddleLevelTask();
+void goToStorageTask();
+
 // Task handles
 TaskHandle_t stateManageTaskHandle;
 TaskHandle_t driveTaskHandle;
@@ -24,6 +31,9 @@ QueueHandle_t elevatorCommandQueue;
 QueueHandle_t gripperCommandQueue;
 QueueHandle_t lowerSorterCommandQueue;
 QueueHandle_t upperSorterCommandQueue;
+
+// Global variables
+int beansCounter = 0;
 
 void setupTasks()
 {
@@ -72,13 +82,24 @@ void stateManageTask(void *pvParameters)
         case RobotState::IDLE:
             break;
         case RobotState::INIT:
+            Serial.println("Robot is initializing...");
+            currentState = RobotState::EXIT_START;
+            break;
+        case RobotState::EXIT_START:
             exitInitTask();
+            break;
+        case RobotState::GO_TREES:
+            goTreesTask();
             break;
         case RobotState::PICK_LOW_LEVEL:
             pickLowLevelTask();
             break;
         case RobotState::PICK_MID_LEVEL:
             break;
+        case RobotState::GO_STORAGES:
+            goToStorageTask();
+            break; 
+
         }
 
         Serial.println("Global update task");
@@ -176,11 +197,17 @@ void exitInitTask()
     }
 }
 
+void goTreesTask(){
+    sendDriveCommand(0, 200, 0, Rotation2D(0), 0);
+    if(com_.getCommand() == "Tree"){
+
+    }
+}
+
 void pickLowLevelTask()
 {
     sendElevatorCommand(2);
     sendGripperCommand(1);
-    beansCounter = 0;
 
    if(beansCounter <= 5){
         if (distance_sensor_.getGripperDistance() < 10)
@@ -211,7 +238,6 @@ void pickLowLevelTask()
 void pickMiddleLevelTask(){
     sendElevatorCommand(3);
     sendGripperCommand(1);
-    beansCounter = 0;
 
     if(beansCounter <= 3){
         if (distance_sensor_.getGripperDistance() < 10)

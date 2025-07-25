@@ -42,6 +42,7 @@ void exitInitTask();
 void pickLowLevelTask();
 void pickMiddleLevelTask();
 void goToStorageTask();
+void goTreesTask();
 
 // Communication helper functions
 bool sendDriveCommand(float left, float right, float omega, Rotation2D heading, int state);
@@ -93,4 +94,4 @@ struct UpperSorterCommand
 
 /// ----------------------------- Global Variables -----------------------------
 
-int beansCounter;
+extern int beansCounter;

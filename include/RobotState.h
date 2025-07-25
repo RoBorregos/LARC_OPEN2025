@@ -16,17 +16,17 @@ enum class RobotState
     // CALIBRATE, //(si lo hacemos bien)
     EXIT_START,
     GO_TREES,
-    AVOID_POOL,
-    GO_LEFT_LINE,
-    GO_RIGHT_LINE,
-    SEARCH_TREES,
+    // AVOID_POOL,
+    // GO_LEFT_LINE,
+    // GO_RIGHT_LINE,
+    // SEARCH_TREES,
     PICK_MID_LEVEL,
     PICK_LOW_LEVEL,
-    MOVE_NEXT_TREE,
+    // MOVE_NEXT_TREE,
     GO_STORAGES,
-    GO_STORAGE_MADURO,
-    GO_STORAGE_SOBREMADURO, // Robo no tendrá esto
-    DROP_BEANS,
+    // GO_STORAGE_MADURO,
+    // GO_STORAGE_SOBREMADURO, // Robo no tendrá esto
+    // DROP_BEANS,
 };
 
 #endif // ROBOTSTATE_H
