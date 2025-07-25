@@ -79,11 +79,11 @@ void stateManageTask(void *pvParameters)
         
         switch (currentState)
         {
-        case RobotState::IDLE:
-            break;
+        // case RobotState::IDLE:
+        //     break;
         case RobotState::INIT:
             Serial.println("Robot is initializing...");
-            currentState = RobotState::EXIT_START;
+            InitTask();
             break;
         case RobotState::EXIT_START:
             exitInitTask();
@@ -181,19 +181,36 @@ void upperSorterTask(void *pvParameters)
 
 /// ----------------------------- State Tasks -----------------------------
 
+void InitTask()
+{
+    // Initialize subsystems
+    sendDriveCommand(0, 0, 0, Rotation2D(0), 0);
+    sendElevatorCommand(2);
+    sendGripperCommand(1);
+
+    // Set initial state
+    sendStateCommand(RobotState::EXIT_START);
+    Serial.println("Initialization complete, moving to EXIT_START state");
+}
+
 void exitInitTask()
 {
-    sendDriveCommand(0, 200, 0, Rotation2D(0), 0);
+    if(com_.getCommand() == "INIT"){
+        sendDriveCommand(0, 200, 0, Rotation2D(0), 0);
 
-    if (distance_sensor_.getLeftDistance() < 15 && distance_sensor_.getRightDistance() < 15)
-    {
-        sendDriveCommand(0, 0, 0, Rotation2D(0), 0);
-        sendStateCommand(RobotState::PICK_LOW_LEVEL);
-        Serial.println("Exiting init task, found a tree");
-    }
-    else
-    {
-        Serial.println("Waiting for found a tree");
+        if (distance_sensor_.getLeftDistance() < 15 && distance_sensor_.getRightDistance() < 15)
+        {
+            sendDriveCommand(0, 0, 0, Rotation2D(0), 0);
+            sendStateCommand(RobotState::PICK_LOW_LEVEL);
+            Serial.println("Exiting init task, found a tree");
+        }
+        else
+        {
+            Serial.println("Waiting for found a tree");
+        }
+    }else{
+        Serial.println("No command received, staying in EXIT_START state");
+        sendStateCommand(RobotState::EXIT_START);
     }
 }
 

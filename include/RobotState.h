@@ -11,7 +11,7 @@
 
 enum class RobotState
 {
-    IDLE,
+    // IDLE,
     INIT,
     // CALIBRATE, //(si lo hacemos bien)
     EXIT_START,
