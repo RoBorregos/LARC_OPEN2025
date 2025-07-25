@@ -22,3 +22,4 @@ runs
 
 .venv
 .vscode/*
+.vscode/extensions.json
