@@ -5,11 +5,11 @@
 
 namespace Pins {
     constexpr uint8_t kPwmPin[5] = {
-        12, // PWM2 UPPER LEFT MOTOR 
-        24, // PWM4 UPPER RIGHT MOTOR
+        12, // PWM1 UPPER LEFT MOTOR 
+        24, // PWM2 UPPER RIGHT MOTOR
         25, // PWM3 BOTTOM LEFT MOTOR
-        26, // PWM1 BOTTOM RIGHT MOTOR
-        19  // PWM FOR THE ELEVATOR
+        33, // PWM4 BOTTOM RIGHT MOTOR
+        19  // PWM5 FOR THE ELEVATOR
     };
     
     constexpr uint8_t kUpperMotors[4] = {

@@ -81,6 +81,7 @@ void stateManageTask(void *pvParameters)
         switch (currentState)
         {
         case RobotState::IDLE:
+            sendDriveCommand(0, 0, 0, Rotation2D(0), 0);
             break;
         case RobotState::INIT:
             Serial.println("Robot is initializing...");
