@@ -21,3 +21,4 @@ yolovenv
 runs
 
 .venv
+.vscode/*
