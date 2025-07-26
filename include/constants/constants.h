@@ -33,8 +33,8 @@ namespace Constants {
     }
 
     namespace GripperConstants {
-        constexpr int kOpenAngle = 60;
-        constexpr int kClosedAngle = 5;
+        constexpr int kOpenAngle = 140;
+        constexpr int kClosedAngle = 40;
     }
 
     namespace UpperSorterConstants {
