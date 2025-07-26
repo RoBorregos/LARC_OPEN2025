@@ -16,7 +16,9 @@ void setup()
   Serial.begin(9600);
   Wire.begin();
 
-  // FreeRTOS setup
+  drive_.moveForward(0);
+
+  // // FreeRTOS setup
   setupTasks();
 
   // Start RTOS scheduler
