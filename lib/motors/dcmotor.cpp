@@ -8,12 +8,9 @@
 
 #include "dcmotor.hpp"
 
-DCMotor *DCMotor::instances[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};
-
 DCMotor::DCMotor(int in1, int in2, int pwm, bool inverted,
-                 int encoder_pin, int encoder_active_state, int instance_num, float diameter)
-    : instance_num_(instance_num - 1),
-      encoder_pin_(encoder_pin),
+                 int encoder_pin1, int encoder_pin2, float diameter)
+    : encoder_(encoder_pin1, encoder_pin2),
       diameter_(diameter)
 {
     in1_pin_ = in1;
@@ -22,19 +19,12 @@ DCMotor::DCMotor(int in1, int in2, int pwm, bool inverted,
     pinMode(in1_pin_, OUTPUT);
     pinMode(in2_pin_, OUTPUT);
     pinMode(pwm_pin_, OUTPUT);
-    pinMode(encoder_pin_, INPUT_PULLUP);
-    encoder_active_state_ = encoder_active_state;
     inverted_ = inverted;
-
-    instances[instance_num_] = this;
-
-    setupEncoderInterrupt();
 }
 
 DCMotor::DCMotor(int in1, int in2, int pwm, bool inverted,
-                 int encoder_pin, int encoder_active_state, int instance_num)
-    : instance_num_(instance_num - 1),
-      encoder_pin_(encoder_pin)
+                 int encoder_pin1, int encoder_pin2)
+    : encoder_(encoder_pin1, encoder_pin2)
 {
     in1_pin_ = in1;
     in2_pin_ = in2;
@@ -42,111 +32,10 @@ DCMotor::DCMotor(int in1, int in2, int pwm, bool inverted,
     pinMode(in1_pin_, OUTPUT);
     pinMode(in2_pin_, OUTPUT);
     pinMode(pwm_pin_, OUTPUT);
-    pinMode(encoder_pin_, INPUT_PULLUP);
-    encoder_active_state_ = encoder_active_state;
     inverted_ = inverted;
-
-    instances[instance_num_] = this;
-
-    setupEncoderInterrupt();
 }
 
-void DCMotor::setupEncoderInterrupt()
-{
-    switch (instance_num_)
-    {
-    case 0:
-        attachInterrupt(digitalPinToInterrupt(encoder_pin_), handleEncoderInterrupt0, CHANGE);
-        break;
-    case 1:
-        attachInterrupt(digitalPinToInterrupt(encoder_pin_), handleEncoderInterrupt1, CHANGE);
-        break;
-    case 2:
-        attachInterrupt(digitalPinToInterrupt(encoder_pin_), handleEncoderInterrupt2, CHANGE);
-        break;
-    case 3:
-        attachInterrupt(digitalPinToInterrupt(encoder_pin_), handleEncoderInterrupt3, CHANGE);
-        break;
-    case 4:
-        attachInterrupt(digitalPinToInterrupt(encoder_pin_), handleEncoderInterrupt4, CHANGE);
-        break;
-    }
-}
 
-void DCMotor::handleEncoderInterrupt0()
-{
-    if (instances[0])
-    {
-        if (instances[0]->current_direction_ == Direction::FORWARD)
-        {
-            instances[0]->encoder_count_++;
-        }
-        else
-        {
-            instances[0]->encoder_count_--;
-        }
-    }
-}
-
-void DCMotor::handleEncoderInterrupt1()
-{
-    if (instances[1])
-    {
-        if (instances[1]->current_direction_ == Direction::FORWARD)
-        {
-            instances[1]->encoder_count_++;
-        }
-        else
-        {
-            instances[1]->encoder_count_--;
-        }
-    }
-}
-
-void DCMotor::handleEncoderInterrupt2()
-{
-    if (instances[2])
-    {
-        if (instances[2]->current_direction_ == Direction::FORWARD)
-        {
-            instances[2]->encoder_count_++;
-        }
-        else
-        {
-            instances[2]->encoder_count_--;
-        }
-    }
-}
-
-void DCMotor::handleEncoderInterrupt3()
-{
-    if (instances[3])
-    {
-        if (instances[3]->current_direction_ == Direction::FORWARD)
-        {
-            instances[3]->encoder_count_++;
-        }
-        else
-        {
-            instances[3]->encoder_count_--;
-        }
-    }
-}
-
-void DCMotor::handleEncoderInterrupt4()
-{
-    if (instances[4])
-    {
-        if (instances[4]->current_direction_ == Direction::FORWARD)
-        {
-            instances[4]->encoder_count_++;
-        }
-        else
-        {
-            instances[4]->encoder_count_--;
-        }
-    }
-}
 
 void DCMotor::move(int speed, Direction direction)
 {
@@ -197,15 +86,15 @@ void DCMotor::stop()
 
 int DCMotor::getEncoderCount()
 {
-    return encoder_count_;
+    return encoder_.read();
 }
 
 double DCMotor::getPositionRotations()
 {
-    return (double)encoder_count_ / rotation_factor_;
+    return (double)encoder_.read() / rotation_factor_;
 }
 
 float DCMotor::getPositionMeters()
 {
-    return encoder_count_ * diameter_ * PI / rotation_factor_;
+    return encoder_.read() * diameter_ * PI / rotation_factor_;
 }

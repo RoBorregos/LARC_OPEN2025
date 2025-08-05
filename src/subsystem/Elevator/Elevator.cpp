@@ -9,7 +9,7 @@
 #include <Arduino.h>
 
 Elevator::Elevator()
-    : motor_(Pins::kElevatorINA[0], Pins::kElevatorINA[1], Pins::kPwmPin[4], ElevatorConstants::kInverted, Pins::kEncoders[8], ElevatorConstants::kEncoderActiveState, 5),
+    : motor_(Pins::kElevatorINA[0], Pins::kElevatorINA[1], Pins::kPwmPin[4], ElevatorConstants::kInverted, Pins::kEncoders[8], Pins::kEncoders[9]),
       pid_controller_(ElevatorConstants::kP, ElevatorConstants::kI, ElevatorConstants::kD),
       limit_button_(Pins::kLimitPin)
 {

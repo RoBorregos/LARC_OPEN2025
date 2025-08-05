@@ -8,14 +8,10 @@
 
 #include "Drive.hpp"
 
-Drive::Drive() : front_left_(DCMotor(Pins::kUpperMotors[0], Pins::kUpperMotors[1], Pins::kPwmPin[0],
-                                     true, Pins::kEncoders[0], LOW, 1, DriveConstants::kWheelDiameter)),
-                 front_right_(DCMotor(Pins::kUpperMotors[2], Pins::kUpperMotors[3], Pins::kPwmPin[1],
-                                      false, Pins::kEncoders[1], LOW, 2, DriveConstants::kWheelDiameter)),
-                 back_left_(DCMotor(Pins::kLowerMotors[0], Pins::kLowerMotors[1], Pins::kPwmPin[2],
-                                    true, Pins::kEncoders[2], HIGH, 3, DriveConstants::kWheelDiameter)),
-                 back_right_(DCMotor(Pins::kLowerMotors[2], Pins::kLowerMotors[3], Pins::kPwmPin[3],
-                                     false, Pins::kEncoders[3], LOW, 4, DriveConstants::kWheelDiameter)),
+Drive::Drive() : front_left_(Pins::kUpperMotors[0], Pins::kUpperMotors[1], Pins::kPwmPin[0], true, Pins::kEncoders[0], Pins::kEncoders[1], DriveConstants::kWheelDiameter),
+                 front_right_(Pins::kUpperMotors[2], Pins::kUpperMotors[3], Pins::kPwmPin[1], false, Pins::kEncoders[2], Pins::kEncoders[3], DriveConstants::kWheelDiameter),
+                 back_left_(Pins::kLowerMotors[0], Pins::kLowerMotors[1], Pins::kPwmPin[2], true, Pins::kEncoders[4], Pins::kEncoders[5], DriveConstants::kWheelDiameter),
+                 back_right_(Pins::kLowerMotors[2], Pins::kLowerMotors[3], Pins::kPwmPin[3], false, Pins::kEncoders[6], Pins::kEncoders[7], DriveConstants::kWheelDiameter),
                  bno_(),
                  robot_constants_(0.3, 0.3),
                  odometry_(0, 0, Rotation2D(0), &bno_, &robot_constants_),
