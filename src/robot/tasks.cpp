@@ -104,7 +104,6 @@ void stateManageTask(void *pvParameters)
 
         }
 
-        Serial.println("Global update task");
         vTaskDelay(pdMS_TO_TICKS(SystemConstants::kUpdateInterval));
     }
 }
