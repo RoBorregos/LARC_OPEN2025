@@ -6,10 +6,8 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include <FreeRTOS.h>
-#include <task.h>
 
-#include "robot/tasks.h"
+#include "robot/robot_instances.h"
 
 void setup()
 {
@@ -17,15 +15,8 @@ void setup()
   Wire.begin();
 
   drive_.moveForward(0);
-
-  // // FreeRTOS setup
-  setupTasks();
-
-  // Start RTOS scheduler
-  vTaskStartScheduler();
 }
 
-// This is not used in RTOS
 void loop()
 {
 }
