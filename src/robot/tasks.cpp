@@ -121,6 +121,7 @@ void driveTask(void *pvParameters)
             drive_.acceptInput(driveCommand.left, driveCommand.right, driveCommand.omega);
             drive_.acceptHeadingInput(driveCommand.heading);
         }
+        drive_.update();    
         vTaskDelay(pdMS_TO_TICKS(SystemConstants::kUpdateInterval));
     }
 }
@@ -135,6 +136,7 @@ void elevatorTask(void *pvParameters)
             Serial.println("Elevator command received");
             elevator_.setState(elevatorCommand.state);
         }
+        elevator_.update();
         vTaskDelay(pdMS_TO_TICKS(SystemConstants::kUpdateInterval));
     }
 }
@@ -149,6 +151,7 @@ void gripperTask(void *pvParameters)
             Serial.println("Gripper command received");
             gripper_.setState(gripperCommand.state);
         }
+        gripper_.update();
         vTaskDelay(pdMS_TO_TICKS(SystemConstants::kUpdateInterval));
     }
 }
@@ -163,6 +166,7 @@ void lowerSorterTask(void *pvParameters)
             Serial.println("Lower sorter command received");
             lower_sorter_.setState(lowerSorterCommand.state);
         }
+        lower_sorter_.update();
         vTaskDelay(pdMS_TO_TICKS(SystemConstants::kUpdateInterval));
     }
 }
@@ -177,6 +181,7 @@ void upperSorterTask(void *pvParameters)
             Serial.println("Upper sorter command received");
             upper_sorter_.setState(upperSorterCommand.state);
         }
+        upper_sorter_.update();
         vTaskDelay(pdMS_TO_TICKS(SystemConstants::kUpdateInterval));
     }
 }
