@@ -10,12 +10,12 @@
 #include "../include/RobotState.h"
 
 // Forward declarations for state task functions
-void exitInitTask();
-void goTreesTask();
-void pickLowLevelTask();
-void pickMiddleLevelTask();
-void goToStorageTask();
-void InitTask();
+void exitInitState();
+void goTreesState();
+void pickLowLevelState();
+void pickMiddleLevelState();
+void goToStorageState();
+void InitState();
 
 // Task handles
 TaskHandle_t stateManageTaskHandle;
@@ -85,21 +85,22 @@ void stateManageTask(void *pvParameters)
             break;
         case RobotState::INIT:
             Serial.println("Robot is initializing...");
-            InitTask();
+            InitState();
             break;
         case RobotState::EXIT_START:
-            exitInitTask();
+            exitInitState();
             break;
         case RobotState::GO_TREES:
-            goTreesTask();
+            goTreesState();
             break;
         case RobotState::PICK_LOW_LEVEL:
-            pickLowLevelTask();
+            pickLowLevelState();
             break;
         case RobotState::PICK_MID_LEVEL:
+            pickMiddleLevelState();
             break;
         case RobotState::GO_STORAGES:
-            goToStorageTask();
+            goToStorageState();
             break; 
 
         }
@@ -187,7 +188,7 @@ void upperSorterTask(void *pvParameters)
 
 /// ----------------------------- State Tasks -----------------------------
 
-void InitTask()
+void InitState()
 {
     // Initialize subsystems
     sendDriveCommand(0, 0, 0, Rotation2D(0), 0);
@@ -199,7 +200,7 @@ void InitTask()
     Serial.println("Initialization complete, moving to EXIT_START state");
 }
 
-void exitInitTask()
+void exitInitState()
 {
     if(com_.getCommand() == "START"){
         sendDriveCommand(0, 200, 0, Rotation2D(0), 0);
@@ -220,14 +221,14 @@ void exitInitTask()
     }
 }
 
-void goTreesTask(){
+void goTreesState(){
     sendDriveCommand(0, 200, 0, Rotation2D(0), 0);
     if(com_.getCommand() == "Tree"){
 
     }
 }
 
-void pickLowLevelTask()
+void pickLowLevelState()
 {
     sendElevatorCommand(2);
     sendGripperCommand(1);
@@ -258,7 +259,7 @@ void pickLowLevelTask()
     }
 }
 
-void pickMiddleLevelTask(){
+void pickMiddleLevelState(){
     sendElevatorCommand(3);
     sendGripperCommand(1);
 
@@ -288,7 +289,7 @@ void pickMiddleLevelTask(){
     }
 }
 
-void goToStorageTask()
+void goToStorageState()
 {
     // This task would contain logic to navigate to the storage area
     // For now, we will just simulate it with a delay
