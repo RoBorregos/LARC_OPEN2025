@@ -20,4 +20,8 @@ yolovenv
 
 runs
 
+vision/model/larc-2
+
 .venv
+
+larc_venv

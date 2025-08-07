@@ -1,16 +1,3 @@
-"""
-@file download.py
-@brief Downloads images from a Google Drive folder for model training.
-@author Hector Tovar
-@date 2025-07-08
-
-@requirements:
-- Ask for the file to the Google service account .json file if not found.
-- Ensure required libraries are installed (see requirements.txt).
-"""
-
-#!/bin/bash
-
 import os
 import io
 from google.oauth2 import service_account
@@ -18,15 +5,18 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 from PIL import Image
 from pillow_heif import register_heif_opener
+from roboflow import Roboflow
+import dotenv
 
 # .HEIC to .JPG
 register_heif_opener()
 
 # --- Configuration ---
+dotenv.load_dotenv()
 SERVICE_ACCOUNT_FILE = os.path.join("vision", "model", "vision-larc.json")
 FOLDER_ID = "1tGUKke8N-33MbegT78y3Nzx0cq5wmleR"
 DEST_FOLDER = os.path.join("vision", "model", "dataset", "train")
-SCOPES = ["https://www.googleapis.com/auth/drive"]
+SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
 API_NAME = "drive"
 API_VERSION = "v3"
 
@@ -39,6 +29,12 @@ service = build(API_NAME, API_VERSION, credentials=credentials)
 # --- Local folder if does not exist---
 if not os.path.exists(DEST_FOLDER):
     os.makedirs(DEST_FOLDER)
+
+# --- Roboflow setup ---
+rf = Roboflow(api_key=os.getenv("ROBOFLOW_API_KEY"))
+workspaceId = os.getenv("ROBOFLOW_WORKSPACE_ID")
+projectId = os.getenv("ROBOFLOW_PROJECT_ID")
+project = rf.workspace(workspaceId).project(projectId)
 
 # --- Files being downloaded ---
 query = f"'{FOLDER_ID}' in parents and mimeType contains 'image/' and trashed = false"
@@ -78,6 +74,19 @@ while True:
                     img.save(jpg_path, "JPEG")
                     os.remove(file_path)  # borrar el .HEIC original
                     print(f"[★] Convertido a JPG: {jpg_name}")
+
+                    # --- Upload to Roboflow ---
+                    project.upload(
+                        image_path=jpg_path,
+                        batch_name="YOUR_BATCH_NAME",
+                        split="train",
+                        num_retry_uploads=3,
+                        tag_names=["YOUR_TAG_NAME"],
+                        sequence_number=99,
+                        sequence_size=100
+                    )
+                    print(f"[↑] Subido a Roboflow: {jpg_name}")
+
                 except Exception as e:
                     print(f"[!] Error al convertir {file_name}: {e}")
 
