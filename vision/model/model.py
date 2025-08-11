@@ -1,20 +1,7 @@
 from ultralytics import YOLO
 import cv2
 
-model = YOLO("yolov8m.pt")
-
-# model.train(
-#     data="vision/model/config.yaml",
-#     epochs=150,
-#     patience=15,
-#     save_period=20,
-#     name="larc-model",
-# )
-
-model = YOLO('runs/detect/larc-model/weights/best.pt')
-results = model('vision/model/dataset/val')
-accurate = model.val()
-annotated_img = results[0].plot()
+model = YOLO('vision/model/best.pt')
 
 def resize_image(img, max_width=800, max_height=600):
     height, width = img.shape[:2]
@@ -25,6 +12,11 @@ def resize_image(img, max_width=800, max_height=600):
     return img
 
 cap = cv2.VideoCapture(0)
+if not cap.isOpened():
+    print("Can't open camera.")
+    exit()
+
+print("ESC to exit.")
 
 while True:
     ret, frame = cap.read()
@@ -36,7 +28,7 @@ while True:
     annotated_img_resized = resize_image(annotated_img)
 
     cv2.imshow("YOLO inference", annotated_img_resized)
-    if cv2.waitKey(1) & 0xFF == 27:  # Presiona ESC para salir
+    if cv2.waitKey(1) & 0xFF == 27:  # ESC to exit
         break
 
 cap.release()
