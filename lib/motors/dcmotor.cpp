@@ -7,35 +7,51 @@
  */
 
 #include "dcmotor.hpp"
+#include <cmath>
 
 DCMotor::DCMotor(int in1, int in2, int pwm, bool inverted,
                  int encoder_pin1, int encoder_pin2, float diameter)
-    : encoder_(encoder_pin1, encoder_pin2),
-      diameter_(diameter)
+    : diameter_(diameter)
 {
     in1_pin_ = in1;
     in2_pin_ = in2;
     pwm_pin_ = pwm;
-    pinMode(in1_pin_, OUTPUT);
-    pinMode(in2_pin_, OUTPUT);
-    pinMode(pwm_pin_, OUTPUT);
+    encoder_pin1_ = encoder_pin1;
+    encoder_pin2_ = encoder_pin2;
+
     inverted_ = inverted;
 }
 
 DCMotor::DCMotor(int in1, int in2, int pwm, bool inverted,
                  int encoder_pin1, int encoder_pin2)
-    : encoder_(encoder_pin1, encoder_pin2)
 {
     in1_pin_ = in1;
     in2_pin_ = in2;
     pwm_pin_ = pwm;
-    pinMode(in1_pin_, OUTPUT);
-    pinMode(in2_pin_, OUTPUT);
-    pinMode(pwm_pin_, OUTPUT);
+    encoder_pin1_ = encoder_pin1;
+    encoder_pin2_ = encoder_pin2;
+
     inverted_ = inverted;
 }
 
+DCMotor::~DCMotor()
+{
+    if (encoder_ != nullptr)
+    {
+        delete encoder_;
+        encoder_ = nullptr;
+    }
+}
 
+void DCMotor::begin()
+{
+    pinMode(in1_pin_, OUTPUT);
+    pinMode(in2_pin_, OUTPUT);
+    pinMode(pwm_pin_, OUTPUT);
+    pinMode(encoder_pin1_, INPUT_PULLUP);
+    pinMode(encoder_pin2_, INPUT_PULLUP);
+    encoder_ = new Encoder(encoder_pin1_, encoder_pin2_);
+}
 
 void DCMotor::move(int speed, Direction direction)
 {
@@ -86,15 +102,15 @@ void DCMotor::stop()
 
 int DCMotor::getEncoderCount()
 {
-    return encoder_.read();
+    return encoder_ != nullptr ? encoder_->read() : 0;
 }
 
 double DCMotor::getPositionRotations()
 {
-    return (double)encoder_.read() / rotation_factor_;
+    return encoder_ != nullptr ? (double)encoder_->read() / rotation_factor_ : 0.0;
 }
 
 float DCMotor::getPositionMeters()
 {
-    return encoder_.read() * diameter_ * PI / rotation_factor_;
+    return encoder_ != nullptr ? encoder_->read() * diameter_ * M_PI / rotation_factor_ : 0.0f;
 }

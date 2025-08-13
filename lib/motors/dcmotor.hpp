@@ -27,6 +27,9 @@ public:
     DCMotor(int in1, int in2, int pwm, bool inverted,
             int encoder_pin1, int encoder_pin2);
 
+    ~DCMotor();
+
+    void begin();
     void move(int speed, Direction direction);
     void move(int speed);
     void stop();
@@ -38,16 +41,16 @@ private:
     int in1_pin_;
     int in2_pin_;
     int pwm_pin_;
+    int encoder_pin1_;
+    int encoder_pin2_;
     bool inverted_;
 
-    Encoder encoder_;
+    Encoder* encoder_;
 
     Direction current_direction_;
 
     int rotation_factor_ = 473;
     float diameter_;
-
-    static DCMotor *instance_;
 };
 
 #endif
