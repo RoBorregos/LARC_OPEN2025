@@ -1,6 +1,8 @@
 from ultralytics import YOLO
 import cv2
 
+# TODO: TRAIN TO STOP DETECTING GREEN BEANS
+
 model = YOLO('vision/model/best.pt')
 
 def resize_image(img, max_width=800, max_height=600):
@@ -11,7 +13,7 @@ def resize_image(img, max_width=800, max_height=600):
         return cv2.resize(img, new_size, interpolation=cv2.INTER_AREA)
     return img
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(2)
 if not cap.isOpened():
     print("Can't open camera.")
     exit()
