@@ -32,6 +32,11 @@ namespace Constants {
 
     }
 
+    namespace LineSensorConstants{
+        constexpr int kPoolDistance = 10;
+        constexpr int kTreeDistance = 15;
+    }
+
     namespace GripperConstants {
         constexpr int kOpenAngle = 140;
         constexpr int kClosedAngle = 40;
