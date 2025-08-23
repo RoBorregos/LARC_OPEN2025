@@ -4,6 +4,7 @@
 #include <Arduino.h>
 
 namespace Pins {
+    // READY
     constexpr uint8_t kPwmPin[5] = {
         2, // PWM1 UPPER LEFT MOTOR 
         3, // PWM2 UPPER RIGHT MOTOR
@@ -20,6 +21,7 @@ namespace Pins {
         27, // IN2.2 UPPER RIGHT MOTOR
     };
 
+    //READY
     constexpr uint8_t kLowerMotors[4] = {
         28, // IN3.1 LOWER LEFT MOTOR
         29, // IN3.2 LOWER LEFT MOTOR
@@ -27,6 +29,7 @@ namespace Pins {
         31  // IN4.2 LOWER RIGHT MOTOR
     };  
 
+    // NOT YET
     constexpr uint8_t kElevatorINA[2] = {
         10,
         11
@@ -46,20 +49,21 @@ namespace Pins {
         0  // ENC ELEVATORB
     };
 
+    // UNUSED
     constexpr uint8_t kGripperServoPin = 0;
     constexpr uint8_t kUpperSorterServoPin = 0;
     constexpr uint8_t kLowerSorterServoPin = 0;
-
     constexpr uint8_t kLimitPin = 0;
 
-    static constexpr uint8_t kLineSensorFL = 14;
-    static constexpr uint8_t kLineSensorFR = 41;
-    static constexpr uint8_t kLineSensorBL = 40;
-    static constexpr uint8_t kLineSensorBR = 39;
+    // NOT YET
+    static constexpr uint8_t kLineSensorFL = 0;
+    static constexpr uint8_t kLineSensorFR = 0;
+    static constexpr uint8_t kLineSensorBL = 0;
+    static constexpr uint8_t kLineSensorBR = 0;
     
-    constexpr uint8_t kLeftDistanceSensor = 41;
-    constexpr uint8_t kRightDistanceSensor = 40;
-    constexpr uint8_t kGripperDistanceSensor = 0;
+    // READY
+    constexpr uint8_t kLeftDistanceSensor = A0;
+    constexpr uint8_t kRightDistanceSensor = A1;
 }
 
 #endif
