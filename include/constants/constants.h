@@ -50,7 +50,7 @@ namespace Constants {
     }
 
     namespace DriveConstants {
-        constexpr float kWheelDiameter = 0.0762; // in m
+        constexpr float kWheelDiameter = 0.1; // in m
         constexpr float kWheelRadius = kWheelDiameter / 2.0; // in m
         constexpr float kWheelCircumference = 2 * M_PI * kWheelRadius; // in m
 
