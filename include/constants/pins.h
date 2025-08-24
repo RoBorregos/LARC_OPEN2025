@@ -5,26 +5,26 @@
 
 namespace Pins {
     constexpr uint8_t kPwmPin[5] = {
-        12, // PWM1 UPPER LEFT MOTOR 
-        24, // PWM2 UPPER RIGHT MOTOR
-        25, // PWM3 BOTTOM LEFT MOTOR
-        33, // PWM4 BOTTOM RIGHT MOTOR
+        2, // PWM1 UPPER LEFT MOTOR 
+        3, // PWM2 UPPER RIGHT MOTOR
+        4, // PWM3 BOTTOM LEFT MOTOR
+        5, // PWM4 BOTTOM RIGHT MOTOR
         19  // PWM5 FOR THE ELEVATOR
     };
     
     constexpr uint8_t kUpperMotors[4] = {
-        2, // IN1.1 UPPER LEFT MOTOR 
-        3, // IN1.2 UPPER LEFT MOTOR
-        4, // IN2.1 UPPER RIGHT MOTOR
-        5, // IN2.2 UPPER RIGHT MOTOR
+        22, // IN1.1 UPPER LEFT MOTOR 
+        23, // IN1.2 UPPER LEFT MOTOR
+        26, // IN2.1 UPPER RIGHT MOTOR
+        27, // IN2.2 UPPER RIGHT MOTOR
     };
 
     constexpr uint8_t kLowerMotors[4] = {
-        6, // IN3.1 LOWER LEFT MOTOR
-        7, // IN3.2 LOWER LEFT MOTOR
-        8, // IN4.1 LOWER RIGHT MOTOR
-        9  // IN4.2 LOWER RIGHT MOTOR
-    };  
+        28, // IN3.1 LOWER LEFT MOTOR
+        29, // IN3.2 LOWER LEFT MOTOR
+        30, // IN4.1 LOWER RIGHT MOTOR
+        31,  // IN4.2 LOWER RIGHT MOTOR
+    };
 
     constexpr uint8_t kElevatorINA[2] = {
         10,
