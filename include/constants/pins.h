@@ -38,13 +38,13 @@ namespace Pins {
     // YET TO IMPLEMENT
     constexpr uint8_t kEncoders[10]{
         32, // ENC1A
-        0, // ENC1B
+        36, // ENC1B
         33, // ENC2A
-        0, // ENC2B
+        37, // ENC2B
         34, // ENC3A
-        0, // ENC3B
+        38, // ENC3B
         35, // ENC4A
-        0, // ENC4B
+        39, // ENC4B
         0, // ENC ELEVATORA
         0  // ENC ELEVATORB
     };

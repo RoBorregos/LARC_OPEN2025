@@ -11,7 +11,7 @@ LineSensor::LineSensor(){
     pinMode(Pins::kLineSensorBR, INPUT);
 }
 
-vector<int> LineSensor::readSensors() const {
+std::vector<int> LineSensor::readSensors() const {
     return {
         digitalRead(Pins::kLineSensorFL),
         digitalRead(Pins::kLineSensorFR),

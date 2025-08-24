@@ -17,8 +17,9 @@ void setup()
 
 void loop()
 {
-  drive_.acceptInput(0,200,0);
-  delay(2000);
-  drive_.acceptInput(200,0,0);
-  delay(2000);
+  drive_.motorTest();
+  // drive_.acceptInput(0,200,0);
+  // delay(2000);
+  // drive_.acceptInput(200,0,0);
+  // delay(2000);
 }

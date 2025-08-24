@@ -122,19 +122,19 @@ void Drive::moveRight(int speed)
 void Drive::motorTest()
 {
     front_left_.move(100);
-    delay(5000);
+    delay(3000);
     front_left_.move(0);
-    delay(5000);
+    delay(3000);
     front_right_.move(100);
-    delay(5000);
+    delay(3000);
     front_right_.move(0);
-    delay(5000);
+    delay(3000);
     back_left_.move(100);
-    delay(5000);
+    delay(3000);
     back_left_.move(0);
-    delay(5000);
+    delay(3000);
     back_right_.move(100);
-    delay(5000);
+    delay(3000);
     back_right_.move(0);
-    delay(5000);
+    delay(3000);
 }

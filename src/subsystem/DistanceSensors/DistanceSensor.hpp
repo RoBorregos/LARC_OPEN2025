@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DISTANCESENSOR_HPP
+#define DISTANCESENSOR_HPP
 
 #include <Arduino.h>
 #include <vector>
@@ -8,10 +9,12 @@
 
 using namespace Constants;
 
-class DistanceSensor : public System{
+class DistanceSensor{
     public:
         DistanceSensor();
     private:
         std::vector<float> getArrayDistance();
         float getDistance(int kSensor);
 };
+
+#endif

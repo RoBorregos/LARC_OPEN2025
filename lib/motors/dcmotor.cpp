@@ -7,7 +7,7 @@
  */
 
 #include "dcmotor.hpp"
-#include <cmath>
+#include <math.h>
 
 DCMotor::DCMotor(int in1, int in2, int pwm, bool inverted,
                  int encoder_pin1, int encoder_pin2, float diameter)

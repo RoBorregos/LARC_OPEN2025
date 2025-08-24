@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LINESENSOR_HPP
+#define LINESENSOR_HPP
 
 #include <Arduino.h>
 #include <vector>
@@ -8,10 +9,12 @@
 
 using namespace Constants;
 
-class LineSensor : public System{
+class LineSensor{
     public:
         LineSensor();
-        vector<int> readSensors() const;
+        std::vector<int> readSensors() const;
     private:
         int readSensor(int kSensor);
 };
+
+#endif
