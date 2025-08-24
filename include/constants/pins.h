@@ -25,7 +25,7 @@ namespace Pins {
     constexpr uint8_t kLowerMotors[4] = {
         28, // IN3.1 LOWER LEFT MOTOR
         29, // IN3.2 LOWER LEFT MOTOR
-        39, // IN4.1 LOWER RIGHT MOTOR
+        30, // IN4.1 LOWER RIGHT MOTOR
         31  // IN4.2 LOWER RIGHT MOTOR
     };  
 
