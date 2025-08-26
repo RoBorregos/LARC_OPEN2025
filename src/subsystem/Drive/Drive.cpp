@@ -14,7 +14,6 @@ Drive::Drive() : front_left_(Pins::kUpperMotors[0], Pins::kUpperMotors[1], Pins:
                  back_right_(Pins::kLowerMotors[2], Pins::kLowerMotors[3], Pins::kPwmPin[3], false, Pins::kEncoders[6], Pins::kEncoders[7], DriveConstants::kWheelDiameter),
                  bno_(),
                  robot_constants_(0.3, 0.3),
-                 odometry_(0, 0, Rotation2D(0), &bno_, &robot_constants_),
                  drive_controller_(),
                  heading_controller_()
 {
@@ -31,34 +30,32 @@ void Drive::begin()
 
 void Drive::update()
 {
-    // bno_.update();
+    bno_.update();
 
-    // ChassisSpeed drive_speed;
-    // switch (drive_state_)
-    // {
-    // case DriveState::HEADING_LOCK:
-    // {
-    //     drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), false);
-    //     drive_speed.setOmega(heading_controller_.update(Rotation2D::fromDegrees(bno_.getYaw())));
-    //     desired_chassis_speed_ = drive_speed;
-    // }
-    // break;
-    // case DriveState::FIELD_ORIENTED:
-    // {
-    //     desired_chassis_speed_ = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), true);
-    // }
-    // break;
-    // case DriveState::ROBOT_ORIENTED:
-    // {
-    //     drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), false);
-    //     desired_chassis_speed_ = drive_speed;
-    // }
-    // break;
-    // }
+    ChassisSpeed drive_speed;
+    switch (drive_state_)
+    {
+    case DriveState::HEADING_LOCK:
+    {
+        drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), false);
+        drive_speed.setOmega(heading_controller_.update(Rotation2D::fromDegrees(bno_.getYaw())));
+        desired_chassis_speed_ = drive_speed;
+    }
+    break;
+    case DriveState::FIELD_ORIENTED:
+    {
+        desired_chassis_speed_ = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), true);
+    }
+    break;
+    case DriveState::ROBOT_ORIENTED:
+    {
+        drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), false);
+        desired_chassis_speed_ = drive_speed;
+    }
+    break;
+    }
 
-    // move(desired_chassis_speed_);
-
-    // odometry_.updateWithBNO(front_left_.getEncoderCount(), front_right_.getEncoderCount(), back_left_.getEncoderCount(), back_right_.getEncoderCount());
+    move(desired_chassis_speed_);
 }
 
 void Drive::setState(int state)
@@ -87,12 +84,6 @@ void Drive::move(ChassisSpeed chassis_speed)
     front_right_.move(front_right_speed);
     back_left_.move(back_left_speed);
     back_right_.move(back_right_speed);
-}
-
-Pose2D Drive::getPose()
-{
-    // return odometry_.getPose();
-    return Pose2D(0, 0, Rotation2D(0));
 }
 
 /* Basic Movement Functions */
