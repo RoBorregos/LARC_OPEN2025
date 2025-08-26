@@ -12,7 +12,12 @@
 void setup()
 {
   Serial.begin(9600);
-  Wire.begin();
+  Serial.println("Starting...");
+  Wire.begin(); 
+
+  drive_.begin();
+  elevator_.begin();
+  com_.begin();
 }
 
 void loop()
