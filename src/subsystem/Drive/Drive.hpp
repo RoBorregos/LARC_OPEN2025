@@ -12,7 +12,6 @@
 #include <dcmotor.hpp>
 #include "constants/pins.h"
 #include "../sensors/bno.hpp"
-#include "../math/odometry.hpp"
 #include "../math/robot_constants.hpp"
 #include "../systems/system.hpp"
 #include "../math/chassis_speed.hpp"
@@ -25,12 +24,12 @@ class Drive : public System
 {
 public:
     Drive();
+    void begin() override;
     void moveForward(int speed);
     void moveBackward(int speed);
     void moveLeft(int speed);
     void moveRight(int speed);
     void motorTest();
-    Pose2D getPose();
     void update() override;
     void setState(int state) override;
     void acceptInput(float vx, float vy, float omega);
@@ -45,7 +44,6 @@ private:
     DCMotor back_right_;
     BNO bno_;
     RobotConstants robot_constants_;
-    Odometry odometry_;
 
     enum class DriveState
     {

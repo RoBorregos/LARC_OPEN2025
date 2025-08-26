@@ -12,11 +12,20 @@
 void setup()
 {
   Serial.begin(9600);
-  Wire.begin();
+  Serial.println("Starting...");
+  Wire.begin(); 
 
-  drive_.moveForward(0);
+  // All systems must begin after initializing the serial and as the code starts running
+  drive_.begin();
+  elevator_.begin();
+  com_.begin();
+
+  drive_.setState(0),
+  drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
 }
 
 void loop()
 {
+  drive_.update();
+  delay(50);
 }

@@ -23,6 +23,7 @@ class Elevator : public System
 
 public:
     Elevator();
+    void begin() override;
 
     void update() override;
     void setState(int state) override;

@@ -7,7 +7,7 @@
  */
 
 #include "drive_controller.hpp"
-#include <cmath>
+#include <math.h>
 
 DriveController::DriveController() {
     vx_ = 0.0f;

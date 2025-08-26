@@ -9,7 +9,7 @@
 #ifndef ROTATION2D_HPP
 #define ROTATION2D_HPP
 
-#include <cmath>
+#include <math.h>
 
 class Rotation2D {
     public:
