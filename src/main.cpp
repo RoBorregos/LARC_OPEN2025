@@ -15,6 +15,7 @@ void setup()
   Serial.println("Starting...");
   Wire.begin(); 
 
+  // All systems must begin after initializing the serial and as the code starts running
   drive_.begin();
   elevator_.begin();
   com_.begin();
