@@ -19,13 +19,13 @@ void setup()
   drive_.begin();
   elevator_.begin();
   com_.begin();
+
+  drive_.setState(0),
+  drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
 }
 
 void loop()
 {
-  drive_.motorTest();
-  // drive_.acceptInput(0,200,0);
-  // delay(2000);
-  // drive_.acceptInput(200,0,0);
-  // delay(2000);
+  drive_.update();
+  delay(50);
 }
