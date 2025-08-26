@@ -25,6 +25,7 @@ class Drive : public System
 {
 public:
     Drive();
+    void begin() override;
     void moveForward(int speed);
     void moveBackward(int speed);
     void moveLeft(int speed);

@@ -11,6 +11,10 @@ Communication::Communication(){
     Serial3.begin(115200);      // UART on pins 15 (RX) and 14 (TX), UART3
 }
 
+void Communication::begin() {
+
+}
+
 string Communication::getCommand() {
     string msg = readCommunication();
 

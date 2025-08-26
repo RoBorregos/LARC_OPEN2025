@@ -9,7 +9,6 @@
 #include "bno.hpp"
 
 BNO::BNO() : bno(55, 0x28, &Wire), initialized(false) {
-    begin();
 }
 
 bool BNO::begin() {

@@ -8,9 +8,9 @@
 
 #include "Drive.hpp"
 
-Drive::Drive() : front_left_(Pins::kUpperMotors[0], Pins::kUpperMotors[1], Pins::kPwmPin[0], true, Pins::kEncoders[0], Pins::kEncoders[1], DriveConstants::kWheelDiameter),
+Drive::Drive() : front_left_(Pins::kUpperMotors[0], Pins::kUpperMotors[1], Pins::kPwmPin[0], false, Pins::kEncoders[0], Pins::kEncoders[1], DriveConstants::kWheelDiameter),
                  front_right_(Pins::kUpperMotors[2], Pins::kUpperMotors[3], Pins::kPwmPin[1], false, Pins::kEncoders[2], Pins::kEncoders[3], DriveConstants::kWheelDiameter),
-                 back_left_(Pins::kLowerMotors[0], Pins::kLowerMotors[1], Pins::kPwmPin[2], true, Pins::kEncoders[4], Pins::kEncoders[5], DriveConstants::kWheelDiameter),
+                 back_left_(Pins::kLowerMotors[0], Pins::kLowerMotors[1], Pins::kPwmPin[2], false, Pins::kEncoders[4], Pins::kEncoders[5], DriveConstants::kWheelDiameter),
                  back_right_(Pins::kLowerMotors[2], Pins::kLowerMotors[3], Pins::kPwmPin[3], false, Pins::kEncoders[6], Pins::kEncoders[7], DriveConstants::kWheelDiameter),
                  bno_(),
                  robot_constants_(0.3, 0.3),
@@ -20,36 +20,45 @@ Drive::Drive() : front_left_(Pins::kUpperMotors[0], Pins::kUpperMotors[1], Pins:
 {
 }
 
+void Drive::begin()
+{
+    bno_.begin();
+    front_left_.begin();
+    front_right_.begin();
+    back_left_.begin();
+    back_right_.begin();
+}
+
 void Drive::update()
 {
-    bno_.update();
+    // bno_.update();
 
-    ChassisSpeed drive_speed;
-    switch (drive_state_)
-    {
-    case DriveState::HEADING_LOCK:
-    {
-        drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), false);
-        drive_speed.setOmega(heading_controller_.update(Rotation2D::fromDegrees(bno_.getYaw())));
-        desired_chassis_speed_ = drive_speed;
-    }
-    break;
-    case DriveState::FIELD_ORIENTED:
-    {
-        desired_chassis_speed_ = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), true);
-    }
-    break;
-    case DriveState::ROBOT_ORIENTED:
-    {
-        drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), false);
-        desired_chassis_speed_ = drive_speed;
-    }
-    break;
-    }
+    // ChassisSpeed drive_speed;
+    // switch (drive_state_)
+    // {
+    // case DriveState::HEADING_LOCK:
+    // {
+    //     drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), false);
+    //     drive_speed.setOmega(heading_controller_.update(Rotation2D::fromDegrees(bno_.getYaw())));
+    //     desired_chassis_speed_ = drive_speed;
+    // }
+    // break;
+    // case DriveState::FIELD_ORIENTED:
+    // {
+    //     desired_chassis_speed_ = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), true);
+    // }
+    // break;
+    // case DriveState::ROBOT_ORIENTED:
+    // {
+    //     drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), false);
+    //     desired_chassis_speed_ = drive_speed;
+    // }
+    // break;
+    // }
 
-    move(desired_chassis_speed_);
+    // move(desired_chassis_speed_);
 
-    odometry_.updateWithBNO(front_left_.getEncoderCount(), front_right_.getEncoderCount(), back_left_.getEncoderCount(), back_right_.getEncoderCount());
+    // odometry_.updateWithBNO(front_left_.getEncoderCount(), front_right_.getEncoderCount(), back_left_.getEncoderCount(), back_right_.getEncoderCount());
 }
 
 void Drive::setState(int state)
@@ -82,7 +91,8 @@ void Drive::move(ChassisSpeed chassis_speed)
 
 Pose2D Drive::getPose()
 {
-    return odometry_.getPose();
+    // return odometry_.getPose();
+    return Pose2D(0, 0, Rotation2D(0));
 }
 
 /* Basic Movement Functions */
@@ -125,15 +135,38 @@ void Drive::motorTest()
     delay(3000);
     front_left_.move(0);
     delay(3000);
+
+    front_left_.move(-100);
+    delay(3000);
+    front_left_.move(0);
+    delay(3000);
+
     front_right_.move(100);
     delay(3000);
     front_right_.move(0);
     delay(3000);
+    
+    front_right_.move(-100);
+    delay(3000);
+    front_right_.move(0);
+    delay(3000);
+
     back_left_.move(100);
     delay(3000);
     back_left_.move(0);
     delay(3000);
+
+    back_left_.move(-100);
+    delay(3000);
+    back_left_.move(0);
+    delay(3000);
+
     back_right_.move(100);
+    delay(3000);
+    back_right_.move(0);
+    delay(3000);
+
+    back_right_.move(-100);
     delay(3000);
     back_right_.move(0);
     delay(3000);

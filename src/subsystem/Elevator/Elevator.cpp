@@ -19,6 +19,11 @@ Elevator::Elevator()
     limit_button_.setDebounceTime(50);
 }
 
+void Elevator::begin()
+{
+    motor_.begin();
+}
+
 void Elevator::update()
 {
     limit_button_.loop();
