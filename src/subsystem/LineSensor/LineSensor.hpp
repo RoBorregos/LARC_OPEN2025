@@ -13,8 +13,8 @@ class LineSensor{
     public:
         LineSensor();
         std::vector<int> readSensors() const;
-    private:
         int readSensor(int kSensor);
+    private:
 };
 
 #endif
