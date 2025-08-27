@@ -12,9 +12,9 @@ using namespace Constants;
 class DistanceSensor{
     public:
         DistanceSensor();
-    private:
         std::vector<float> getArrayDistance();
         float getDistance(int kSensor);
+    private:
 };
 
 #endif

@@ -62,8 +62,8 @@ namespace Pins {
     static constexpr uint8_t kLineSensorBR = 0;
     
     // READY
-    constexpr uint8_t kLeftDistanceSensor = A0;
-    constexpr uint8_t kRightDistanceSensor = A1;
+    constexpr uint8_t kLeftDistanceSensor = A1;
+    constexpr uint8_t kRightDistanceSensor = A0;
 }
 
 #endif

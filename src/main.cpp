@@ -26,6 +26,7 @@ void setup()
 
 void loop()
 {
-  drive_.update();
-  delay(50);
+  // drive_.update();
+  // delay(50);
+  distance_sensor_.getArrayDistance();
 }
