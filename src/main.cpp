@@ -25,9 +25,12 @@ void setup()
 }
 
 void loop() {
-  drive_.update();
-  delay(50);
-
+  // drive_.update();
+  // delay(50);
+  line_sensor_.readSensor(Pins::kLineSensorFR);
+  // delay(500);
+  // line_sensor_.readSensor(Pins::kRightDistanceSensor);
+  /*
   // Va para enfrente
   drive_.acceptInput(0, 200, 0);
 
@@ -59,4 +62,5 @@ void loop() {
       }
     }
   }
+  */
 }
