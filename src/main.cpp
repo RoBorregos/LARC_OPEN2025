@@ -32,12 +32,6 @@ void setup()
 void loop()
 {
   drive_.update();
-  // line_sensor_.readSensor(Pins::kLineSensorFL);
-  // line_sensor_.readSensor(Pins::kLineSensorFR);
-  // delay(500);
-  // delay(500);
-  // line_sensor_.readSensor(Pins::kRightDistanceSensor);
-  // Va para enfrente
 
   if (kill)
   {
@@ -45,43 +39,43 @@ void loop()
     return;
   }
 
-  if (!line_crossed)
+  bool lineFL = line_sensor_.readSensor(Pins::kLineSensorFL);
+  bool lineFR = line_sensor_.readSensor(Pins::kLineSensorFR);
+  bool lineBL = line_sensor_.readSensor(Pins::kLineSensorBL);
+  bool lineBR = line_sensor_.readSensor(Pins::kLineSensorBR);
+
+  bool obstacleLeft  = distance_sensor_.getDistance(Pins::kLeftDistanceSensor)  < 10;
+  bool obstacleRight = distance_sensor_.getDistance(Pins::kRightDistanceSensor) < 10;
+  bool obstacleFront = obstacleLeft || obstacleRight;
+
+  if (lineFL && lineBL)
   {
-    drive_.acceptInput(0, 100, 0);
-    if (line_sensor_.readSensor(Pins::kLineSensorFR) ||
-        line_sensor_.readSensor(Pins::kLineSensorFL))
-    {
-      line_crossed = true;
-    }
+    drive_.acceptInput(0, 0, 0);
+    Serial.println("LINEA FINAL DETECTADA -> IR DERECHA");
+    delay(300);
+
+    drive_.acceptInput(0, -150, 0); 
+    delay(400);
+
+    drive_.acceptInput(200, 0, 0); 
+    delay(400);
+
+    drive_.acceptInput(0, 0, 0); 
+    kill = true;
+  }
+  else if (lineFL || lineFR)
+  {
+    drive_.acceptInput(-200, 0, 0);
+    Serial.println("LINEA DETECTADA -> IZQUIERDA");
+  }
+  else if (obstacleFront)
+  {
+    drive_.acceptInput(200, 0, 0);
+    Serial.println("OBSTACULO DETECTADO -> DERECHA");
   }
   else
   {
-    if (first_time)
-    {
-      drive_.acceptInput(0, 0, 0);
-      Serial.println("STOPPED LINE");
-      first_time = false;
-      delay(400);
-    }
-    else
-    {
-      if (horizontal_line_found)
-      {
-        drive_.acceptInput(0, 0, 0);
-        Serial.println("STOPPED HORIZONTAL");
-        kill = true;
-        delay(400);
-      }
-      else
-      {
-        drive_.acceptInput(200, 0, 0);
-        Serial.println("MOVING");
-      }
-
-      if (line_sensor_.readSensor(Pins::kLineSensorFR))
-      {
-        horizontal_line_found = true;
-      }
-    }
+    drive_.acceptInput(0, 200, 0);
+    Serial.println("ADELANTE");
   }
 }
