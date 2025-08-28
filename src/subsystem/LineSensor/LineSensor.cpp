@@ -22,6 +22,5 @@ std::vector<int> LineSensor::readSensors() const {
 
 int LineSensor::readSensor(int kSensor){
     int value = digitalRead(kSensor);
-    Serial.println(value);
     return value; 
 }
