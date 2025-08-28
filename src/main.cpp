@@ -39,20 +39,49 @@ void loop()
   // line_sensor_.readSensor(Pins::kRightDistanceSensor);
   // Va para enfrente
 
+  if (kill)
+  {
+    drive_.acceptInput(0, 0, 0);
+    return;
+  }
+
   if (!line_crossed)
   {
     drive_.acceptInput(0, 100, 0);
+    if (line_sensor_.readSensor(Pins::kLineSensorFR) ||
+        line_sensor_.readSensor(Pins::kLineSensorFL))
+    {
+      line_crossed = true;
+    }
   }
   else
   {
-    drive_.acceptInput(0, 0, 0);
-    Serial.println("STOPPED");
-  }
+    if (first_time)
+    {
+      drive_.acceptInput(0, 0, 0);
+      Serial.println("STOPPED LINE");
+      first_time = false;
+      delay(400);
+    }
+    else
+    {
+      if (horizontal_line_found)
+      {
+        drive_.acceptInput(0, 0, 0);
+        Serial.println("STOPPED HORIZONTAL");
+        kill = true;
+        delay(400);
+      }
+      else
+      {
+        drive_.acceptInput(200, 0, 0);
+        Serial.println("MOVING");
+      }
 
-  if (line_sensor_.readSensor(Pins::kLineSensorFR) ||
-      line_sensor_.readSensor(Pins::kLineSensorFL))
-  {
-    line_crossed = true;
-    delay(400);
+      if (line_sensor_.readSensor(Pins::kLineSensorFR))
+      {
+        horizontal_line_found = true;
+      }
+    }
   }
 }
