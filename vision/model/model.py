@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 import cv2
 
-model = YOLO("vision/model/best.pt")
+model = YOLO("vision/model/runs/detect/larc-model8/weights/best.pt")
 
 class_names = model.names  
 
