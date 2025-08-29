@@ -54,65 +54,73 @@ void loop()
   bool lineFR = line_sensor_.readSensor(Pins::kLineSensorFR);
   bool lineBL = line_sensor_.readSensor(Pins::kLineSensorBL);
   bool lineBR = line_sensor_.readSensor(Pins::kLineSensorBR);
+  Serial.println(String(lineFL) + String(lineFR) + String(lineBL) + String(lineBR));
 
-  float left = distance_sensor_.getDistance(Pins::kLeftDistanceSensor);
-  float right = distance_sensor_.getDistance(Pins::kRightDistanceSensor);
-  bool obstacleFront = (left < 15) || (right < 15);
-
-  delay(50);
+  delay(1000);
   
-  switch (state)
-  {
-      case START:
-        Serial.println("ESTADO START");
+  float frontLeft = distance_sensor_.getDistance(0);
+  float frontRight = distance_sensor_.getDistance(1);
+  float backLeft = distance_sensor_.getDistance(2);
+  float backRight = distance_sensor_.getDistance(3);
+  bool obstacleFront = (frontLeft < 15) || (frontRight < 15);
+  
+  Serial.println(String(frontLeft) + String(frontRight) + String(backLeft) + String(backRight));
+  delay(1000);
+  
+  // delay(50);
+  
+  // switch (state)
+  // {
+  //     case START:
+  //       Serial.println("ESTADO START");
 
-        if (startTime == 0) {
-          startTime = millis();
-        }
+  //       if (startTime == 0) {
+  //         startTime = millis();
+  //       }
 
-        drive_.acceptInput(0, 150, 0);
+  //       drive_.acceptInput(0, 150, 0);
 
-        if (millis() - startTime > 1500) {
-          if (obstacleFront) {
-            drive_.acceptInput(0, 0, 0);
-            delay(200);
-            Serial.println("DETENERSE -> IR IZQUIERDA");
-            state = DETENER_Y_IZQUIERDA;
-            startTime = 0;
-          } else if (lineFL && lineFR) {
-            drive_.acceptInput(0, 0, 0);
-            Serial.println("LINEA DETECTADA -> STOP");
-            state = FINAL;
-            kill = true;
-            startTime = 0;
-          }
-        }
-        break;
+  //       if (millis() - startTime > 1500) {
+  //         if (obstacleFront) {
+  //           drive_.acceptInput(0, 0, 0);
+  //           delay(200);
+  //           Serial.println("DETENERSE -> IR IZQUIERDA");
+  //           state = DETENER_Y_IZQUIERDA;
+  //           startTime = 0;
+  //         } else if (lineFL && lineFR) {
+  //           drive_.acceptInput(0, 0, 0);
+  //           Serial.println("LINEA DETECTADA -> STOP");
+  //           state = FINAL;
+  //           kill = true;
+  //           startTime = 0;
+  //         }
+  //       }
+  //       break;
           
-      case DETENER_Y_IZQUIERDA:
-        Serial.println("ESTADO DETENER_Y_IZQUIERDA");
-        drive_.acceptInput(-150, 0, 0);
-        delay(1500);
-        drive_.acceptInput(0, 0, 0);
-        state = FINAL;
-        break;
+  //     case DETENER_Y_IZQUIERDA:
+  //       Serial.println("ESTADO DETENER_Y_IZQUIERDA");
+  //       drive_.acceptInput(-150, 0, 0);
+  //       delay(1500);
+  //       drive_.acceptInput(0, 0, 0);
+  //       state = FINAL;
+  //       break;
 
-      case FINAL:
-        Serial.println("ESTADO FINAL");
-        if (lineFL && lineBL) {
-          drive_.acceptInput(0, 0, 0);
-          Serial.println("LINEA FINAL DETECTADA -> STOP");
-          kill = true;
-        } else if(lineFL && lineFR){
-          drive_.acceptInput(0,-150,0);
-          delay(1000);
-          drive_.acceptInput(-150,0,0);
-        } 
-        else {
-          drive_.acceptInput(0, 150, 0);
-        }
-        break;
-  }
+  //     case FINAL:
+  //       Serial.println("ESTADO FINAL");
+  //       if (lineFL && lineBL) {
+  //         drive_.acceptInput(0, 0, 0);
+  //         Serial.println("LINEA FINAL DETECTADA -> STOP");
+  //         kill = true;
+  //       } else if(lineFL && lineFR){
+  //         drive_.acceptInput(0,-150,0);
+  //         delay(1000);
+  //         drive_.acceptInput(-150,0,0);
+  //       } 
+  //       else {
+  //         drive_.acceptInput(0, 150, 0);
+  //       }
+  //       break;
+  // }
 }
 
 // /**

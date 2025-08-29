@@ -35,6 +35,14 @@ namespace Pins {
         11
     };
     
+    
+    constexpr uint8_t kDistanceSensors[4][2] = {
+        {2, 3},
+        {4, 5},
+        {6, 7},
+        {8, 9}
+    };
+
     // YET TO IMPLEMENT
     constexpr uint8_t kEncoders[10]{
         32, // ENC1A
@@ -60,10 +68,6 @@ namespace Pins {
     static constexpr uint8_t kLineSensorFR = 41;
     static constexpr uint8_t kLineSensorBL = 42;
     static constexpr uint8_t kLineSensorBR = 43;
-    
-    // READY
-    constexpr uint8_t kLeftDistanceSensor = A0;
-    constexpr uint8_t kRightDistanceSensor = A1;
 }
 
 #endif
