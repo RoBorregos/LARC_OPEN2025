@@ -10,6 +10,7 @@
 #define DCMOTOR_HPP
 
 #include <Arduino.h>
+#include <Encoder.h>
 
 class DCMotor
 {
@@ -21,42 +22,35 @@ public:
     };
 
     DCMotor(int in1, int in2, int pwm, bool inverted,
-            int encoder_pin, int encoder_active_state, int instance_num, float diameter);
+            int encoder_pin1, int encoder_pin2, float diameter);
 
     DCMotor(int in1, int in2, int pwm, bool inverted,
-            int encoder_pin, int encoder_active_state, int instance_num);
+            int encoder_pin1, int encoder_pin2);
 
+    ~DCMotor();
+
+    void begin();
     void move(int speed, Direction direction);
     void move(int speed);
     void stop();
     int getEncoderCount();
     double getPositionRotations();
     float getPositionMeters();
-    void setupEncoderInterrupt();
 
 private:
     int in1_pin_;
     int in2_pin_;
     int pwm_pin_;
+    int encoder_pin1_;
+    int encoder_pin2_;
     bool inverted_;
 
-    static DCMotor *instances[5]; // Array for up to 4 motors
-    int instance_num_;
-    volatile int encoder_count_ = 0;
-    int encoder_pin_;
+    Encoder* encoder_;
+
     Direction current_direction_;
 
-    static void handleEncoderInterrupt0();
-    static void handleEncoderInterrupt1();
-    static void handleEncoderInterrupt2();
-    static void handleEncoderInterrupt3();
-    static void handleEncoderInterrupt4();
-
-    volatile int encoder_active_state_;
     int rotation_factor_ = 473;
     float diameter_;
-
-    static DCMotor *instance_;
 };
 
 #endif

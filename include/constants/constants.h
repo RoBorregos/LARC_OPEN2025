@@ -9,7 +9,7 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#include <cmath>
+#include <math.h>
 
 namespace Constants {
 
@@ -32,9 +32,14 @@ namespace Constants {
 
     }
 
+    namespace LineSensorConstants{
+        constexpr int kPoolDistance = 10;
+        constexpr int kTreeDistance = 15;
+    }
+
     namespace GripperConstants {
-        constexpr int kOpenAngle = 60;
-        constexpr int kClosedAngle = 5;
+        constexpr int kOpenAngle = 140;
+        constexpr int kClosedAngle = 40;
     }
 
     namespace UpperSorterConstants {
@@ -50,12 +55,12 @@ namespace Constants {
     }
 
     namespace DriveConstants {
-        constexpr float kWheelDiameter = 0.0762; // in m
+        constexpr float kWheelDiameter = 0.1; // in m
         constexpr float kWheelRadius = kWheelDiameter / 2.0; // in m
         constexpr float kWheelCircumference = 2 * M_PI * kWheelRadius; // in m
 
         constexpr float kHeadingControllerKp = 240.0f;
-        constexpr float kHeadingControllerKi = 110.0f;
+        constexpr float kHeadingControllerKi = 0.0f;
         constexpr float kHeadingControllerKd = 0.0f;
     }
 

@@ -13,6 +13,7 @@ class System
 {
 public:
     System() = default;
+    virtual void begin() = 0;
     virtual void update() = 0;
     virtual void setState(int state) = 0;
 };

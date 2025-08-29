@@ -8,27 +8,29 @@
 
 #include "Drive.hpp"
 
-Drive::Drive() : front_left_(DCMotor(Pins::kUpperMotors[0], Pins::kUpperMotors[1], Pins::kPwmPin[0],
-                                     true, Pins::kEncoders[0], LOW, 1, DriveConstants::kWheelDiameter)),
-                 front_right_(DCMotor(Pins::kUpperMotors[2], Pins::kUpperMotors[3], Pins::kPwmPin[1],
-                                      false, Pins::kEncoders[1], LOW, 2, DriveConstants::kWheelDiameter)),
-                 back_left_(DCMotor(Pins::kLowerMotors[0], Pins::kLowerMotors[1], Pins::kPwmPin[2],
-                                    true, Pins::kEncoders[2], HIGH, 3, DriveConstants::kWheelDiameter)),
-                 back_right_(DCMotor(Pins::kLowerMotors[2], Pins::kLowerMotors[3], Pins::kPwmPin[3],
-                                     false, Pins::kEncoders[3], LOW, 4, DriveConstants::kWheelDiameter)),
+Drive::Drive() : front_left_(Pins::kUpperMotors[0], Pins::kUpperMotors[1], Pins::kPwmPin[0], false, Pins::kEncoders[0], Pins::kEncoders[1], DriveConstants::kWheelDiameter),
+                 front_right_(Pins::kUpperMotors[2], Pins::kUpperMotors[3], Pins::kPwmPin[1], false, Pins::kEncoders[2], Pins::kEncoders[3], DriveConstants::kWheelDiameter),
+                 back_left_(Pins::kLowerMotors[0], Pins::kLowerMotors[1], Pins::kPwmPin[2], false, Pins::kEncoders[4], Pins::kEncoders[5], DriveConstants::kWheelDiameter),
+                 back_right_(Pins::kLowerMotors[2], Pins::kLowerMotors[3], Pins::kPwmPin[3], false, Pins::kEncoders[6], Pins::kEncoders[7], DriveConstants::kWheelDiameter),
                  bno_(),
                  robot_constants_(0.3, 0.3),
-                 odometry_(0, 0, Rotation2D(0), &bno_, &robot_constants_),
                  drive_controller_(),
                  heading_controller_()
 {
 }
 
+void Drive::begin()
+{
+    bno_.begin();
+    front_left_.begin();
+    front_right_.begin();
+    back_left_.begin();
+    back_right_.begin();
+}
+
 void Drive::update()
 {
     bno_.update();
-
-    Serial.println(bno_.getYaw());
 
     ChassisSpeed drive_speed;
     switch (drive_state_)
@@ -54,8 +56,6 @@ void Drive::update()
     }
 
     move(desired_chassis_speed_);
-
-    odometry_.updateWithBNO(front_left_.getEncoderCount(), front_right_.getEncoderCount(), back_left_.getEncoderCount(), back_right_.getEncoderCount());
 }
 
 void Drive::setState(int state)
@@ -84,11 +84,6 @@ void Drive::move(ChassisSpeed chassis_speed)
     front_right_.move(front_right_speed);
     back_left_.move(back_left_speed);
     back_right_.move(back_right_speed);
-}
-
-Pose2D Drive::getPose()
-{
-    return odometry_.getPose();
 }
 
 /* Basic Movement Functions */
@@ -128,19 +123,42 @@ void Drive::moveRight(int speed)
 void Drive::motorTest()
 {
     front_left_.move(100);
-    delay(5000);
+    delay(3000);
     front_left_.move(0);
-    delay(5000);
+    delay(3000);
+
+    front_left_.move(-100);
+    delay(3000);
+    front_left_.move(0);
+    delay(3000);
+
     front_right_.move(100);
-    delay(5000);
+    delay(3000);
     front_right_.move(0);
-    delay(5000);
+    delay(3000);
+    
+    front_right_.move(-100);
+    delay(3000);
+    front_right_.move(0);
+    delay(3000);
+
     back_left_.move(100);
-    delay(5000);
+    delay(3000);
     back_left_.move(0);
-    delay(5000);
+    delay(3000);
+
+    back_left_.move(-100);
+    delay(3000);
+    back_left_.move(0);
+    delay(3000);
+
     back_right_.move(100);
-    delay(5000);
+    delay(3000);
     back_right_.move(0);
-    delay(5000);
+    delay(3000);
+
+    back_right_.move(-100);
+    delay(3000);
+    back_right_.move(0);
+    delay(3000);
 }

@@ -6,24 +6,27 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include <FreeRTOS.h>
-#include <task.h>
 
-#include "robot/tasks.h"
+#include "robot/robot_instances.h"
 
 void setup()
 {
   Serial.begin(9600);
-  Wire.begin();
+  Serial.println("Starting...");
+  Wire.begin(); 
 
-  // FreeRTOS setup
-  setupTasks();
+  // All systems must begin after initializing the serial and as the code starts running
+  drive_.begin();
+  elevator_.begin();
+  com_.begin();
 
-  // Start RTOS scheduler
-  vTaskStartScheduler();
+  drive_.setState(0),
+  drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
 }
 
-// This is not used in RTOS
 void loop()
 {
+  // drive_.update();
+  // delay(50);
+  distance_sensor_.getArrayDistance();
 }

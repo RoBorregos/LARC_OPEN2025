@@ -8,8 +8,7 @@
 
 #include "bno.hpp"
 
-BNO::BNO() : bno(55, 0x28, &Wire1), initialized(false) {
-    begin();
+BNO::BNO() : bno(55, 0x28, &Wire), initialized(false) {
 }
 
 bool BNO::begin() {

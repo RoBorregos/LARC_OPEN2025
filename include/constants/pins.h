@@ -4,58 +4,66 @@
 #include <Arduino.h>
 
 namespace Pins {
+    // READY
     constexpr uint8_t kPwmPin[5] = {
-        12, // PWM2 UPPER LEFT MOTOR 
-        24, // PWM4 UPPER RIGHT MOTOR
-        25, // PWM3 BOTTOM LEFT MOTOR
-        26, // PWM1 BOTTOM RIGHT MOTOR
-        19  // PWM FOR THE ELEVATOR
+        2, // PWM1 UPPER LEFT MOTOR 
+        3, // PWM2 UPPER RIGHT MOTOR
+        4, // PWM3 BOTTOM LEFT MOTOR
+        5, // PWM4 BOTTOM RIGHT MOTOR
+        0  // PWM5 FOR THE ELEVATOR (YET TO DEFINE)
     };
     
+    // READY
     constexpr uint8_t kUpperMotors[4] = {
-        2, // IN1.1 UPPER LEFT MOTOR 
-        3, // IN1.2 UPPER LEFT MOTOR
-        4, // IN2.1 UPPER RIGHT MOTOR
-        5, // IN2.2 UPPER RIGHT MOTOR
+        22, // IN1.1 UPPER LEFT MOTOR 
+        23, // IN1.2 UPPER LEFT MOTOR
+        26, // IN2.1 UPPER RIGHT MOTOR
+        27, // IN2.2 UPPER RIGHT MOTOR
     };
 
+    //READY
     constexpr uint8_t kLowerMotors[4] = {
-        6, // IN3.1 LOWER LEFT MOTOR
-        7, // IN3.2 LOWER LEFT MOTOR
-        8, // IN4.1 LOWER RIGHT MOTOR
-        9  // IN4.2 LOWER RIGHT MOTOR
+        28, // IN3.1 LOWER LEFT MOTOR
+        29, // IN3.2 LOWER LEFT MOTOR
+        30, // IN4.1 LOWER RIGHT MOTOR
+        31  // IN4.2 LOWER RIGHT MOTOR
     };  
 
+    // NOT YET
     constexpr uint8_t kElevatorINA[2] = {
         10,
         11
     };
     
+    // YET TO IMPLEMENT
     constexpr uint8_t kEncoders[10]{
-        27, // ENC1A
-        28, // ENC1B
-        29, // ENC2A
-        30, // ENC2B
-        31, // ENC3A
-        32, // ENC3B
-        23, // ENC4A
-        22, // ENC4B
-        21, // ENC ELEVATORA
-        20  // ENC ELEVATORB
+        32, // ENC1A
+        36, // ENC1B
+        33, // ENC2A
+        37, // ENC2B
+        34, // ENC3A
+        38, // ENC3B
+        35, // ENC4A
+        39, // ENC4B
+        0, // ENC ELEVATORA
+        0  // ENC ELEVATORB
     };
 
-    constexpr uint8_t kGripperServoPin = 15;
-    constexpr uint8_t kUpperSorterServoPin = 14;
-    constexpr uint8_t kLowerSorterServoPin = 13;
+    // UNUSED
+    constexpr uint8_t kGripperServoPin = 0;
+    constexpr uint8_t kUpperSorterServoPin = 0;
+    constexpr uint8_t kLowerSorterServoPin = 0;
+    constexpr uint8_t kLimitPin = 0;
 
-    constexpr uint8_t kLimitPin = 39;
-
-    constexpr uint8_t kLineSensorLeftPin = 38;
-    constexpr uint8_t kLineSensorRightPin = 37;
+    // NOT YET
+    static constexpr uint8_t kLineSensorFL = 0;
+    static constexpr uint8_t kLineSensorFR = 0;
+    static constexpr uint8_t kLineSensorBL = 0;
+    static constexpr uint8_t kLineSensorBR = 0;
     
-    constexpr uint8_t kLeftDistanceSensor = 41;
-    constexpr uint8_t kRightDistanceSensor = 40;
-    constexpr uint8_t kGripperDistanceSensor = 36;
+    // READY
+    constexpr uint8_t kLeftDistanceSensor = A1;
+    constexpr uint8_t kRightDistanceSensor = A0;
 }
 
 #endif
