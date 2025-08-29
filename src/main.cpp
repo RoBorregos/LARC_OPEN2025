@@ -50,6 +50,7 @@ void loop()
     return;
   }
 
+  // TEST CASE LINE
   bool lineFL = line_sensor_.readSensor(Pins::kLineSensorFL);
   bool lineFR = line_sensor_.readSensor(Pins::kLineSensorFR);
   bool lineBL = line_sensor_.readSensor(Pins::kLineSensorBL);
@@ -58,13 +59,16 @@ void loop()
 
   delay(1000);
   
+  // TEST CASE DISTANCE
   float frontLeft = distance_sensor_.getDistance(0);
   float frontRight = distance_sensor_.getDistance(1);
   float backLeft = distance_sensor_.getDistance(2);
   float backRight = distance_sensor_.getDistance(3);
+  Serial.println(String(frontLeft) + String(frontRight) + String(backLeft) + String(backRight));
+
+  // STATE
   bool obstacleFront = (frontLeft < 15) || (frontRight < 15);
   
-  Serial.println(String(frontLeft) + String(frontRight) + String(backLeft) + String(backRight));
   delay(1000);
   
   // delay(50);
