@@ -10,6 +10,7 @@
 #include "robot/robot_instances.h"
 
 bool kill = false;
+unsigned long startTime = 0;
 
 enum RobotState
 {
@@ -49,93 +50,68 @@ void loop()
     return;
   }
 
-  // Lectura de sensores
   bool lineFL = line_sensor_.readSensor(Pins::kLineSensorFL);
   bool lineFR = line_sensor_.readSensor(Pins::kLineSensorFR);
   bool lineBL = line_sensor_.readSensor(Pins::kLineSensorBL);
   bool lineBR = line_sensor_.readSensor(Pins::kLineSensorBR);
-
-  Serial.println("lineFL: " + String(lineFL) + " lineFR: " + String(lineFR) + " lineBL: " + String(lineBL) + " lineBR: " + String(lineBR));
 
   float left = distance_sensor_.getDistance(Pins::kLeftDistanceSensor);
   float right = distance_sensor_.getDistance(Pins::kRightDistanceSensor);
   bool obstacleFront = (left < 15) || (right < 15);
 
   delay(50);
-
+  
   switch (state)
   {
-    //   case START:
-    //     Serial.println("ESTADO START");
-    //     drive_.acceptInput(0, 100, 0);
-    //     if (lineFL || lineFR)
-    //     {
-    //       delay(400);
-    //       drive_.acceptInput(0, 0, 0);
-    //       Serial.println("LINEA FRONTAL DETECTADA -> STOP");
-    //       drive_.acceptInput(0, 0, 0);
-    //       state = PASAR_LINEA;
-    //       delay(1000);
-    //     }
-    //     break;
+      case START:
+        Serial.println("ESTADO START");
 
-    //   case PASAR_LINEA:
-    //     Serial.println("ESTADO PASAR_LINEA");
-    //     drive_.acceptInput(150, 0, 0);
-    //     if (obstacleFront) {
-    //       drive_.acceptInput(0, 0, 100);
-    //       delay(200);
-    //       drive_.acceptInput(0, 0, 0);
-    //       Serial.println("DETENERSE -> IR IZQUIERDA");
-    //       state = DETENER_Y_IZQUIERDA;
-    //       delay(500);
-    //     } else if (lineFL || lineFR) {
-    //       drive_.acceptInput(0, 0, 0);
-    //       Serial.println("LINEA DETECTADA -> STOP");
-    //       state = FINAL;
-    //       kill = true;
-    //     }
-    //     break;
+        if (startTime == 0) {
+          startTime = millis();
+        }
 
-    // case DETENER_Y_IZQUIERDA:
-    //   Serial.println("ESTADO DETENER_Y_IZQUIERDA");
-    //   drive_.acceptInput(-150, 0, 0);
-    //   delay(400);
-    //   drive_.acceptInput(0, 0, 0);
-    //   state = ADELANTE_HASTA_LINEA;
-    //   break;
+        drive_.acceptInput(0, 150, 0);
 
-    // case ADELANTE_HASTA_LINEA:
-    //   Serial.println("ESTADO ADELANTE_HASTA_LINEA");
-    //   drive_.acceptInput(0, 150, 0);
-    //   if (lineFL && lineFR) {
-    //     drive_.acceptInput(0, 0, 0);
-    //     Serial.println("DETENERSE -> IR  IZQUIERDA");
-    //     state = DETENER_IR_IZQUIERDA;
-    //     delay(300);
-    //   }
-    //   break;
+        if (millis() - startTime > 1500) {
+          if (obstacleFront) {
+            drive_.acceptInput(0, 0, 0);
+            delay(200);
+            Serial.println("DETENERSE -> IR IZQUIERDA");
+            state = DETENER_Y_IZQUIERDA;
+            startTime = 0;
+          } else if (lineFL && lineFR) {
+            drive_.acceptInput(0, 0, 0);
+            Serial.println("LINEA DETECTADA -> STOP");
+            state = FINAL;
+            kill = true;
+            startTime = 0;
+          }
+        }
+        break;
+          
+      case DETENER_Y_IZQUIERDA:
+        Serial.println("ESTADO DETENER_Y_IZQUIERDA");
+        drive_.acceptInput(-150, 0, 0);
+        delay(1500);
+        drive_.acceptInput(0, 0, 0);
+        state = FINAL;
+        break;
 
-    // case DETENER_IR_IZQUIERDA:
-    //   Serial.println("ESTADO DETENER_IR_IZQUIERDA");
-    //   drive_.acceptInput(-150, 0, 0);
-    //   delay(300);
-    //   drive_.acceptInput(0, 0, -150);
-    //   delay(300);
-    //   drive_.acceptInput(0, 0, 0);
-    //   state = FINAL;
-    //   break;
-
-    // case FINAL:
-    //   Serial.println("ESTADO FINAL");
-    //   if (lineFL && lineBL) {
-    //     drive_.acceptInput(0, 0, 0);
-    //     Serial.println("LINEA FINAL DETECTADA -> STOP");
-    //     kill = true;
-    //   } else {
-    //     drive_.acceptInput(0, 150, 0);
-    //   }
-    //   break;
+      case FINAL:
+        Serial.println("ESTADO FINAL");
+        if (lineFL && lineBL) {
+          drive_.acceptInput(0, 0, 0);
+          Serial.println("LINEA FINAL DETECTADA -> STOP");
+          kill = true;
+        } else if(lineFL && lineFR){
+          drive_.acceptInput(0,-150,0);
+          delay(1000);
+          drive_.acceptInput(-150,0,0);
+        } 
+        else {
+          drive_.acceptInput(0, 150, 0);
+        }
+        break;
   }
 }
 
