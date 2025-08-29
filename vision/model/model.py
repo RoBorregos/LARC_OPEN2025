@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 import cv2
 
-model = YOLO("vision/model/runs/detect/larc-model8/weights/best.pt")
+model = YOLO("nanoModelV2.pt")
 
 class_names = model.names  
 
@@ -15,7 +15,7 @@ def resize_image(img, max_width=800, max_height=600):
         return cv2.resize(img, new_size, interpolation=cv2.INTER_AREA)
     return img
 
-cap = cv2.VideoCapture(2)
+cap = cv2.VideoCapture(0)
 if not cap.isOpened():
     print("Can't open camera.")
     exit()
