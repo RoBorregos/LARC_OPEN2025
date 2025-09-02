@@ -57,8 +57,7 @@ void loop()
   bool lineBR = line_sensor_.readSensor(Pins::kLineSensorBR);
   Serial.println(String(lineFL) + String(lineFR) + String(lineBL) + String(lineBR));
 
-  delay(1000);
-  
+  /*
   // TEST CASE DISTANCE
   float frontLeft = distance_sensor_.getDistance(0);
   float frontRight = distance_sensor_.getDistance(1);
@@ -70,6 +69,7 @@ void loop()
   bool obstacleFront = (frontLeft < 15) || (frontRight < 15);
   
   delay(1000);
+  */
   
   // delay(50);
   
