@@ -33,6 +33,7 @@ public:
     void move(int speed, Direction direction);
     void move(int speed);
     void stop();
+    void brakeStop();
     int getEncoderCount();
     double getPositionRotations();
     float getPositionMeters();
