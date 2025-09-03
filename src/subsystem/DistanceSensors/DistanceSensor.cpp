@@ -32,15 +32,6 @@ float DistanceSensor::readSensor(uint8_t trigPin, uint8_t echoPin) {
     return distance;
 }
 
-void DistanceSensor::begin() {
-    pinMode(Pins::kLeftDistanceSensor, INPUT);
-    pinMode(Pins::kRightDistanceSensor, INPUT);
-}
-
-void DistanceSensor::update() { }
-
-void DistanceSensor::setState(int state) { }
-
 std::vector<float> DistanceSensor::getArrayDistance() {
     float kLeftDistance = readSensor(Pins::kDistanceSensors[0], Pins::kDistanceSensors[1]);
     delay(50); 
