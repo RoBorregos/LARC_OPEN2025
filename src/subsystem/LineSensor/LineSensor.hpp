@@ -9,9 +9,12 @@
 
 using namespace Constants;
 
-class LineSensor{
+class LineSensor : public System{
     public:
         LineSensor();
+        void begin() override;
+        void update() override;
+        void setState(int state) override;
         std::vector<int> readSensors() const;
     private:
         int readSensor(int kSensor);
