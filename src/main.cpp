@@ -40,8 +40,6 @@ void loop()
   drive_.update();
   delay(50);
 
-  drive_.moveForward(200);
-
   std::vector<int> sensorValues = line_sensor_.readSensors();
   int frontLeftLine  = sensorValues[0]; 
   int frontRightLine = sensorValues[1]; 
@@ -52,32 +50,13 @@ void loop()
   bool backLine = backLeftLine && backRightLine;
   bool leftLine = frontLeftLine && backLeftLine;
   bool rightLine = frontRightLine && backRightLine;
-
-  if(frontLine)
-  {
-    Serial.println("Front Line Detected");
-  }else if (backLine)
-  {
-    Serial.println("Back Line Detected");
-
-  }else if (leftLine)
-  {
-    Serial.println("Left Line Detected");
-  }else if (rightLine)
-  {
-    Serial.println("Right Line Detected");
-  }
   
-  
-
   std::vector<float> distanceValues = distance_sensor_.getArrayDistance();
   int frontLeftDistance = distanceValues[0];
   int frontRightDistance = distanceValues[1];
 
   bool obstacle = (frontLeftDistance < 20) || (frontRightDistance < 20);
-  // Serial.println(String(obstacle));
   
-  /*
   STATES currentState = STATES::START;
   float current_time = 0;
   bool running = true;
@@ -139,19 +118,22 @@ void loop()
     }
 
     Serial.println("Máquina de estados finalizada.\n");
-  */
   
-  /* TEST CASES FOR LINE AND DISTANCE SENSOR
-  distance_sensor_.getArrayDistance();
-  auto line_sensor_data = line_sensor_.readSensors();
-  for (int i = 0; i < line_sensor_data.size(); i++)
-  {
-    Serial.print(line_sensor_data[i]);
-    if (i < line_sensor_data.size() - 1)
+  /* Debugging 
+    if(frontLine)
     {
-      Serial.print(" ");
+      Serial.println("Front Line Detected");
+    }else if (backLine)
+    {
+      Serial.println("Back Line Detected");
+
+    }else if (leftLine)
+    {
+      Serial.println("Left Line Detected");
+    }else if (rightLine)
+    {
+      Serial.println("Right Line Detected");
     }
-  }
-  Serial.println();
+    Serial.println(String(obstacle));
   */
 }
