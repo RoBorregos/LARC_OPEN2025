@@ -23,11 +23,15 @@ void setup()
   Serial.begin(9600);
   Serial.println("Starting...");
   Wire.begin();
+  Wire.begin();
 
   // All systems must begin after initializing the serial and as the code starts running
   drive_.begin();
   elevator_.begin();
   com_.begin();
+  line_sensor_.begin();
+  distance_sensor_.begin();
+  
   line_sensor_.begin();
   distance_sensor_.begin();
   
