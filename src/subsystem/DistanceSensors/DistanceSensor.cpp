@@ -37,6 +37,7 @@ std::vector<float> DistanceSensor::getArrayDistance() {
     delay(50); 
     float kRightDistance = readSensor(Pins::kDistanceSensors[2], Pins::kDistanceSensors[3]);
 
+    /* For Debugging
     Serial.print("Left Distance: ");
     if (kLeftDistance == -1.0f) {
         Serial.print("Fuera de rango");
@@ -52,6 +53,7 @@ std::vector<float> DistanceSensor::getArrayDistance() {
         Serial.print(kRightDistance);
         Serial.println(" cm");
     }
+    */
 
     std::vector<float> distances = {kLeftDistance, kRightDistance};
     return distances;
