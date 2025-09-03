@@ -36,11 +36,11 @@ namespace Pins {
     };
     
     
-    constexpr uint8_t kDistanceSensors[4][2] = {
-        {2, 3},
-        {4, 5},
-        {6, 7},
-        {8, 9}
+    constexpr uint8_t kDistanceSensors[4] = {
+        27, // TRIG_LEFT
+        26, // ECHO_LEFT
+        38, // TRIG_RIGHT
+        39 // ECHO_RIGHT
     };
 
     // YET TO IMPLEMENT
@@ -66,7 +66,7 @@ namespace Pins {
     // NOT YET
     static constexpr uint8_t kLineSensorFL = 36;
     static constexpr uint8_t kLineSensorFR = 37;
-    static constexpr uint8_t kLineSensorBL = 33;
+    static constexpr uint8_t kLineSensorBL = 34;
     static constexpr uint8_t kLineSensorBR = 13;
 }
 

@@ -1,16 +1,20 @@
 #include "DistanceSensor.hpp"
+#include "../include/constants/pins.h"
 
-DistanceSensor::DistanceSensor() {
-    for (int i = 0; i < 4; i++) {
-        pinMode(Pins::kDistanceSensors[i][0], OUTPUT); // TRIG
-        pinMode(Pins::kDistanceSensors[i][1], INPUT);  // ECHO
-    }
+DistanceSensor::DistanceSensor() : System() {
 }
 
-float DistanceSensor::getDistance(int index) {
-    uint8_t trigPin = Pins::kDistanceSensors[index][0];
-    uint8_t echoPin = Pins::kDistanceSensors[index][1];
+void DistanceSensor::begin() {
+    pinMode(Pins::kDistanceSensors[0], OUTPUT); // TRIG_LEFT
+    pinMode(Pins::kDistanceSensors[2], OUTPUT); // TRIG_RIGHT
+    pinMode(Pins::kDistanceSensors[1], INPUT);  // ECHO_LEFT
+    pinMode(Pins::kDistanceSensors[3], INPUT);  // ECHO_RIGHT
+}
 
+void DistanceSensor::update() { }
+void DistanceSensor::setState(int state) { }
+
+float DistanceSensor::readSensor(uint8_t trigPin, uint8_t echoPin) {
     digitalWrite(trigPin, LOW);
     delayMicroseconds(2);
     digitalWrite(trigPin, HIGH);
@@ -19,34 +23,45 @@ float DistanceSensor::getDistance(int index) {
 
     long duration = pulseIn(echoPin, HIGH, 30000);
 
-    float distance = duration * 0.034 / 2.0;
+    float distance = duration * 0.0343 / 2.0;
 
-    // Limitamos a un rango útil
-    if (distance <= 0 || distance > 400) {
-        distance = -1; // -1 significa sin lectura válida
+    if (duration == 0 || distance > 400) {
+        return -1.0f;
     }
-
+    
     return distance;
 }
 
 std::vector<float> DistanceSensor::getArrayDistance() {
-    std::vector<float> distances;
+    float kLeftDistance = readSensor(Pins::kDistanceSensors[0], Pins::kDistanceSensors[1]);
+    delay(50); 
+    float kRightDistance = readSensor(Pins::kDistanceSensors[2], Pins::kDistanceSensors[3]);
 
-    for (int i = 0; i < 4; i++) {
-        float d = getDistance(i);
-        distances.push_back(d);
-
-        Serial.print("Sensor ");
-        Serial.print(i + 1);
-        Serial.print(": ");
-        if (d == -1) {
-            Serial.println("Fuera de rango");
-        } else {
-            Serial.print(d);
-            Serial.println(" cm");
-        }
+    Serial.print("Left Distance: ");
+    if (kLeftDistance == -1.0f) {
+        Serial.print("Fuera de rango");
+    } else {
+        Serial.print(kLeftDistance);
+        Serial.print(" cm");
     }
 
-    delay(500);
+    Serial.print(" | Right Distance: ");
+    if (kRightDistance == -1.0f) {
+        Serial.println("Fuera de rango");
+    } else {
+        Serial.print(kRightDistance);
+        Serial.println(" cm");
+    }
+
+    std::vector<float> distances = {kLeftDistance, kRightDistance};
     return distances;
+}
+
+float DistanceSensor::getDistance(int kSensor) {
+    if (kSensor == 0) {
+        return readSensor(Pins::kDistanceSensors[0], Pins::kDistanceSensors[1]);
+    } else if (kSensor == 1) {
+        return readSensor(Pins::kDistanceSensors[2], Pins::kDistanceSensors[3]);
+    }
+    return -1.0f;
 }

@@ -9,12 +9,16 @@
 
 using namespace Constants;
 
-class DistanceSensor{
+class DistanceSensor : public System{
     public:
         DistanceSensor();
+        void begin() override;
+        void update() override;
+        void setState(int state) override;
         std::vector<float> getArrayDistance();
         float getDistance(int kSensor);
     private:
+        float readSensor(uint8_t trigPin, uint8_t echoPin);
 };
 
 #endif

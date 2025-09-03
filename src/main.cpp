@@ -34,8 +34,10 @@ void setup()
   drive_.begin();
   elevator_.begin();
   com_.begin();
+  line_sensor_.begin();
+  distance_sensor_.begin();
 
-  drive_.setState(1);
+  drive_.setState(0);
   drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
 }
 
@@ -51,12 +53,18 @@ void loop()
   }
 
   // TEST CASE LINE
-  bool lineFL = line_sensor_.readSensor(Pins::kLineSensorFL);
-  bool lineFR = line_sensor_.readSensor(Pins::kLineSensorFR);
-  bool lineBL = line_sensor_.readSensor(Pins::kLineSensorBL);
-  bool lineBR = line_sensor_.readSensor(Pins::kLineSensorBR);
-  Serial.println(String(lineFL) + String(lineFR) + String(lineBL) + String(lineBR));
-
+  /*
+  auto line_sensor_data = line_sensor_.readSensors();
+  for (int i = 0; i < line_sensor_data.size(); i++)
+  {
+    Serial.print(line_sensor_data[i]);
+    if (i < line_sensor_data.size() - 1)
+    {
+      Serial.print(" ");
+    }
+  }
+  */
+  distance_sensor_.getArrayDistance();
   /*
   // TEST CASE DISTANCE
   float frontLeft = distance_sensor_.getDistance(0);
