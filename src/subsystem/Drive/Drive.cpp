@@ -120,6 +120,22 @@ void Drive::moveRight(int speed)
     back_right_.move(speed);
 }
 
+void Drive::brake()
+{
+    front_left_.stop();
+    front_right_.stop();
+    back_left_.stop();
+    back_right_.stop();
+}
+
+void Drive::hardBrake()
+{
+    front_left_.brakeStop();
+    front_right_.brakeStop();
+    back_left_.brakeStop();
+    back_right_.brakeStop();
+}
+
 void Drive::motorTest()
 {
     front_left_.move(100);
