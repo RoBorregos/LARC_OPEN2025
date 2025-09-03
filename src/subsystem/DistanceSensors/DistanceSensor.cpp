@@ -1,8 +1,17 @@
 #include "DistanceSensor.hpp"
 #include <Arduino.h>
 
-DistanceSensor::DistanceSensor() {
+DistanceSensor::DistanceSensor() : System(){
 }
+
+void DistanceSensor::begin() {
+    pinMode(Pins::kLeftDistanceSensor, INPUT);
+    pinMode(Pins::kRightDistanceSensor, INPUT);
+}
+
+void DistanceSensor::update() { }
+
+void DistanceSensor::setState(int state) { }
 
 std::vector<float> DistanceSensor::getArrayDistance() {
     float kLeftAnalog  = analogRead(Pins::kLeftDistanceSensor);
