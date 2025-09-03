@@ -56,7 +56,10 @@ void loop()
   int frontRightDistance = distanceValues[1];
 
   bool obstacle = (frontLeftDistance < 20) || (frontRightDistance < 20);
+
+  drive_.moveForward(150);
   
+  /*
   STATES currentState = STATES::START;
   float current_time = 0;
   bool running = true;
@@ -118,6 +121,7 @@ void loop()
     }
 
     Serial.println("Máquina de estados finalizada.\n");
+  */
   
   /* Debugging 
     if(frontLine)
