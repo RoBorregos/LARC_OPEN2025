@@ -44,6 +44,9 @@ void loop()
   drive_.update();
   delay(50);
 
+  drive_.moveBackward(150);
+
+  /*
   std::vector<int> sensorValues = line_sensor_.readSensors();
   int frontLeftLine  = sensorValues[0]; 
   int frontRightLine = sensorValues[1]; 
@@ -62,7 +65,7 @@ void loop()
   bool obstacle = (frontLeftDistance < 20) || (frontRightDistance < 20);
 
   drive_.moveForward(150);
-  
+  */
   /*
   STATES currentState = STATES::START;
   float current_time = 0;
