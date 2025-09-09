@@ -44,7 +44,7 @@ void loop()
   drive_.update();
   delay(50);
 
-  drive_.moveBackward(150);
+  drive_.motorTest();
 
   /*
   std::vector<int> sensorValues = line_sensor_.readSensors();
