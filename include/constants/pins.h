@@ -17,8 +17,8 @@ namespace Pins {
     constexpr uint8_t kUpperMotors[4] = {
         31, // IN1.1 UPPER LEFT MOTOR 
         32, // IN1.2 UPPER LEFT MOTOR
-        3, // IN2.1 UPPER RIGHT MOTOR
-        4, // IN2.2 UPPER RIGHT MOTOR
+        4, // IN2.1 UPPER RIGHT MOTOR
+        3, // IN2.2 UPPER RIGHT MOTOR
     };
 
     //READY
