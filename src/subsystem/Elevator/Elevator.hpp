@@ -21,7 +21,6 @@ public:
 private:
     void Move(int steps);
     void resetPosition(double position);
-    bool getLimitState();
 
     enum class ElevatorState
     {
