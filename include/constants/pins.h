@@ -4,7 +4,6 @@
 #include <Arduino.h>
 
 namespace Pins {
-    // READY
     constexpr uint8_t kPwmPin[5] = {
         29, // PWM1 UPPER LEFT MOTOR 
         2, // PWM2 UPPER RIGHT MOTOR
@@ -13,7 +12,6 @@ namespace Pins {
         0  // PWM5 FOR THE ELEVATOR (YET TO DEFINE)
     };
     
-    // READY
     constexpr uint8_t kUpperMotors[4] = {
         31, // IN1.1 UPPER LEFT MOTOR 
         32, // IN1.2 UPPER LEFT MOTOR
@@ -21,20 +19,12 @@ namespace Pins {
         3, // IN2.2 UPPER RIGHT MOTOR
     };
 
-    //READY
     constexpr uint8_t kLowerMotors[4] = {
         11, // IN3.1 LOWER LEFT MOTOR
         12, // IN3.2 LOWER LEFT MOTOR
         9, // IN4.1 LOWER RIGHT MOTOR
         6  // IN4.2 LOWER RIGHT MOTOR
     };  
-
-    // NOT YET
-    constexpr uint8_t kElevatorINA[2] = {
-        10,
-        11
-    };
-    
     
     constexpr uint8_t kDistanceSensors[4][2] = {
         {39, 27},
@@ -43,8 +33,7 @@ namespace Pins {
         {3, 4}
     };
 
-    // YET TO IMPLEMENT
-    constexpr uint8_t kEncoders[10]{
+    constexpr uint8_t kEncoders[8]{
         14, // ENC1A
         15, // ENC1B
         20, // ENC2A
@@ -52,22 +41,24 @@ namespace Pins {
         16, // ENC3A
         17, // ENC3B
         22, // ENC4A
-        23, // ENC4B
-        0, // ENC ELEVATORA
-        0  // ENC ELEVATORB
+        23 // ENC4B
     };
+    
+    // LineSensors 
+    constexpr uint8_t kLineSensorFL = 34;
+    constexpr uint8_t kLineSensorFR = 36;
+    constexpr uint8_t kLineSensorBL = 33;
+    constexpr uint8_t kLineSensorBR = 37;
 
-    // UNUSED
-    constexpr uint8_t kGripperServoPin = 0;
-    constexpr uint8_t kUpperSorterServoPin = 0;
-    constexpr uint8_t kLowerSorterServoPin = 0;
-    constexpr uint8_t kLimitPin = 0;
-
-    // NOT YET
-    static constexpr uint8_t kLineSensorFL = 34;
-    static constexpr uint8_t kLineSensorFR = 36;
-    static constexpr uint8_t kLineSensorBL = 33;
-    static constexpr uint8_t kLineSensorBR = 37;
+    // Servos for the Intake 
+    constexpr uint8_t kUpperServo = 0;
+    constexpr uint8_t kMiddleServo = 0;
+    constexpr uint8_t kLowerServo = 0;
+    
+    // Elevator Pins
+    constexpr uint8_t kDirElevator = 0;
+    constexpr uint8_t kStepElevator = 0;
+    
 }
 
 #endif

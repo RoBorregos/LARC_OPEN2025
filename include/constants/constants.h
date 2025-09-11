@@ -1,11 +1,3 @@
-/**
- * @file constants.h
- * @date 24/04/2025
- * @author Juan Pablo Gutiérrez
- * 
- * @brief Constants for the robot.
- */
-
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
@@ -32,26 +24,9 @@ namespace Constants {
 
     }
 
-    namespace LineSensorConstants{
-        constexpr int kPoolDistance = 10;
-        constexpr int kTreeDistance = 15;
-    }
-
-    namespace GripperConstants {
-        constexpr int kOpenAngle = 140;
-        constexpr int kClosedAngle = 40;
-    }
-
-    namespace UpperSorterConstants {
-        constexpr int kLeftAngle = 0;
-        constexpr int kCenterAngle = 90;
-        constexpr int kRightAngle = 180;
-    }
-
-    namespace LowerSorterConstants {
-        constexpr int kLeftAngle = 180;
-        constexpr int kCenterAngle = 90;
-        constexpr int kRightAngle = 0;
+    namespace IntakeConstants {
+        constexpr int kIdle = 90;
+        constexpr int kCollect = 180;
     }
 
     namespace DriveConstants {

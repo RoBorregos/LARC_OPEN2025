@@ -1,11 +1,3 @@
-/*
- * @file trigger_list.hpp
- * @date 03/04/2025
- * @author Dana E. Torres Estrada
- *
- * @brief Defines the TriggerList enumeration, which represents different triggers for state transitions.
- */
-
 #ifndef TRIGGERLIST_H
 #define TRIGGERLIST_H
 
