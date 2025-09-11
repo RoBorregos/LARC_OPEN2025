@@ -5,33 +5,19 @@
  *
  * @brief Implementation of the Elevador class to control a stepper motor
  */
-#include "Elevator.h"
+#include "Elevator.hpp"
 #include <Arduino.h>
 
 Elevator::Elevator()
-    : motor_(Pins::kElevatorINA[0], Pins::kElevatorINA[1], Pins::kPwmPin[4], ElevatorConstants::kInverted, Pins::kEncoders[8], Pins::kEncoders[9]),
-      pid_controller_(ElevatorConstants::kP, ElevatorConstants::kI, ElevatorConstants::kD),
-      limit_button_(Pins::kLimitPin)
 {
-    pid_controller_.setOutputLimits(-255, 255);
-    pid_controller_.setEnabled(true);
-
-    limit_button_.setDebounceTime(50);
 }
 
 void Elevator::begin()
 {
-    motor_.begin();
 }
 
 void Elevator::update()
 {
-    limit_button_.loop();
-
-    current_position_ = motor_.getPositionMeters();
-
-    double output = pid_controller_.update(current_position_, target_position_);
-    motor_.move(output);
 
     if (getLimitState())
     {
@@ -60,7 +46,6 @@ void Elevator::setState(int state)
 
 bool Elevator::getLimitState()
 {
-    return limit_button_.isPressed();
 }
 
 void Elevator::resetPosition(double position)

@@ -26,8 +26,8 @@ void setup()
   Wire.begin();
 
   // All systems must begin after initializing the serial and as the code starts running
+  // elevator_.begin();
   drive_.begin();
-  elevator_.begin();
   com_.begin();
   line_sensor_.begin();
   distance_sensor_.begin();
@@ -44,12 +44,11 @@ void loop()
   drive_.update();
   delay(50);
 
+  drive_.motorTest();
   // drive_.acceptInput(0,150,0);
   // delay(3000);
   // drive_.acceptInput(0,0,180);
   // delay(3000);
-
-  drive_.motorTest();
 
   /*
   std::vector<int> sensorValues = line_sensor_.readSensors();
