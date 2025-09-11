@@ -44,17 +44,15 @@ namespace Pins {
     };
 
     // YET TO IMPLEMENT
-    constexpr uint8_t kEncoders[10]{
-        14, // ENC1A
-        15, // ENC1B
-        20, // ENC2A
-        21, // ENC2B
-        16, // ENC3A
-        17, // ENC3B
-        22, // ENC4A
-        23, // ENC4B
-        0, // ENC ELEVATORA
-        0  // ENC ELEVATORB
+    constexpr uint8_t kEncoders[8]{
+        39, // ENC1A
+        40, // ENC1B
+        14, // ENC2A
+        15, // ENC2B
+        41, // ENC3A
+        13, // ENC3B
+        16, // ENC4A
+        17 // ENC4B
     };
 
     // UNUSED
