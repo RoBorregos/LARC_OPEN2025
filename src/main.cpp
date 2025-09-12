@@ -44,24 +44,31 @@ void loop()
   drive_.update();
   delay(50);
 
-  drive_.motorTest();
   // drive_.acceptInput(0,150,0);
   // delay(3000);
   // drive_.acceptInput(0,0,180);
   // delay(3000);
 
-  /*
   std::vector<int> sensorValues = line_sensor_.readSensors();
   int frontLeftLine  = sensorValues[0]; 
   int frontRightLine = sensorValues[1]; 
   int backLeftLine   = sensorValues[2];
-  int backRightLine  = sensorValues[3]; 
+  int backRightLine  = sensorValues[3];
 
-  bool frontLine = frontLeftLine && frontRightLine;
-  bool backLine = backLeftLine && backRightLine;
-  bool leftLine = frontLeftLine && backLeftLine;
-  bool rightLine = frontRightLine && backRightLine;
+  // Imprimir todos los valores en un solo "array"
+  Serial.print("[");
+  for (size_t i = 0; i < sensorValues.size(); ++i) {
+    Serial.print(sensorValues[i]);
+    if (i + 1 < sensorValues.size()) Serial.print(", ");
+  }
+  Serial.println("]");
   
+  // bool frontLine = frontLeftLine && frontRightLine;
+  // bool backLine = backLeftLine && backRightLine;
+  // bool leftLine = frontLeftLine && backLeftLine;
+  // bool rightLine = frontRightLine && backRightLine;
+ 
+  /* 
   std::vector<float> distanceValues = distance_sensor_.getArrayDistance();
   int frontLeftDistance = distanceValues[0];
   int frontRightDistance = distanceValues[1];
