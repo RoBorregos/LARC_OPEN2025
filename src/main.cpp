@@ -9,7 +9,7 @@
 
 #include "robot/robot_instances.h"
 
-enum class STATES  
+enum class STATES
 {
   START,
   ENDLINE,
@@ -23,19 +23,17 @@ void setup()
   Serial.begin(9600);
   Serial.println("Starting...");
   Wire.begin();
-  Wire.begin();
 
   // All systems must begin after initializing the serial and as the code starts running
-  // elevator_.begin();
   drive_.begin();
   com_.begin();
   line_sensor_.begin();
   distance_sensor_.begin();
-  
+
   line_sensor_.begin();
   distance_sensor_.begin();
-  
-  drive_.setState(0),
+
+  drive_.setState(0);
   drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
 }
 
@@ -49,26 +47,35 @@ void loop()
   // drive_.acceptInput(0,0,180);
   // delay(3000);
 
-  std::vector<int> sensorValues = line_sensor_.readSensors();
-  int frontLeftLine  = sensorValues[0]; 
-  int frontRightLine = sensorValues[1]; 
-  int backLeftLine   = sensorValues[2];
-  int backRightLine  = sensorValues[3];
+  // std::vector<int> sensorValues = line_sensor_.readSensors();
 
-  // Imprimir todos los valores en un solo "array"
-  Serial.print("[");
-  for (size_t i = 0; i < sensorValues.size(); ++i) {
-    Serial.print(sensorValues[i]);
-    if (i + 1 < sensorValues.size()) Serial.print(", ");
-  }
-  Serial.println("]");
-  
+  // // Imprimir todos los valores en un solo "array"
+  // Serial.print("[");
+  // for (size_t i = 0; i < sensorValues.size(); ++i)
+  // {
+  //   Serial.print(sensorValues[i]);
+  //   if (i + 1 < sensorValues.size())
+  //     Serial.print(", ");
+  // }
+  // Serial.println("]");
+
+  auto distanceValues = distance_sensor_.getArrayDistance();
+  float distance1 = distanceValues[0];
+  float distance2 = distanceValues[1];
+
+  Serial.print("Distance 1: ");
+  Serial.print(distance1);
+  Serial.print(" cm");
+  Serial.print("Distance 2: ");
+  Serial.print(distance2);
+  Serial.print(" cm");
+  Serial.println();
   // bool frontLine = frontLeftLine && frontRightLine;
   // bool backLine = backLeftLine && backRightLine;
   // bool leftLine = frontLeftLine && backLeftLine;
   // bool rightLine = frontRightLine && backRightLine;
- 
-  /* 
+
+  /*
   std::vector<float> distanceValues = distance_sensor_.getArrayDistance();
   int frontLeftDistance = distanceValues[0];
   int frontRightDistance = distanceValues[1];
@@ -140,8 +147,8 @@ void loop()
 
     Serial.println("Máquina de estados finalizada.\n");
   */
-  
-  /* Debugging 
+
+  /* Debugging
     if(frontLine)
     {
       Serial.println("Front Line Detected");
