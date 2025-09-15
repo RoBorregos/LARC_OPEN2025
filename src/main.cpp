@@ -30,9 +30,6 @@ void setup()
   line_sensor_.begin();
   distance_sensor_.begin();
 
-  line_sensor_.begin();
-  distance_sensor_.begin();
-
   drive_.setState(0);
   drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
 }
