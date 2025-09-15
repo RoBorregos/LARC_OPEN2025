@@ -29,10 +29,9 @@ namespace Pins {
     }; 
     
     constexpr uint8_t kDistanceSensors[4][2] = {
-        {39, 27},
-        {40, 26},
-        {1, 2},
-        {3, 4}
+        // trig, echo
+        {35, 33},
+        {36, 34},
     };
 
     constexpr uint8_t kEncoders[8]{
