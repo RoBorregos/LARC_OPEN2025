@@ -12,9 +12,6 @@
 #include "constants/constants.h"
 #include "../systems/system.hpp"
 #include "constants/pins.h"
-#include "dcmotor.hpp"
-#include "controllers/PIDController.hpp"
-#include "ezButton.h"
 
 using namespace Constants;
 
@@ -47,7 +44,4 @@ private:
 
     int current_position_ = 0;
     int target_position_ = 0;
-    DCMotor motor_;
-    PIDController pid_controller_;
-    ezButton limit_button_;
 };

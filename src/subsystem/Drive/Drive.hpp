@@ -34,6 +34,8 @@ public:
     void setState(int state) override;
     void acceptInput(float vx, float vy, float omega);
     void acceptHeadingInput(Rotation2D heading);
+    void brake();
+    void hardBrake();
 
 private:
     void move(ChassisSpeed chassis_speed);

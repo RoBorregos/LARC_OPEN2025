@@ -18,6 +18,7 @@ class DistanceSensor : public System{
         std::vector<float> getArrayDistance();
         float getDistance(int kSensor);
     private:
+        float readSensor(uint8_t trigPin, uint8_t echoPin);
 };
 
 #endif

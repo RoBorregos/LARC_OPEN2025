@@ -100,6 +100,13 @@ void DCMotor::stop()
     analogWrite(pwm_pin_, 0);
 }
 
+void DCMotor::brakeStop()
+{
+    digitalWrite(in1_pin_, HIGH);
+    digitalWrite(in2_pin_, HIGH);
+    analogWrite(pwm_pin_, 0);
+}
+
 int DCMotor::getEncoderCount()
 {
     return encoder_ != nullptr ? encoder_->read() : 0;

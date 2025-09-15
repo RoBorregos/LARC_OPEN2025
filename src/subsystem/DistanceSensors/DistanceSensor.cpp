@@ -1,51 +1,73 @@
 #include "DistanceSensor.hpp"
-#include <Arduino.h>
+#include "../include/constants/pins.h"
 
-DistanceSensor::DistanceSensor() : System(){
+DistanceSensor::DistanceSensor() : System()
+{
 }
 
-void DistanceSensor::begin() {
-    pinMode(Pins::kLeftDistanceSensor, INPUT);
-    pinMode(Pins::kRightDistanceSensor, INPUT);
+void DistanceSensor::begin()
+{
+    pinMode(Pins::kDistanceSensors[0][0], OUTPUT);
+    pinMode(Pins::kDistanceSensors[0][1], INPUT);
+    pinMode(Pins::kDistanceSensors[1][0], OUTPUT);
+    pinMode(Pins::kDistanceSensors[1][1], INPUT);
 }
 
-void DistanceSensor::update() { }
+void DistanceSensor::update() {}
+void DistanceSensor::setState(int state) {}
 
-void DistanceSensor::setState(int state) { }
+float DistanceSensor::readSensor(uint8_t trigPin, uint8_t echoPin)
+{
+    digitalWrite(trigPin, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin, LOW);
 
-std::vector<float> DistanceSensor::getArrayDistance() {
-    float kLeftAnalog  = analogRead(Pins::kLeftDistanceSensor);
-    float kRightAnalog = analogRead(Pins::kRightDistanceSensor);
+    long duration = pulseIn(echoPin, HIGH, 30000);
 
-    float leftVoltage  = kLeftAnalog * (5.0 / 1023.0);
-    float rightVoltage = kRightAnalog * (5.0 / 1023.0);
+    float distance = duration * 0.0343 / 2.0;
 
-    float kLeftDistance  = 27.728 * pow(leftVoltage, -1.2045);
-    float kRightDistance = 27.728 * pow(rightVoltage, -1.2045);
+    return distance;
+}
 
-    if (kLeftDistance > 80) kLeftDistance = 80;
-    if (kLeftDistance < 10) kLeftDistance = 10;
+std::vector<float> DistanceSensor::getArrayDistance()
+{
+    float kLeftDistance = readSensor(Pins::kDistanceSensors[0][0], Pins::kDistanceSensors[0][1]);
+    delay(50);
+    float kRightDistance = readSensor(Pins::kDistanceSensors[1][0], Pins::kDistanceSensors[1][1]);
 
-    if (kRightDistance > 80) kRightDistance = 80;
-    if (kRightDistance < 10) kRightDistance = 10;
-
+    /* For Debugging
     Serial.print("Left Distance: ");
-    Serial.println(kLeftDistance);
-    Serial.print("Right Distance: ");
-    Serial.println(kRightDistance);
+    if (kLeftDistance == -1.0f) {
+        Serial.print("Fuera de rango");
+    } else {
+        Serial.print(kLeftDistance);
+        Serial.print(" cm");
+    }
 
-    delay(1000); 
-    std::vector<float> distance = {kLeftDistance, kRightDistance};
-    return distance;
+    Serial.print(" | Right Distance: ");
+    if (kRightDistance == -1.0f) {
+        Serial.println("Fuera de rango");
+    } else {
+        Serial.print(kRightDistance);
+        Serial.println(" cm");
+    }
+    */
+
+    std::vector<float> distances = {kLeftDistance, kRightDistance};
+    return distances;
 }
 
-float DistanceSensor::getDistance(int kSensor) {
-    float rawValue = analogRead(kSensor);
-    float voltage  = rawValue * (5.0 / 1023.0);
-    float distance = 27.728 * pow(voltage, -1.2045);
-
-    if (distance > 80) distance = 80;
-    if (distance < 10) distance = 10;
-
-    return distance;
+float DistanceSensor::getDistance(int kSensor)
+{
+    if (kSensor == 0)
+    {
+        return readSensor(Pins::kDistanceSensors[0][0], Pins::kDistanceSensors[0][1]);
+    }
+    else if (kSensor == 1)
+    {
+        return readSensor(Pins::kDistanceSensors[1][0], Pins::kDistanceSensors[1][1]);
+    }
+    return -1.0f;
 }

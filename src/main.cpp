@@ -9,6 +9,15 @@
 
 #include "robot/robot_instances.h"
 
+enum class STATES
+{
+  START,
+  ENDLINE,
+  LEFTMOST,
+  RIGHTMOST,
+  RETURN
+};
+
 void setup()
 {
   Serial.begin(9600);
@@ -17,28 +26,140 @@ void setup()
 
   // All systems must begin after initializing the serial and as the code starts running
   drive_.begin();
-  elevator_.begin();
   com_.begin();
   line_sensor_.begin();
   distance_sensor_.begin();
-  
-  drive_.setState(0),
+
+  drive_.setState(0);
   drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
 }
 
 void loop()
 {
-  // drive_.update();
-  // delay(50);
-  auto line_sensor_data = line_sensor_.readSensors();
-  for (int i = 0; i < line_sensor_data.size(); i++)
-  {
-    Serial.print(line_sensor_data[i]);
-    if (i < line_sensor_data.size() - 1)
-    {
-      Serial.print(" ");
+  drive_.update();
+  delay(50);
+
+  // drive_.acceptInput(0,150,0);
+  // delay(3000);
+  // drive_.acceptInput(0,0,180);
+  // delay(3000);
+
+  // std::vector<int> sensorValues = line_sensor_.readSensors();
+
+  // // Imprimir todos los valores en un solo "array"
+  // Serial.print("[");
+  // for (size_t i = 0; i < sensorValues.size(); ++i)
+  // {
+  //   Serial.print(sensorValues[i]);
+  //   if (i + 1 < sensorValues.size())
+  //     Serial.print(", ");
+  // }
+  // Serial.println("]");
+
+  // auto distanceValues = distance_sensor_.getArrayDistance();
+  // float distance1 = distanceValues[0];
+  // float distance2 = distanceValues[1];
+
+  // Serial.print("Distance 1: ");
+  // Serial.print(distance1);
+  // Serial.print(" cm");
+  // Serial.print("Distance 2: ");
+  // Serial.print(distance2);
+  // Serial.print(" cm");
+  // Serial.println();
+  // bool frontLine = frontLeftLine && frontRightLine;
+  // bool backLine = backLeftLine && backRightLine;
+  // bool leftLine = frontLeftLine && backLeftLine;
+  // bool rightLine = frontRightLine && backRightLine;
+
+  /*
+  std::vector<float> distanceValues = distance_sensor_.getArrayDistance();
+  int frontLeftDistance = distanceValues[0];
+  int frontRightDistance = distanceValues[1];
+
+  bool obstacle = (frontLeftDistance < 20) || (frontRightDistance < 20);
+
+  drive_.moveForward(150);
+  */
+  /*
+  STATES currentState = STATES::START;
+  float current_time = 0;
+  bool running = true;
+    while (running) {
+      switch (currentState) {
+        case STATES::START:
+          Serial.println("Estado: START");
+          if(current_time > 1.5){
+            if(obstacle){
+              drive_.acceptInput(150,0,0);
+            }else{
+              drive_.acceptInput(0,150,0);
+              currentState = STATES::ENDLINE;
+            }
+          }
+          break;
+
+        case STATES::ENDLINE:
+          Serial.println("Estado: ENDLINE");
+          if(frontLine){
+            drive_.acceptInput(-200,0,0);
+            if(leftLine){
+              drive_.hardBrake();
+              currentState = STATES::RIGHTMOST;
+            }
+          }
+          currentState = STATES::LEFTMOST;
+          break;
+
+        case STATES::RIGHTMOST:
+          Serial.println("Estado: RIGHTMOST");
+          if(leftLine){
+            drive_.hardBrake();
+            currentState = STATES::RETURN;
+          }else{
+            drive_.acceptInput(150,0,0);
+          }
+          break;
+
+        case STATES::RETURN:
+          Serial.println("Estado: RETURN");
+          drive_.acceptInput(0,0,180);
+          if(obstacle){
+            drive_.acceptInput(150,0,0);
+          }else{
+            drive_.acceptInput(0,150,0);
+            current_time = 0;
+            if(frontLine && current_time > 3){
+              drive_.hardBrake();
+              running = false;
+            }
+          }
+          break;
+        default:
+          Serial.println("Error: Estado desconocido.");
+          running = false;
+          break;
+      }
     }
-  }
-  Serial.println();
-  // distance_sensor_.getArrayDistance();
+
+    Serial.println("Máquina de estados finalizada.\n");
+  */
+
+  /* Debugging
+    if(frontLine)
+    {
+      Serial.println("Front Line Detected");
+    }else if (backLine)
+    {
+      Serial.println("Back Line Detected");
+
+    }else if (leftLine)
+    {
+      Serial.println("Left Line Detected");
+    }else if (rightLine)
+    {
+      Serial.println("Right Line Detected");
+    }
+    Serial.println(String(obstacle));
+  */
 }
