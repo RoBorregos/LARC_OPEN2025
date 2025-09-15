@@ -56,17 +56,17 @@ void loop()
   // }
   // Serial.println("]");
 
-  auto distanceValues = distance_sensor_.getArrayDistance();
-  float distance1 = distanceValues[0];
-  float distance2 = distanceValues[1];
+  // auto distanceValues = distance_sensor_.getArrayDistance();
+  // float distance1 = distanceValues[0];
+  // float distance2 = distanceValues[1];
 
-  Serial.print("Distance 1: ");
-  Serial.print(distance1);
-  Serial.print(" cm");
-  Serial.print("Distance 2: ");
-  Serial.print(distance2);
-  Serial.print(" cm");
-  Serial.println();
+  // Serial.print("Distance 1: ");
+  // Serial.print(distance1);
+  // Serial.print(" cm");
+  // Serial.print("Distance 2: ");
+  // Serial.print(distance2);
+  // Serial.print(" cm");
+  // Serial.println();
   // bool frontLine = frontLeftLine && frontRightLine;
   // bool backLine = backLeftLine && backRightLine;
   // bool leftLine = frontLeftLine && backLeftLine;

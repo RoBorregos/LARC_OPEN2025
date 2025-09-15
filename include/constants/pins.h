@@ -35,10 +35,10 @@ namespace Pins {
     };
 
     constexpr uint8_t kEncoders[8]{
-        39, // ENC1A
         40, // ENC1B
-        14, // ENC2A
-        15, // ENC2B
+        39, // ENC1A
+        15, // ENC2A
+        14, // ENC2B
         41, // ENC3A
         13, // ENC3B
         17, // ENC4A
