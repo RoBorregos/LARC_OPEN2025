@@ -15,10 +15,13 @@ class DistanceSensor : public System{
         void begin() override;
         void update() override;
         void setState(int state) override;
-        std::vector<float> getArrayDistance();
+        std::vector<float> getArrayDistance() const;
         float getDistance(int kSensor);
+
+        bool isObstacle() const;
+
     private:
-        float readSensor(uint8_t trigPin, uint8_t echoPin);
+        float readSensor(uint8_t trigPin, uint8_t echoPin) const;
 };
 
 #endif

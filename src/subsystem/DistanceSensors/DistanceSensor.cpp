@@ -16,7 +16,7 @@ void DistanceSensor::begin()
 void DistanceSensor::update() {}
 void DistanceSensor::setState(int state) {}
 
-float DistanceSensor::readSensor(uint8_t trigPin, uint8_t echoPin)
+float DistanceSensor::readSensor(uint8_t trigPin, uint8_t echoPin) const
 {
     digitalWrite(trigPin, LOW);
     delayMicroseconds(2);
@@ -31,29 +31,11 @@ float DistanceSensor::readSensor(uint8_t trigPin, uint8_t echoPin)
     return distance;
 }
 
-std::vector<float> DistanceSensor::getArrayDistance()
+std::vector<float> DistanceSensor::getArrayDistance() const
 {
     float kLeftDistance = readSensor(Pins::kDistanceSensors[0][0], Pins::kDistanceSensors[0][1]);
     delay(50);
     float kRightDistance = readSensor(Pins::kDistanceSensors[1][0], Pins::kDistanceSensors[1][1]);
-
-    /* For Debugging
-    Serial.print("Left Distance: ");
-    if (kLeftDistance == -1.0f) {
-        Serial.print("Fuera de rango");
-    } else {
-        Serial.print(kLeftDistance);
-        Serial.print(" cm");
-    }
-
-    Serial.print(" | Right Distance: ");
-    if (kRightDistance == -1.0f) {
-        Serial.println("Fuera de rango");
-    } else {
-        Serial.print(kRightDistance);
-        Serial.println(" cm");
-    }
-    */
 
     std::vector<float> distances = {kLeftDistance, kRightDistance};
     return distances;
@@ -70,4 +52,14 @@ float DistanceSensor::getDistance(int kSensor)
         return readSensor(Pins::kDistanceSensors[1][0], Pins::kDistanceSensors[1][1]);
     }
     return -1.0f;
+}
+
+bool DistanceSensor::isObstacle() const {
+    auto distanceValues = getArrayDistance();
+    int frontLeftDistance = distanceValues[0];
+    int frontRightDistance = distanceValues[1];
+
+    bool obstacle = (frontLeftDistance < 25) || (frontRightDistance < 25);
+
+    return obstacle;
 }

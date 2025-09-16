@@ -46,6 +46,7 @@ void Elevator::setState(int state)
 
 bool Elevator::getLimitState()
 {
+    return false;
 }
 
 void Elevator::resetPosition(double position)
