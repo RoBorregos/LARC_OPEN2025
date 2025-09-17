@@ -178,3 +178,73 @@ void Drive::motorTest()
     back_right_.move(0);
     delay(3000);
 }
+
+void Drive::moveForwardCm(float distance_cm, int speed)
+{
+    resetEncoders();
+    float target_distance = distance_cm / 100.0f;
+    
+    while (getAverageDistanceTraveled() < target_distance)
+    {
+        moveForward(speed);
+        delay(10); // Small delay for stability
+    }
+    brake();
+}
+
+void Drive::moveBackwardCm(float distance_cm, int speed)
+{
+    resetEncoders();
+    float target_distance = distance_cm / 100.0f;
+    
+    while (getAverageDistanceTraveled() < target_distance)
+    {
+        moveBackward(speed);
+        delay(10);
+    }
+    brake();
+}
+
+void Drive::moveLeftCm(float distance_cm, int speed)
+{
+    resetEncoders();
+    float target_distance = distance_cm / 100.0f;
+    
+    while (getAverageDistanceTraveled() < target_distance)
+    {
+        moveLeft(speed);
+        delay(10);
+    }
+    brake();
+}
+
+void Drive::moveRightCm(float distance_cm, int speed)
+{
+    resetEncoders();
+    float target_distance = distance_cm / 100.0f;
+    
+    while (getAverageDistanceTraveled() < target_distance)
+    {
+        moveRight(speed);
+        delay(10);
+    }
+    brake();
+}
+
+void Drive::resetEncoders()
+{
+    front_left_.getEncoderCount();
+    front_right_.getEncoderCount();
+    back_left_.getEncoderCount();
+    back_right_.getEncoderCount();
+}
+
+float Drive::getAverageDistanceTraveled()
+{
+    float fl_distance = abs(front_left_.getPositionMeters());
+    float fr_distance = abs(front_right_.getPositionMeters());
+    float bl_distance = abs(back_left_.getPositionMeters());
+    float br_distance = abs(back_right_.getPositionMeters());
+    
+    return (fl_distance + fr_distance + bl_distance + br_distance) / 4.0f;
+}

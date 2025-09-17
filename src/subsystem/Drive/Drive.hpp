@@ -36,6 +36,13 @@ public:
     void acceptHeadingInput(Rotation2D heading);
     void brake();
     void hardBrake();
+    
+    void moveForwardCm(float distance_cm, int speed = 100);
+    void moveBackwardCm(float distance_cm, int speed = 100);
+    void moveLeftCm(float distance_cm, int speed = 100);
+    void moveRightCm(float distance_cm, int speed = 100);
+    void resetEncoders();
+    float getAverageDistanceTraveled();
 
 private:
     void move(ChassisSpeed chassis_speed);
