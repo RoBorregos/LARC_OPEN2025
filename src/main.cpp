@@ -58,15 +58,17 @@ void loop()
         drive_.acceptInput(-110,0,0);
       }
     } else {
-      drive_.acceptInput(0,110,0);
-      currentState = STATES::ENDLINE;
+      drive_.acceptInput(0,90,0);
+      if(line_sensor_.isFrontLine() && millis() - start_time > 1500){
+        currentState = STATES::ENDLINE;
+        drive_.acceptInput(0,0,0);
+      }
       start_time = 0;  
     }
     break;
 
     case STATES::ENDLINE:
       Serial.println("Estado: ENDLINE");
-      drive_.acceptInput(0,110,0);
       if (line_sensor_.isFrontLine()) {
         drive_.acceptInput(0,0,0);
         if (millis() - start_time > 1500) {
