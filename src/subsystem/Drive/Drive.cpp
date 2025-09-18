@@ -257,10 +257,12 @@ void Drive::followFrontLineLeft(){
     bool front_right_detects = sensors[1];  // FR sensor
     
     line_error_ = calculateLineError(sensors);
+    
     float pid_output = calculateLinePID();
     
-    int base_lateral_speed = 70;
-    int correction_speed = (int)(pid_output * 30); 
+    int base_lateral_speed = 50;
+    
+    int correction_speed = (int)pid_output;
     
     if (front_left_detects && front_right_detects) {
         moveLeft(base_lateral_speed);
@@ -278,7 +280,7 @@ void Drive::followFrontLineLeft(){
         back_right_.move(-base_lateral_speed - correction_speed);  
     }
     else {
-        moveForward(50);
+        moveBackward(40);
     }
 }
 
@@ -289,28 +291,30 @@ void Drive::followFrontLineRight(){
     bool front_right_detects = sensors[1];  // FR sensor
     
     line_error_ = calculateLineError(sensors);
+    
     float pid_output = calculateLinePID();
     
-    int base_lateral_speed = 70;
-    int correction_speed = (int)(pid_output * 30); 
+    int base_lateral_speed = 50;
+    
+    int correction_speed = (int)pid_output;
     
     if (front_left_detects && front_right_detects) {
         moveRight(base_lateral_speed);
     }
     else if (front_left_detects && !front_right_detects) {
-        front_left_.move(base_lateral_speed + correction_speed);   
-        front_right_.move(-base_lateral_speed + correction_speed);     
-        back_left_.move(-base_lateral_speed + correction_speed);     
-        back_right_.move(base_lateral_speed + correction_speed);   
+        front_left_.move(-base_lateral_speed + correction_speed);   
+        front_right_.move(base_lateral_speed + correction_speed);     
+        back_left_.move(base_lateral_speed + correction_speed);     
+        back_right_.move(-base_lateral_speed + correction_speed);   
     }
     else if (!front_left_detects && front_right_detects) {
-        front_left_.move(base_lateral_speed - correction_speed);  
-        front_right_.move(-base_lateral_speed - correction_speed);  
-        back_left_.move(-base_lateral_speed - correction_speed);      
-        back_right_.move(base_lateral_speed - correction_speed);  
+        front_left_.move(-base_lateral_speed - correction_speed);  
+        front_right_.move(base_lateral_speed - correction_speed);  
+        back_left_.move(base_lateral_speed - correction_speed);      
+        back_right_.move(-base_lateral_speed - correction_speed);  
     }
     else {
-        moveForward(50);
+        moveBackward(40);
     }
 }
 
