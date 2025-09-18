@@ -7,6 +7,7 @@
  */
 
 #include "Drive.hpp"
+#include "../../robot/robot_instances.h"
 
 Drive::Drive() : front_left_(Pins::kUpperMotors[0], Pins::kUpperMotors[1], Pins::kPwmPin[0], true, Pins::kEncoders[0], Pins::kEncoders[1], DriveConstants::kWheelDiameter),
                  front_right_(Pins::kUpperMotors[2], Pins::kUpperMotors[3], Pins::kPwmPin[1], false, Pins::kEncoders[2], Pins::kEncoders[3], DriveConstants::kWheelDiameter),
@@ -247,4 +248,98 @@ float Drive::getAverageDistanceTraveled()
     float br_distance = abs(back_right_.getPositionMeters());
     
     return (fl_distance + fr_distance + bl_distance + br_distance) / 4.0f;
+}
+
+void Drive::followFrontLine(){
+    std::vector<int> sensors = line_sensor_.readSensors();
+    
+    bool front_left_detects = sensors[0];   // FL sensor
+    bool front_right_detects = sensors[1];  // FR sensor
+    
+    line_error_ = calculateLineError(sensors);
+    
+    float pid_output = calculateLinePID();
+    
+    int base_lateral_speed = 50;
+    
+    int correction_speed = (int)pid_output;
+    
+    if (front_left_detects && front_right_detects) {
+        moveLeft(base_lateral_speed);
+    }
+    else if (front_left_detects && !front_right_detects) {
+        front_left_.move(-base_lateral_speed + correction_speed);   
+        front_right_.move(base_lateral_speed + correction_speed);     
+        back_left_.move(base_lateral_speed + correction_speed);     
+        back_right_.move(-base_lateral_speed + correction_speed);   
+    }
+    else if (!front_left_detects && front_right_detects) {
+        front_left_.move(-base_lateral_speed - correction_speed);  
+        front_right_.move(base_lateral_speed - correction_speed);  
+        back_left_.move(base_lateral_speed - correction_speed);      
+        back_right_.move(-base_lateral_speed - correction_speed);  
+    }
+    else {
+        moveBackward(40);
+    }
+}
+
+void Drive::setLinePIDConstants(float kp, float ki, float kd) {
+    line_kp_ = kp;
+    line_ki_ = ki;
+    line_kd_ = kd;
+}
+
+float Drive::calculateLineError(const std::vector<int>& sensors) {
+    // sensors[0] = FL (Front Left)
+    // sensors[1] = FR (Front Right)
+    // sensors[2] = BL (Back Left) 
+    // sensors[3] = BR (Back Right)
+    
+    bool front_left_detects = sensors[0]; 
+    bool front_right_detects = sensors[1]; 
+    
+    float error = 0.0f;
+    
+    if (front_left_detects && front_right_detects) {
+        error = 0.0f;
+    }
+    else if (front_left_detects && !front_right_detects) {
+        error = 1.0f;  
+    }
+    else if (!front_left_detects && front_right_detects) {
+        error = -1.0f;   
+    }
+    else {
+        error = line_last_error_;
+    }
+    
+    return error;
+}
+
+float Drive::calculateLinePID() {
+    unsigned long current_time = millis();
+    float dt = (current_time - line_last_time_) / 1000.0f;
+    
+    if (line_last_time_ == 0) {
+        dt = 0.02f; 
+    }
+    
+    float P = line_kp_ * line_error_;
+    
+    line_integral_ += line_error_ * dt;
+    line_integral_ = constrain(line_integral_, -100, 100);
+    float I = line_ki_ * line_integral_;
+    
+    float D = 0.0f;
+    if (dt > 0) {
+        D = line_kd_ * (line_error_ - line_last_error_) / dt;
+    }
+    
+    float output = P + I + D;
+    
+    line_last_error_ = line_error_;
+    line_last_time_ = current_time;
+    
+    return output;
 }

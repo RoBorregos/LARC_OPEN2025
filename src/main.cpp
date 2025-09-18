@@ -43,13 +43,9 @@ void loop()
 {
   drive_.update();
 
-  // if(line_sensor_.isFrontLine()){
-  //   drive_.acceptInput(0,0,0);
-  // }else{
-  //     drive_.acceptInput(0,60,0);
-  // }
+  drive_.followFrontLine();
 
-
+  /*
   switch (currentState) {
     case STATES::START:
     Serial.println("Estado: START");
@@ -68,8 +64,7 @@ void loop()
       }
     } else {
       drive_.acceptInput(0,60,0);
-      if(line_sensor_.isFrontLine() && millis() - start_time > 2500){
-        drive_.acceptInput(0,0,0);
+      if(millis() - start_time > 6000){
         currentState = STATES::ENDLINE;
       }
       start_time = 0;  
@@ -78,15 +73,16 @@ void loop()
 
     case STATES::ENDLINE:
       Serial.println("Estado: ENDLINE");
-      if (millis() - start_time > 1500) {
-        drive_.acceptInput(-60,0,0);
+      if (line_sensor_.isFrontLine()) {
+        drive_.acceptInput(0,0,0);
         if (line_sensor_.isLeftLine()) {
           drive_.acceptInput(0,0,0);
-          start_time = millis();
           currentState = STATES::RIGHTMOST;
+        }else{
+          drive_.acceptInput(-60,0,0);
         }
       }else{
-        drive_.acceptInput(0,0,0);
+        drive_.acceptInput(0,60,0);
       }
       break;
 
@@ -129,4 +125,5 @@ void loop()
       drive_.acceptInput(0,0,0);
       break;
   }
+  */
 }
