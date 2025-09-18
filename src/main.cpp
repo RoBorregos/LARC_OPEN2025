@@ -53,7 +53,7 @@ void loop()
         currentState = STATES::TURN_LEFT;
       }else{
         drive_.acceptInput(0,70,0);
-        if(millis() > 1500){
+        if(millis() > 3500){
           currentState = STATES::ENDLINE;
         }
       }
@@ -99,7 +99,7 @@ void loop()
     case STATES::RETURN:
       Serial.println("Estado: RETURN");
       drive_.acceptInput(0,0,180);
-      if(distance_sensor_.isObstacle() && millis() - start_time > 1500) {
+      if(distance_sensor_.isObstacle()) {
         if (start_time == 0) {
           start_time = millis();
         }
@@ -112,7 +112,7 @@ void loop()
         }
       } else {
         drive_.acceptInput(0,50,0);
-        if (line_sensor_.isFrontLine() && (millis() - start_time > 500)) {
+        if (line_sensor_.isFrontLine() && (millis() - start_time > 3000)) {
           drive_.acceptInput(0,0,0);
           currentState = STATES::START;
         }
