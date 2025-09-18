@@ -14,7 +14,6 @@ enum class STATES
   START,
   TURN_LEFT,
   ENDLINE,
-  LEFTMOST,
   RIGHTMOST,
   RETURN
 };
@@ -45,46 +44,56 @@ void loop()
 {
   drive_.update();
 
-  if(distance_sensor_.isObstacle()){
-    drive_.acceptInput(0,0,0);
-  }else{
-    drive_.acceptInput(0,60,0);
-  }
+  // auto values = distance_sensor_.getArrayDistance();
+  // float left = values[0];
+  // float right = values[1];
+
+  // Serial.print("Left: ");
+  // Serial.print(left);
+  // Serial.print(" | Right: ");
+  // Serial.println(right);
 
   switch (currentState) {
-    switch (currentState) {
-      case STATES::START:
-        if (ignore_first_line && line_sensor_.isFrontLine()) {
-          drive_.acceptInput(0,70,0);
+    case STATES::START:
+      Serial.println("START STATE");
+      if (ignore_first_line && line_sensor_.isFrontLine()) {
+        drive_.acceptInput(0,70,0);
+      } else {
+        ignore_first_line = false;
+        if (distance_sensor_.isObstacle()) {
+          currentState = STATES::TURN_LEFT;
         } else {
-          ignore_first_line = false;
-          if (distance_sensor_.isObstacle()) {
-            currentState = STATES::TURN_LEFT;
-          } else {
-            drive_.acceptInput(0,70,0);
-            if (line_sensor_.isFrontLine()) {
-              drive_.acceptInput(0,0,0);
-              currentState = STATES::ENDLINE;
-            }
+          drive_.acceptInput(0,70,0);
+          if (line_sensor_.isFrontLine()) {
+            drive_.acceptInput(0,0,0);
+            currentState = STATES::ENDLINE;
           }
         }
-        break;
+      }
+      break;
 
-      case STATES::TURN_LEFT:
+    case STATES::TURN_LEFT:
+      Serial.println("TURN_LEFT STATE");
+
+      if(line_sensor_.isLeftLine()){
         drive_.acceptInput(100,0,0);
-        if (!distance_sensor_.isObstacle()) {
-          currentState = STATES::ENDLINE;
-        }
-        break;
+      }else{
+        drive_.acceptInput(-100,0,0);
+      }
+      if (!distance_sensor_.isObstacle()) {
+        currentState = STATES::ENDLINE;
+      }
+      break;
 
-      case STATES::ENDLINE:
-        if(line_sensor_.isLeftLine()) {
-          drive_.acceptInput(0,0,0);
-        } else {
-          drive_.followFrontLineLeft();
-        }
-        break;
-    }
+    case STATES::ENDLINE:
+      Serial.println("ENDLINE STATE");
+      if(line_sensor_.isLeftLine()) {
+        drive_.acceptInput(0,0,0);
+        currentState = STATES::RIGHTMOST;
+      } else {
+        drive_.followFrontLineLeft();
+      }
+      break;
 
     case STATES::RIGHTMOST:
       Serial.println("Estado: RIGHTMOST");

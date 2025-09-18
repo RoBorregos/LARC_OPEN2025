@@ -257,12 +257,10 @@ void Drive::followFrontLineLeft(){
     bool front_right_detects = sensors[1];  // FR sensor
     
     line_error_ = calculateLineError(sensors);
-    
     float pid_output = calculateLinePID();
     
     int base_lateral_speed = 70;
-    
-    int correction_speed = (int)pid_output;
+    int correction_speed = (int)(pid_output * 30); 
     
     if (front_left_detects && front_right_detects) {
         moveLeft(base_lateral_speed);
@@ -280,7 +278,7 @@ void Drive::followFrontLineLeft(){
         back_right_.move(-base_lateral_speed - correction_speed);  
     }
     else {
-        moveForward(70);
+        moveForward(50);
     }
 }
 
@@ -291,30 +289,28 @@ void Drive::followFrontLineRight(){
     bool front_right_detects = sensors[1];  // FR sensor
     
     line_error_ = calculateLineError(sensors);
-    
     float pid_output = calculateLinePID();
     
     int base_lateral_speed = 70;
-    
-    int correction_speed = (int)pid_output;
+    int correction_speed = (int)(pid_output * 30); 
     
     if (front_left_detects && front_right_detects) {
         moveRight(base_lateral_speed);
     }
     else if (front_left_detects && !front_right_detects) {
-        front_left_.move(-base_lateral_speed + correction_speed);   
-        front_right_.move(base_lateral_speed + correction_speed);     
-        back_left_.move(base_lateral_speed + correction_speed);     
-        back_right_.move(-base_lateral_speed + correction_speed);   
+        front_left_.move(base_lateral_speed + correction_speed);   
+        front_right_.move(-base_lateral_speed + correction_speed);     
+        back_left_.move(-base_lateral_speed + correction_speed);     
+        back_right_.move(base_lateral_speed + correction_speed);   
     }
     else if (!front_left_detects && front_right_detects) {
-        front_left_.move(-base_lateral_speed - correction_speed);  
-        front_right_.move(base_lateral_speed - correction_speed);  
-        back_left_.move(base_lateral_speed - correction_speed);      
-        back_right_.move(-base_lateral_speed - correction_speed);  
+        front_left_.move(base_lateral_speed - correction_speed);  
+        front_right_.move(-base_lateral_speed - correction_speed);  
+        back_left_.move(-base_lateral_speed - correction_speed);      
+        back_right_.move(base_lateral_speed - correction_speed);  
     }
     else {
-        moveForward(70);
+        moveForward(50);
     }
 }
 
@@ -359,18 +355,23 @@ float Drive::calculateLinePID() {
         dt = 0.02f; 
     }
     
+    // Componente proporcional
     float P = line_kp_ * line_error_;
     
+    // Componente integral con límites anti-windup más restrictivos
     line_integral_ += line_error_ * dt;
-    line_integral_ = constrain(line_integral_, -100, 100);
+    line_integral_ = constrain(line_integral_, -50, 50);
     float I = line_ki_ * line_integral_;
     
+    // Componente derivativo
     float D = 0.0f;
     if (dt > 0) {
         D = line_kd_ * (line_error_ - line_last_error_) / dt;
     }
     
+    // Salida total del PID con normalización
     float output = P + I + D;
+    output = constrain(output, -1.0f, 1.0f); // Normalizar salida
     
     line_last_error_ = line_error_;
     line_last_time_ = current_time;
