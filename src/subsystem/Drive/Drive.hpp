@@ -45,7 +45,8 @@ public:
     void resetEncoders();
     float getAverageDistanceTraveled();
 
-    void followFrontLine();
+    void followFrontLineLeft();
+    void followFrontLineRight();
     
     void setLinePIDConstants(float kp, float ki, float kd);
     float calculateLineError(const std::vector<int>& sensors);
@@ -60,6 +61,7 @@ private:
     DCMotor back_right_;
     BNO bno_;
     RobotConstants robot_constants_;
+    LineSensor line_sensor_;
 
     enum class DriveState
     {
@@ -78,9 +80,9 @@ private:
     HeadingController heading_controller_;
     
     /* Line following PID variables */
-    float line_kp_ = 0.4f;      
-    float line_ki_ = 0.0f;      
-    float line_kd_ = 0.1f;      
+    float line_kp_ = 0.6f;      // Incrementado para respuesta más rápida al error
+    float line_ki_ = 0.02f;     // Pequeño valor para eliminar error estacionario
+    float line_kd_ = 0.15f;     // Incrementado para reducir oscilaciones
     float line_error_ = 0.0f;   
     float line_last_error_ = 0.0f; 
     float line_integral_ = 0.0f;   
