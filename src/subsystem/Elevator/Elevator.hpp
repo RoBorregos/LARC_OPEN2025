@@ -12,41 +12,29 @@ private:
     const int step_pin_;
     const int dir_pin_;
     
-    float current_height_ = 0.0; // in cm
+    const int kONStepCount = 200;
+
+    int current_step_count_ = 0;
     
-    // Method to convert a distance in centimeters to the corresponding number of steps. Returns number of steps required to move the given distance
-    int translateCmToSteps(float distance);
+    // Method to move the elevator up or down depending on the goal step count
+    void moveToStepCount(int goalSteps);
     
 public:
-    // Constructor with initialization list
-    Elevator(int leftStepPin, int leftDirPin, int rightStepPin, int rightDirPin);
+    // Constructor with pin initialization
+    Elevator(int stepPin, int dirPin);
 
-    // Method to initialize the elevator system
+    // Method to initialize the elevator system, move elevator to ON position
     bool setup();
-
-    // Method to move the elevator up by a specified distance in cm
-    void moveUp(float distance);
-
-    // Method to move the elevator down by a specified distance in cm
-    void moveDown(float distance);
-
-    // Method to move to a specific height in cm
-    void moveToHeight(float height);
-
-    // Method to stop the motors
-    void stop();
 
     void update() override;
     void setState(int state) override;
 
     enum class ElevatorState {
-        HOME = 0,
-        LOW_POSITION = 1,
-        MID_POSITION = 2,
-        HIGH_POSITION = 3,
+        OFF = 0,
+        ON = 1,
     };
 
-    ElevatorState elevator_state_ = ElevatorState::HOME;
+    ElevatorState elevator_state_ = ElevatorState::OFF;
 };
 
 #endif // ELEVATOR_H
