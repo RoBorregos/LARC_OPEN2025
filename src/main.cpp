@@ -20,7 +20,6 @@ enum class STATES
 
 STATES currentState = STATES::START;
 unsigned long start_time = 0;
-bool ignore_first_line = true;
 
 
 void setup()
@@ -43,31 +42,19 @@ void setup()
 void loop()
 {
   drive_.update();
-
-  // auto values = distance_sensor_.getArrayDistance();
-  // float left = values[0];
-  // float right = values[1];
-
-  // Serial.print("Left: ");
-  // Serial.print(left);
-  // Serial.print(" | Right: ");
-  // Serial.println(right);
+  
+  // drive_.followFrontLineLeft();
 
   switch (currentState) {
     case STATES::START:
       Serial.println("START STATE");
-      if (ignore_first_line && line_sensor_.isFrontLine()) {
+      if(distance_sensor_.isObstacle()){
+        drive_.acceptInput(0,0,0);
+        currentState = STATES::TURN_LEFT;
+      }else{
         drive_.acceptInput(0,70,0);
-      } else {
-        ignore_first_line = false;
-        if (distance_sensor_.isObstacle()) {
-          currentState = STATES::TURN_LEFT;
-        } else {
-          drive_.acceptInput(0,70,0);
-          if (line_sensor_.isFrontLine()) {
-            drive_.acceptInput(0,0,0);
-            currentState = STATES::ENDLINE;
-          }
+        if(millis() > 1500){
+          currentState = STATES::ENDLINE;
         }
       }
       break;
@@ -90,8 +77,12 @@ void loop()
       if(line_sensor_.isLeftLine()) {
         drive_.acceptInput(0,0,0);
         currentState = STATES::RIGHTMOST;
-      } else {
-        drive_.followFrontLineLeft();
+      }
+      else {
+        if(line_sensor_.isFrontLine()){
+          drive_.acceptInput(0,0,0);
+        }
+        drive_.acceptInput(0,70,0);
       }
       break;
 
@@ -99,6 +90,7 @@ void loop()
       Serial.println("Estado: RIGHTMOST");
       if(line_sensor_.isRightLine()){
         drive_.acceptInput(0,0,0);
+        currentState = STATES::RETURN;
       }else{
         drive_.followFrontLineRight();
       }
@@ -113,9 +105,9 @@ void loop()
         }
         if (millis() - start_time > 500) {
           if(line_sensor_.isLeftLine()){
-            drive_.acceptInput(50,0,0);
+            drive_.acceptInput(100,0,0);
           }else{
-            drive_.acceptInput(-50,0,0);
+            drive_.acceptInput(-100,0,0);
           }
         }
       } else {
@@ -132,4 +124,5 @@ void loop()
       drive_.acceptInput(0,0,0);
       break;
   }
+
 }
