@@ -42,36 +42,33 @@ void setup()
 void loop()
 {
   drive_.update();
-  
+
+  // if(line_sensor_.isFrontLine()){
+  //   drive_.acceptInput(0,0,0);
+  // }else{
+  //     drive_.acceptInput(0,60,0);
+  // }
 
 
-  if(line_sensor_.isFrontLine()){
-    drive_.acceptInput(0,0,0);
-  }else{
-      drive_.acceptInput(0,60,0);
-  }
-  /*
   switch (currentState) {
     case STATES::START:
     Serial.println("Estado: START");
-    drive_.acceptInput(0,90,0);  
-
     if (distance_sensor_.isObstacle()) {
       drive_.acceptInput(0,0,0);
       
       if (start_time == 0) {
         start_time = millis();
       }
-      if (millis() - start_time > 1000) {
+      if (millis() - start_time > 500) {
         if(line_sensor_.isLeftLine()){
-          drive_.acceptInput(90,0,0);
+          drive_.acceptInput(100,0,0);
         }else {
-          drive_.acceptInput(-90,0,0);
+          drive_.acceptInput(-100,0,0);
         }
       }
     } else {
-      drive_.acceptInput(0,90,0);
-      if(line_sensor_.isFrontLine() && millis() - start_time > 1500){
+      drive_.acceptInput(0,60,0);
+      if(line_sensor_.isFrontLine() && millis() - start_time > 2500){
         drive_.acceptInput(0,0,0);
         currentState = STATES::ENDLINE;
       }
@@ -81,42 +78,47 @@ void loop()
 
     case STATES::ENDLINE:
       Serial.println("Estado: ENDLINE");
-      if (line_sensor_.isFrontLine()) {
-        drive_.acceptInput(0,0,0);
-        if (millis() - start_time > 1500) {
-          drive_.acceptInput(-90,0,0);
-          if (line_sensor_.isLeftLine()) {
-            drive_.acceptInput(0,0,0);
-            currentState = STATES::RIGHTMOST;
-            start_time = millis();
-          }
+      if (millis() - start_time > 1500) {
+        drive_.acceptInput(-60,0,0);
+        if (line_sensor_.isLeftLine()) {
+          drive_.acceptInput(0,0,0);
+          start_time = millis();
+          currentState = STATES::RIGHTMOST;
         }
+      }else{
+        drive_.acceptInput(0,0,0);
       }
       break;
 
     case STATES::RIGHTMOST:
-      Serial.println("Estado: RIGHTMOST");
-      if (line_sensor_.isRightLine() && line_sensor_.isFrontLine()) {
-        drive_.acceptInput(0,0,0);
-        start_time = millis();
-        currentState = STATES::RETURN;
-      } else {
-        drive_.acceptInput(90,0,0);
+    Serial.println("Estado: RIGHTMOST");
+      if (millis() - start_time > 1500) {
+        drive_.acceptInput(60,0,0);
+        if(line_sensor_.isRightLine()){
+          drive_.acceptInput(0,0,0);
+          currentState = STATES::RETURN;
+        }
       }
       break;
 
     case STATES::RETURN:
       Serial.println("Estado: RETURN");
-      if (distance_sensor_.isObstacle()) {
-        if(line_sensor_.isLeftLine()){
-          drive_.acceptInput(90,0,0);
-        }else{
-          drive_.acceptInput(-90,0,0);
+      drive_.acceptInput(0,0,180);
+      if(distance_sensor_.isObstacle() && millis() - start_time > 1500) {
+        if (start_time == 0) {
+          start_time = millis();
+        }
+        if (millis() - start_time > 500) {
+          if(line_sensor_.isLeftLine()){
+            drive_.acceptInput(50,0,0);
+          }else{
+            drive_.acceptInput(-50,0,0);
+          }
         }
       } else {
-        drive_.acceptInput(0,90,180);
+        drive_.acceptInput(0,50,0);
         if (line_sensor_.isFrontLine() && (millis() - start_time > 3000)) {
-          drive_.acceptInput(0,0,180);
+          drive_.acceptInput(0,0,0);
           currentState = STATES::START;
         }
       }
@@ -127,5 +129,4 @@ void loop()
       drive_.acceptInput(0,0,0);
       break;
   }
-  */
 }
