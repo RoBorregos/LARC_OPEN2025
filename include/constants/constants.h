@@ -32,6 +32,11 @@ namespace Constants {
 
     }
 
+    namespace DistanceSensorConstants{
+        constexpr int kObstacleDistance = 25;
+        constexpr int kTreeDistance = 8;
+    }
+
     namespace LineSensorConstants{
         constexpr int kPoolDistance = 10;
         constexpr int kTreeDistance = 15;

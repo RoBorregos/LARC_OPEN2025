@@ -59,7 +59,7 @@ bool DistanceSensor::isObstacle() const {
     int frontLeftDistance = distanceValues[0];
     int frontRightDistance = distanceValues[1];
 
-    bool obstacle = (frontLeftDistance < 25) || (frontRightDistance < 25);
+    bool obstacle = (frontLeftDistance < DistanceSensorConstants::kObstacleDistance) || (frontRightDistance < DistanceSensorConstants::kObstacleDistance);
 
     return obstacle;
 }
@@ -69,7 +69,7 @@ bool DistanceSensor::isTree() const{
     int frontLeftDistance = distanceValues[0];
     int frontRightDistance = distanceValues[1];
 
-    bool tree = (frontLeftDistance < 8) || (frontRightDistance < 8);
+    bool tree = (frontLeftDistance < DistanceSensorConstants::kTreeDistance) || (frontRightDistance < DistanceSensorConstants::kTreeDistance);
 
     return tree;
 }
