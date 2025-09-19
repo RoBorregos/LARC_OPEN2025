@@ -46,15 +46,17 @@ void loop()
   auto values = line_sensor_.readSensors(); 
   bool frontLeft = values[0];
   bool frontRight = values[1];
-
+  
   bool lineDetected = (frontLeft || frontRight);
   if(lineDetected){
-    drive_.acceptInput(0,0,0);
-    start_time = millis();
-    if(millis() - start_time > 1500){
-      drive_.followFrontLine(0);
+    if (start_time == 0) {
+      drive_.acceptInput(0,0,0);
+      start_time = millis();
+    } else if (millis() - start_time > 1500) {
+      drive_.acceptInput(-90,0,0); 
+      start_time = 0;
     }
-  }else if (!lineDetected && drive_.getAverageDistanceTraveled() > 100){
+  } else {
     drive_.acceptInput(0,50,0);
   }
 

@@ -253,6 +253,7 @@ float Drive::getAverageDistanceTraveled()
     return (fl_distance + fr_distance + bl_distance + br_distance) / 4.0f;
 }
 
+/*
 void Drive::followFrontLine(int movement) {
     // movement = 0 -> left
     // movement = 1 -> right
@@ -290,6 +291,38 @@ void Drive::followFrontLine(int movement) {
         }
         return;
     }else if (front_left_detects && !front_right_detects) {
+        front_left_.move(-base_lateral_speed + correction_speed);   
+        front_right_.move(base_lateral_speed + correction_speed);     
+        back_left_.move(base_lateral_speed + correction_speed);     
+        back_right_.move(-base_lateral_speed + correction_speed);   
+    }
+    else if (!front_left_detects && front_right_detects) {
+        front_left_.move(-base_lateral_speed - correction_speed);  
+        front_right_.move(base_lateral_speed - correction_speed);  
+        back_left_.move(base_lateral_speed - correction_speed);      
+        back_right_.move(-base_lateral_speed - correction_speed);  
+    }
+}
+*/
+
+void Drive::followFrontLine(int movement){
+    std::vector<int> sensors = line_sensor_.readSensors();
+    
+    bool front_left_detects = sensors[0];   // FL sensor
+    bool front_right_detects = sensors[1];  // FR sensor
+    
+    line_error_ = calculateLineError(sensors);
+    
+    float pid_output = calculateLinePID();
+    
+    int base_lateral_speed = 50;
+    
+    int correction_speed = (int)pid_output;
+    
+    if (front_left_detects && front_right_detects) {
+        moveLeft(base_lateral_speed);
+    }
+    else if (front_left_detects && !front_right_detects) {
         front_left_.move(-base_lateral_speed + correction_speed);   
         front_right_.move(base_lateral_speed + correction_speed);     
         back_left_.move(base_lateral_speed + correction_speed);     
