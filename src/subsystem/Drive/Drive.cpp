@@ -251,6 +251,9 @@ float Drive::getAverageDistanceTraveled()
 }
 
 void Drive::followFrontLine(int movement) {
+    // movement = 0 -> left
+    // movement = 1 -> right
+
     std::vector<int> sensors = line_sensor_.readSensors();
     
     bool front_left_detects = sensors[0];   

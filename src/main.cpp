@@ -79,7 +79,7 @@ void loop()
         currentState = STATES::RIGHTMOST;
       }
       else {
-        drive_.followFrontLine(0); // 0 = izquierda
+        drive_.followFrontLine(0);
       }
       break;
 
@@ -89,7 +89,7 @@ void loop()
         drive_.acceptInput(0,0,0);
         currentState = STATES::RETURN;
       }else{
-        drive_.followFrontLine(1); // 1 = derecha
+        drive_.followFrontLine(1);
       }
       break;
 
