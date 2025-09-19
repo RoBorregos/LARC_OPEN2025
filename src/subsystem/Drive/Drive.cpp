@@ -300,6 +300,8 @@ void Drive::followFrontLine(int movement) {
         front_right_.move(base_lateral_speed - correction_speed);  
         back_left_.move(base_lateral_speed - correction_speed);      
         back_right_.move(-base_lateral_speed - correction_speed);  
+    }else{
+        drive_.acceptInput(0,50,0);
     }
 }
 

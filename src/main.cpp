@@ -41,7 +41,7 @@ void setup()
 
 void loop()
 {
-  // drive_.update();
+  drive_.update();
 
   // auto values = line_sensor_.readSensors(); 
   // bool frontLeft = values[0];
@@ -68,7 +68,10 @@ void loop()
         currentState = STATES::TURN_LEFT;
       }else{
         drive_.acceptInput(0,70,0);
-        if(drive_.getAverageDistanceTraveled() > 90){
+        if (start_time == 0) {
+          start_time = millis();
+        }
+        if(millis() - start_time > 3000){
           currentState = STATES::ENDLINE;
         }
       }
