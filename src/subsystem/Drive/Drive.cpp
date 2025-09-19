@@ -261,46 +261,45 @@ void Drive::followFrontLine(int movement) {
     
     bool front_left_detects = sensors[0];   
     bool front_right_detects = sensors[1];  
-    
-
-
-    if (front_left_detects && front_right_detects) {
-        if (movement == 0) { 
-            moveLeft(70);
-        } else { 
-            moveRight(70);
-        }
-        return;
-    }
-
-    bno_.getYaw();
+    bool back_left_detect = sensors[2];
     
     line_error_ = calculateLineError(sensors);
     float pid_output = calculateLinePID();
     
+    float start_time = 0;
     int base_lateral_speed = 70;
     int correction_speed = (int)pid_output;
     
-    if (movement == 0) {
-        if (front_left_detects && !front_right_detects) {
-            acceptInput(-100,0,0);
+    if(start_time == 0){
+        start_time = millis();
+    }
+
+    if (front_left_detects && front_right_detects) {
+        if (movement == 0) { 
+            if(millis() - start_time > 1500 ){
+                moveLeft(70);
+            }else{
+                acceptInput(0,0,0);
+            }
+        } else { 
+            if(millis() - start_time > 1500 ){
+                moveRight(70);
+            }else{
+                acceptInput(0,0,0);
+            }
         }
-        else if (!front_left_detects && front_right_detects) {
-            acceptInput(0,20,0);
-        }
-        else {
-            moveForward(50);
-        }
-    } else {
-        if (front_left_detects && !front_right_detects) {
-            acceptInput(100,0,0);
-        }
-        else if (!front_left_detects && front_right_detects) {
-            acceptInput(0,20,0);
-        }
-        else {
-            moveForward(50);
-        }
+        return;
+    }else if (front_left_detects && !front_right_detects) {
+        front_left_.move(-base_lateral_speed + correction_speed);   
+        front_right_.move(base_lateral_speed + correction_speed);     
+        back_left_.move(base_lateral_speed + correction_speed);     
+        back_right_.move(-base_lateral_speed + correction_speed);   
+    }
+    else if (!front_left_detects && front_right_detects) {
+        front_left_.move(-base_lateral_speed - correction_speed);  
+        front_right_.move(base_lateral_speed - correction_speed);  
+        back_left_.move(base_lateral_speed - correction_speed);      
+        back_right_.move(-base_lateral_speed - correction_speed);  
     }
 }
 

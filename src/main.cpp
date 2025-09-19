@@ -42,9 +42,23 @@ void setup()
 void loop()
 {
   drive_.update();
-  
-  // drive_.followFrontLineLeft();
 
+  auto values = line_sensor_.readSensors(); 
+  bool frontLeft = values[0];
+  bool frontRight = values[1];
+
+  bool lineDetected = (frontLeft || frontRight);
+  if(lineDetected){
+    drive_.acceptInput(0,0,0);
+    start_time = millis();
+    if(millis() - start_time > 1500){
+      drive_.followFrontLine(0);
+    }
+  }else if (!lineDetected && drive_.getAverageDistanceTraveled() > 100){
+    drive_.acceptInput(0,50,0);
+  }
+
+  /*
   switch (currentState) {
     case STATES::START:
       Serial.println("START STATE");
@@ -53,7 +67,7 @@ void loop()
         currentState = STATES::TURN_LEFT;
       }else{
         drive_.acceptInput(0,70,0);
-        if(millis() > 3500){
+        if(drive_.getAverageDistanceTraveled() > 90){
           currentState = STATES::ENDLINE;
         }
       }
@@ -121,5 +135,5 @@ void loop()
       drive_.acceptInput(0,0,0);
       break;
   }
-
+  */
 }
