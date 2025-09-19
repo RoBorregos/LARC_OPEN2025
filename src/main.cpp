@@ -42,7 +42,7 @@ void setup()
 void loop()
 {
   drive_.update();
-
+  
   switch (currentState)
   {
   case STATES::START:
@@ -68,7 +68,7 @@ void loop()
     break;
 
   case STATES::AVOID_OBSTACLE_LEFT:
-    Serial.println("AVOID OBSTACLE STATE");
+    Serial.println("AVOID OBSTACLE LEFT STATE");
 
     if (line_sensor_.isLeftLine())
     {
