@@ -79,10 +79,7 @@ void loop()
         currentState = STATES::RIGHTMOST;
       }
       else {
-        if(line_sensor_.isFrontLine()){
-          drive_.acceptInput(0,0,0);
-        }
-        drive_.acceptInput(0,70,0);
+        drive_.followFrontLine(0); // 0 = izquierda
       }
       break;
 
@@ -92,7 +89,7 @@ void loop()
         drive_.acceptInput(0,0,0);
         currentState = STATES::RETURN;
       }else{
-        drive_.followFrontLineRight();
+        drive_.followFrontLine(1); // 1 = derecha
       }
       break;
 

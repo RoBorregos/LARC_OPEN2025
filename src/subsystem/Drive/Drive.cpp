@@ -250,71 +250,59 @@ float Drive::getAverageDistanceTraveled()
     return (fl_distance + fr_distance + bl_distance + br_distance) / 4.0f;
 }
 
-void Drive::followFrontLineLeft(){
+void Drive::followFrontLine(int movement) {
     std::vector<int> sensors = line_sensor_.readSensors();
     
-    bool front_left_detects = sensors[0];   // FL sensor
-    bool front_right_detects = sensors[1];  // FR sensor
-    
-    line_error_ = calculateLineError(sensors);
-    
-    float pid_output = calculateLinePID();
-    
-    int base_lateral_speed = 50;
-    
-    int correction_speed = (int)pid_output;
+    bool front_left_detects = sensors[0];   
+    bool front_right_detects = sensors[1];  
     
     if (front_left_detects && front_right_detects) {
-        moveLeft(base_lateral_speed);
+        if (movement == 0) { 
+            moveLeft(70);
+        } else { 
+            moveRight(70);
+        }
+        return;
     }
-    else if (front_left_detects && !front_right_detects) {
-        front_left_.move(-base_lateral_speed + correction_speed);   
-        front_right_.move(base_lateral_speed + correction_speed);     
-        back_left_.move(base_lateral_speed + correction_speed);     
-        back_right_.move(-base_lateral_speed + correction_speed);   
-    }
-    else if (!front_left_detects && front_right_detects) {
-        front_left_.move(-base_lateral_speed - correction_speed);  
-        front_right_.move(base_lateral_speed - correction_speed);  
-        back_left_.move(base_lateral_speed - correction_speed);      
-        back_right_.move(-base_lateral_speed - correction_speed);  
-    }
-    else {
-        moveBackward(40);
-    }
-}
-
-void Drive::followFrontLineRight(){
-    std::vector<int> sensors = line_sensor_.readSensors();
-    
-    bool front_left_detects = sensors[0];   // FL sensor
-    bool front_right_detects = sensors[1];  // FR sensor
     
     line_error_ = calculateLineError(sensors);
-    
     float pid_output = calculateLinePID();
     
-    int base_lateral_speed = 50;
-    
+    int base_lateral_speed = 70;
     int correction_speed = (int)pid_output;
     
-    if (front_left_detects && front_right_detects) {
-        moveRight(base_lateral_speed);
-    }
-    else if (front_left_detects && !front_right_detects) {
-        front_left_.move(-base_lateral_speed + correction_speed);   
-        front_right_.move(base_lateral_speed + correction_speed);     
-        back_left_.move(base_lateral_speed + correction_speed);     
-        back_right_.move(-base_lateral_speed + correction_speed);   
-    }
-    else if (!front_left_detects && front_right_detects) {
-        front_left_.move(-base_lateral_speed - correction_speed);  
-        front_right_.move(base_lateral_speed - correction_speed);  
-        back_left_.move(base_lateral_speed - correction_speed);      
-        back_right_.move(-base_lateral_speed - correction_speed);  
-    }
-    else {
-        moveBackward(40);
+    if (movement == 0) {
+        if (front_left_detects && !front_right_detects) {
+            front_left_.move(-base_lateral_speed + correction_speed);   
+            front_right_.move(base_lateral_speed + correction_speed);     
+            back_left_.move(base_lateral_speed + correction_speed);     
+            back_right_.move(-base_lateral_speed + correction_speed);   
+        }
+        else if (!front_left_detects && front_right_detects) {
+            front_left_.move(-base_lateral_speed - correction_speed);  
+            front_right_.move(base_lateral_speed - correction_speed);  
+            back_left_.move(base_lateral_speed - correction_speed);      
+            back_right_.move(-base_lateral_speed - correction_speed);  
+        }
+        else {
+            moveForward(50);
+        }
+    } else {
+        if (front_left_detects && !front_right_detects) {
+            front_left_.move(base_lateral_speed + correction_speed);   
+            front_right_.move(-base_lateral_speed + correction_speed);     
+            back_left_.move(-base_lateral_speed + correction_speed);     
+            back_right_.move(base_lateral_speed + correction_speed);   
+        }
+        else if (!front_left_detects && front_right_detects) {
+            front_left_.move(base_lateral_speed - correction_speed);  
+            front_right_.move(-base_lateral_speed - correction_speed);  
+            back_left_.move(-base_lateral_speed - correction_speed);      
+            back_right_.move(base_lateral_speed - correction_speed);  
+        }
+        else {
+            moveForward(50);
+        }
     }
 }
 
