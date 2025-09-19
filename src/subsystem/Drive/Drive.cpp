@@ -253,7 +253,6 @@ float Drive::getAverageDistanceTraveled()
     return (fl_distance + fr_distance + bl_distance + br_distance) / 4.0f;
 }
 
-/*
 void Drive::followFrontLine(int movement) {
     // movement = 0 -> left
     // movement = 1 -> right
@@ -303,8 +302,8 @@ void Drive::followFrontLine(int movement) {
         back_right_.move(-base_lateral_speed - correction_speed);  
     }
 }
-*/
 
+/*
 void Drive::followFrontLine(int movement){
     std::vector<int> sensors = line_sensor_.readSensors();
     
@@ -335,6 +334,7 @@ void Drive::followFrontLine(int movement){
         back_right_.move(-base_lateral_speed - correction_speed);  
     }
 }
+*/
 
 void Drive::setLinePIDConstants(float kp, float ki, float kd) {
     line_kp_ = kp;
