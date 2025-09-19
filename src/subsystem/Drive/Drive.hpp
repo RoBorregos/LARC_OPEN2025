@@ -62,11 +62,6 @@ private:
     RobotConstants robot_constants_;
     LineSensor line_sensor_;
 
-    enum class lineMovement
-    {
-        RIGHT = 0,
-        LEFT = 1,
-    };
     enum class DriveState
     {
         HEADING_LOCK = 0,
