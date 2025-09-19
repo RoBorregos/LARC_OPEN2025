@@ -74,7 +74,7 @@ void loop()
 
     case STATES::ENDLINE:
       Serial.println("ENDLINE STATE");
-      if(line_sensor_.isLeftLine()) {
+      if(line_sensor_.isLeftLine() && line_sensor_.isLeftLine()) {
         drive_.acceptInput(0,0,0);
         currentState = STATES::RIGHTMOST;
       }

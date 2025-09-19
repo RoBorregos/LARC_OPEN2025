@@ -19,6 +19,7 @@ class DistanceSensor : public System{
         float getDistance(int kSensor);
 
         bool isObstacle() const;
+        bool isTree() const;
 
     private:
         float readSensor(uint8_t trigPin, uint8_t echoPin) const;

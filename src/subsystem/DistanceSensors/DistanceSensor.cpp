@@ -63,3 +63,13 @@ bool DistanceSensor::isObstacle() const {
 
     return obstacle;
 }
+
+bool DistanceSensor::isTree() const{
+    auto distanceValues = getArrayDistance();
+    int frontLeftDistance = distanceValues[0];
+    int frontRightDistance = distanceValues[1];
+
+    bool tree = (frontLeftDistance < 8) || (frontRightDistance < 8);
+
+    return tree;
+}
