@@ -180,6 +180,9 @@ void Drive::motorTest()
     delay(3000);
 }
 
+/* Movement with cm */
+// @brief: This will be used when the robot is align with the endline,
+// the actual error of distance is around 1-2 cm, need a tunning
 void Drive::moveForwardCm(float distance_cm, int speed)
 {
     resetEncoders();
