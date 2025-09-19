@@ -26,18 +26,13 @@ class Drive : public System
 public:
     Drive();
     void begin() override;
-    void moveForward(int speed);
-    void moveBackward(int speed);
-    void moveLeft(int speed);
-    void moveRight(int speed);
-    void motorTest();
     void update() override;
     void setState(int state) override;
     void acceptInput(float vx, float vy, float omega);
     void acceptHeadingInput(Rotation2D heading);
     void brake();
     void hardBrake();
-    
+
     void moveForwardCm(float distance_cm, int speed = 100);
     void moveBackwardCm(float distance_cm, int speed = 100);
     void moveLeftCm(float distance_cm, int speed = 100);
@@ -46,10 +41,17 @@ public:
     float getAverageDistanceTraveled();
 
     void followFrontLine(int movement);
-    
+
     void setLinePIDConstants(float kp, float ki, float kd);
-    float calculateLineError(const std::vector<int>& sensors);
+    float calculateLineError(const std::vector<int> &sensors);
     float calculateLinePID();
+
+    /* Debugging functions */
+    void moveForward(int speed);
+    void moveBackward(int speed);
+    void moveLeft(int speed);
+    void moveRight(int speed);
+    void motorTest();
 
 private:
     void move(ChassisSpeed chassis_speed);
@@ -77,14 +79,14 @@ private:
     /* Drive controllers */
     DriveController drive_controller_;
     HeadingController heading_controller_;
-    
+
     /* Line following PID variables */
-    float line_kp_ = 0.4f;      
-    float line_ki_ = 0.02f;     
+    float line_kp_ = 0.4f;
+    float line_ki_ = 0.02f;
     float line_kd_ = 0.1f;
-    float line_error_ = 0.0f;   
-    float line_last_error_ = 0.0f; 
-    float line_integral_ = 0.0f;   
+    float line_error_ = 0.0f;
+    float line_last_error_ = 0.0f;
+    float line_integral_ = 0.0f;
     unsigned long line_last_time_ = 0;
 };
 
