@@ -42,7 +42,17 @@ void setup()
 void loop()
 {
   drive_.update();
-  
+
+  // auto distances = distance_sensor_.getArrayDistance();
+  // float frontLeft = distances[0];
+  // float frontRight = distances[1];
+
+  // Serial.print("Front Left Distance: ");
+  // Serial.print(frontLeft);
+  // Serial.print(" cm, Front Right Distance: ");
+  // Serial.print(frontRight);
+  // Serial.println(" cm");
+
   switch (currentState)
   {
   case STATES::START:
@@ -59,8 +69,7 @@ void loop()
       {
         start_time = millis();
       }
-      // change to use line/distance sensors
-      if (millis() - start_time > 3000)
+      if (!distance_sensor_.isObstacle())
       {
         currentState = STATES::GO_STRAIGHT;
       }
@@ -188,5 +197,4 @@ void loop()
     drive_.acceptInput(0, 0, 0);
     break;
   }
-  
 }

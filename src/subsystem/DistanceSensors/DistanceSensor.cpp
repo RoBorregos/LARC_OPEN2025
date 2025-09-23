@@ -36,6 +36,13 @@ std::vector<float> DistanceSensor::getArrayDistance() const
     float kLeftDistance = readSensor(Pins::kDistanceSensors[0][0], Pins::kDistanceSensors[0][1]);
     delay(50);
     float kRightDistance = readSensor(Pins::kDistanceSensors[1][0], Pins::kDistanceSensors[1][1]);
+    
+    if(kLeftDistance > 250){
+        kLeftDistance = 250;
+    }
+    if(kRightDistance > 250){
+        kRightDistance = 250;
+    }
 
     std::vector<float> distances = {kLeftDistance, kRightDistance};
     return distances;
@@ -59,7 +66,7 @@ bool DistanceSensor::isObstacle() const {
     int frontLeftDistance = distanceValues[0];
     int frontRightDistance = distanceValues[1];
 
-    bool obstacle = (frontLeftDistance < DistanceSensorConstants::kObstacleDistance) || (frontRightDistance < DistanceSensorConstants::kObstacleDistance);
+    bool obstacle = (frontLeftDistance > DistanceSensorConstants::kObstacleDistance) || (frontRightDistance > DistanceSensorConstants::kObstacleDistance);
 
     return obstacle;
 }
