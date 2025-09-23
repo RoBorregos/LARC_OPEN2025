@@ -59,7 +59,7 @@ void loop()
       {
         start_time = millis();
       }
-      if (distance_sensor_.obstacleInThePath())
+      if (!distance_sensor_.obstacleInThePath())
       {
         currentState = STATES::GO_STRAIGHT;
       }
