@@ -76,28 +76,32 @@ void loop()
     }
     else
     {
-      drive_.acceptInput(-100, 0, 0);
+      drive_.acceptInput(-60, 0, 0);
     }
 
     if (!distance_sensor_.isObstacle())
     {
+      drive_.acceptInput(0, 0, 0);
+      drive_.hardBrake();
       currentState = STATES::GO_STRAIGHT;
     }
     break;
 
   case STATES::AVOID_OBSTACLE_RIGHT:
     Serial.println("AVOID OBSTACLE RIGHT STATE");
-    // if (line_sensor_.isRightLine())
-    // {
-    //   currentState = STATES::AVOID_OBSTACLE_LEFT;
-    // }
-    // else
-    // {
-    // }
-    drive_.acceptInput(100, 0, 0);
+    if (line_sensor_.isRightLine())
+    {
+      currentState = STATES::AVOID_OBSTACLE_LEFT;
+    }
+    else
+    {
+      drive_.acceptInput(60, 0, 0);
+    }
 
     if (!distance_sensor_.isObstacle())
     {
+      drive_.acceptInput(0, 0, 0);
+      drive_.hardBrake();
       currentState = STATES::GO_STRAIGHT;
     }
     break;
@@ -107,6 +111,7 @@ void loop()
     if (line_sensor_.isFrontLine())
     {
       drive_.acceptInput(0, 0, 0);
+      drive_.hardBrake();
       currentState = STATES::ENDLINE;
     }
     else
@@ -183,4 +188,5 @@ void loop()
     drive_.acceptInput(0, 0, 0);
     break;
   }
+  
 }
