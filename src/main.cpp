@@ -43,16 +43,6 @@ void loop()
 {
   drive_.update();
 
-  // auto distances = distance_sensor_.getArrayDistance();
-  // float frontLeft = distances[0];
-  // float frontRight = distances[1];
-
-  // Serial.print("Front Left Distance: ");
-  // Serial.print(frontLeft);
-  // Serial.print(" cm, Front Right Distance: ");
-  // Serial.print(frontRight);
-  // Serial.println(" cm");
-
   switch (currentState)
   {
   case STATES::START:
@@ -69,7 +59,7 @@ void loop()
       {
         start_time = millis();
       }
-      if (!distance_sensor_.isObstacle())
+      if (distance_sensor_.obstacleInThePath())
       {
         currentState = STATES::GO_STRAIGHT;
       }

@@ -20,6 +20,7 @@ class DistanceSensor : public System{
 
         bool isObstacle() const;
         bool isTree() const;
+        bool obstacleInThePath() const;
 
     private:
         float readSensor(uint8_t trigPin, uint8_t echoPin) const;

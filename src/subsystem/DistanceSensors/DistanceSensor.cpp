@@ -71,6 +71,16 @@ bool DistanceSensor::isObstacle() const {
     return obstacle;
 }
 
+bool DistanceSensor::obstacleInThePath() const {
+    auto distanceValues = getArrayDistance();
+    int frontLeftDistance = distanceValues[0];
+    int frontRightDistance = distanceValues[1];
+
+    bool obstacle = (frontLeftDistance < DistanceSensorConstants::kMaxObstacleDistance) && (frontRightDistance < DistanceSensorConstants::kMaxObstacleDistance);
+
+    return obstacle;
+}
+
 bool DistanceSensor::isTree() const{
     auto distanceValues = getArrayDistance();
     int frontLeftDistance = distanceValues[0];
