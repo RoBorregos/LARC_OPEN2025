@@ -65,7 +65,6 @@ bool DistanceSensor::isObstacle() const {
     auto distanceValues = getArrayDistance();
     int frontLeftDistance = distanceValues[0];
     int frontRightDistance = distanceValues[1];
-
     bool obstacle = (frontLeftDistance < DistanceSensorConstants::kObstacleDistance) || (frontRightDistance < DistanceSensorConstants::kObstacleDistance);
 
     return obstacle;

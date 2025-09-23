@@ -20,8 +20,8 @@ enum class STATES
   RETURN
 };
 
-STATES currentState = STATES::START;
 unsigned long start_time = 0;
+STATES currentState;
 
 void setup()
 {
@@ -34,9 +34,9 @@ void setup()
   com_.begin();
   line_sensor_.begin();
   distance_sensor_.begin();
-
   drive_.setState(0);
   drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
+  STATES currentState = STATES::START;
 }
 
 void loop()
@@ -78,7 +78,12 @@ void loop()
       drive_.acceptInput(-60, 0, 0);
     }
 
-    if (!distance_sensor_.isObstacle())
+    if (start_time == 0)
+    {
+      start_time = millis();
+    }
+    
+    if (!distance_sensor_.isObstacle() && millis() - start_time > 1000)
     {
       drive_.acceptInput(0, 0, 0);
       drive_.hardBrake();
@@ -97,7 +102,12 @@ void loop()
       drive_.acceptInput(60, 0, 0);
     }
 
-    if (!distance_sensor_.isObstacle())
+    if (start_time == 0)
+    {
+      start_time = millis();
+    }
+
+    if (!distance_sensor_.isObstacle() && millis() - start_time > 1000)
     {
       drive_.acceptInput(0, 0, 0);
       drive_.hardBrake();
