@@ -1,5 +1,5 @@
 from src.communication import Function, send_message, receive_response, process_command
-from src.camera import Camera
+from vision.src.modelIRL import Camera
 
 class SystemController:
     def __init__(self):
