@@ -1,77 +1,97 @@
-import math
 import time
 from ultralytics import YOLO
 import cv2
+import math
 
 model = YOLO("vision/model/mediumModel.pt")
 class_names = model.names
 
-cap = cv2.VideoCapture(2)
+cap = cv2.VideoCapture(0)
 if not cap.isOpened():
     print("Can't open camera.")
     exit()
-print("Succesfully started")
 
-try:
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            print("No se pudo leer el frame.")
-            break
+tree_detection_tolerance = 0.8 
+coffee_labels = ["mature", "overmature", "inmature"]
 
-        results = model(frame)
+image = cv2.imread("vision/imagesTest/IMG_2503.JPG")
+# Option 1: Use camera
+# source = cap
+
+# Option 2: Use image
+source = image
+
+if source is cap:
+    try:
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                print("No se pudo leer el frame.")
+                break
+
+            results = model(frame)
+            boxes = results[0].boxes
+
+            trees = []
+            coffees = []
+
+            for box in boxes:
+                cls = int(box.cls[0])
+                conf = float(box.conf[0])
+                label = class_names[cls]
+
+                if conf < tree_detection_tolerance:
+                    continue
+
+                xyxy = box.xyxy[0].tolist()
+
+                if label == "tree":
+                    trees.append((xyxy, conf))
+                elif label in coffee_labels:
+                    coffees.append((xyxy, label, conf))
+                elif len(trees) > 3:
+                    print(f"\nHay {len(trees)} árboles, pero solo se procesa el caso exacto de 3.")
+                else:
+                    print("\nNo se detectaron al menos 3 árboles válidos.")
+
+            time.sleep(2)
+
+    except KeyboardInterrupt:
+        print("Proceso terminado por el usuario.")
+
+    cap.release()
+
+else:
+    if image is not None:
+        results = model(image)
         boxes = results[0].boxes
 
-        class_counts = {}
+        trees = []
+        coffees = []
+
         for box in boxes:
             cls = int(box.cls[0])
+            conf = float(box.conf[0])
             label = class_names[cls]
-            class_counts[label] = class_counts.get(label, 0) + 1
 
-        print("Conteo de clases detectadas:")
-        for label, count in class_counts.items():
-            print(f"{label}: {count}")
+            if conf < tree_detection_tolerance:
+                continue
 
-        target_labels = ["mature", "overmature", "inmature"]
-        coffes = sum(class_counts.get(label, 0) for label in target_labels)
-        if(coffes == 16):
-            print("Tree is fully detected")
+            xyxy = box.xyxy[0].tolist()
+
+            if label == "tree":
+                trees.append((xyxy, conf))
+            elif label in coffee_labels:
+                coffees.append((xyxy, label, conf))
+
+        annotated_img = results[0].plot()
+        cv2.imshow("YOLO inference", annotated_img)
+        cv2.waitKey(0) 
+        cv2.destroyAllWindows()  
+
+        if len(trees) >= 3:
+            print(f"Se detectaron {len(trees)} árboles.")
         else:
-            print("Tree is not fully detected")
-
-        matrix = [[0 for _ in range(3)] for _ in range(10)]
-
-        for box in boxes:
-            x1, y1, x2, y2 = box.xyxy[0]
-            center_x = int((x1 + x2) / 2)
-            center_y = int((y1 + y2) / 2)
-
-            height, width, _ = frame.shape
-
-            col = min(9, max(0, int(center_x / width * 10)))
-            row = min(2, max(0, int(center_y / height * 3)))
-
-            cls = int(box.cls[0])
-            label = class_names[cls]
-
-            if label in ["mature", "overmature"]:
-                matrix[col][row] = 1
-            elif label == "inmature":
-                matrix[col][row] = 0
-
-        print("Matriz de conteo:")
-        for row in matrix:
-            print(row)
-
-        # Save the image in case of
-        # timestamp = int(time.time())
-        # cv2.imwrite(f"photo_{timestamp}.jpg", frame)
-
-        # Espera 10 minutos (600 segundos)
-        time.sleep(5)
-
-except KeyboardInterrupt:
-    print("Proceso terminado por el usuario.")
-
-cap.release()
-cv2.destroyAllWindows()
+            print("No se detectaron al menos 3 árboles válidos.")
+    else:
+        print("No se pudo cargar la imagen.")
