@@ -305,6 +305,61 @@ void Drive::followFrontLine(int movement) {
     }
 }
 
+void Drive::avoidFrontLine(){
+    std::vector<int> sensors = line_sensor_.readSensors();
+    
+    bool front_left_detects = sensors[0];   
+    bool front_right_detects = sensors[1];  
+    
+    if (front_left_detects || front_right_detects) {
+        moveBackward(60);
+    }else{
+        moveLeft(60);
+    }
+}
+
+void Drive::keepObstacleDistance(int movement){
+    // movement = 0 -> left
+    // movement = 1 -> right
+
+    auto value = distance_sensor_.getArrayDistance();
+    float front_left = value[0];
+    float front_right = value[1];
+    float min_distance = min(front_left, front_right);
+
+    const float SAFE_DISTANCE = 30.0f;
+    const float TOLERANCE = 5.0f;
+
+    if(distance_sensor_.isObstacle())
+    {
+        float distance_error = min_distance - SAFE_DISTANCE;
+        
+        if(min_distance < SAFE_DISTANCE - TOLERANCE) {
+            moveBackward(30);
+            if(movement == 0){
+                moveLeft(40);
+            }else{
+                moveRight(40);
+            }
+        }
+        else if(min_distance > SAFE_DISTANCE + TOLERANCE) {
+            moveForward(30);
+            if(movement == 0){
+                moveLeft(40);
+            }else{
+                moveRight(40);
+            }
+        }
+        else {
+            if(movement == 0){
+                moveLeft(50);
+            }else{
+                moveRight(50);
+            }
+        }
+    }
+}
+
 /*
 void Drive::followFrontLine(int movement){
     std::vector<int> sensors = line_sensor_.readSensors();

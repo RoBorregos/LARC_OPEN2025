@@ -41,6 +41,8 @@ public:
     float getAverageDistanceTraveled();
 
     void followFrontLine(int movement);
+    void avoidFrontLine();
+    void keepObstacleDistance(int movement);
 
     void setLinePIDConstants(float kp, float ki, float kd);
     float calculateLineError(const std::vector<int> &sensors);
@@ -63,6 +65,7 @@ private:
     BNO bno_;
     RobotConstants robot_constants_;
     LineSensor line_sensor_;
+    DistanceSensor distance_sensor_;
 
     enum class DriveState
     {
