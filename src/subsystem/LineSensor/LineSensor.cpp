@@ -28,6 +28,18 @@ std::vector<int> LineSensor::readSensors() const {
     };
 }
 
+void LineSensor::printSensors() const {
+    auto sensors = readSensors();
+    Serial.print("FL: ");
+    Serial.print(sensors[0]);
+    Serial.print(" FR: ");
+    Serial.print(sensors[1]);
+    Serial.print(" BL: ");
+    Serial.print(sensors[2]);
+    Serial.print(" BR: ");
+    Serial.println(sensors[3]);
+}
+
 bool LineSensor::isFrontLine() const {
     auto v = readSensors();
     return v[0] && v[1];

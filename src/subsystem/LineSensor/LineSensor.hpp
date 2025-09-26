@@ -16,6 +16,7 @@ class LineSensor : public System{
         void update() override;
         void setState(int state) override;
         std::vector<int> readSensors() const;
+        void printSensors() const;
 
         bool isFrontLine() const;
         bool isBackLine() const;

@@ -47,6 +47,7 @@ void setup()
 void loop()
 {
   drive_.update();
+  line_sensor_.update();
 
   switch (currentState)
   {
@@ -91,7 +92,7 @@ void loop()
       start_time = millis();
     }
     
-    if (!distance_sensor_.isObstacle() && millis() - start_time > 1000)
+    if (!distance_sensor_.isObstacle() && millis() - start_time > 2500)
     {
       drive_.acceptInput(0, 0, 0);
       drive_.hardBrake();
@@ -116,7 +117,7 @@ void loop()
       start_time = millis();
     }
 
-    if (!distance_sensor_.isObstacle() && millis() - start_time > 1000)
+    if (!distance_sensor_.isObstacle() && millis() - start_time > 2500)
     {
       drive_.acceptInput(0, 0, 0);
       drive_.hardBrake();

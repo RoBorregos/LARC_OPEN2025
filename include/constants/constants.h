@@ -33,7 +33,7 @@ namespace Constants {
     }
 
     namespace DistanceSensorConstants{
-        constexpr int kObstacleDistance = 20;
+        constexpr int kObstacleDistance = 30;
         constexpr int kMaxObstacleDistance = 120;
         constexpr int kTreeDistance = 8;
     }
