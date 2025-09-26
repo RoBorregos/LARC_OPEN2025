@@ -8,6 +8,10 @@
 #include <Wire.h>
 
 #include "robot/robot_instances.h"
+#include <SoftwareSerial.h>
+
+// --- Bluetooth Setup ---
+SoftwareSerial bluetooth(0, 1); // RX, TX pins for Bluetooth module
 
 enum class STATES
 {
@@ -26,6 +30,7 @@ STATES currentState;
 void setup()
 {
   Serial.begin(9600);
+  bluetooth.begin(9600);
   Serial.println("Starting...");
   Wire.begin();
 
@@ -47,6 +52,8 @@ void loop()
   {
   case STATES::START:
     Serial.println("START STATE");
+    bluetooth.println("START STATE");
+
     if (distance_sensor_.isObstacle())
     {
       drive_.acceptInput(0, 0, 0);
@@ -68,7 +75,8 @@ void loop()
 
   case STATES::AVOID_OBSTACLE_LEFT:
     Serial.println("AVOID OBSTACLE LEFT STATE");
-
+    bluetooth.println("AVOID OBSTACLE LEFT STATE");
+    
     if (line_sensor_.isLeftLine())
     {
       currentState = STATES::AVOID_OBSTACLE_RIGHT;
@@ -93,6 +101,7 @@ void loop()
 
   case STATES::AVOID_OBSTACLE_RIGHT:
     Serial.println("AVOID OBSTACLE RIGHT STATE");
+    bluetooth.println("AVOID OBSTACLE RIGHT STATE");
     if (line_sensor_.isRightLine())
     {
       currentState = STATES::AVOID_OBSTACLE_LEFT;
@@ -117,6 +126,7 @@ void loop()
 
   case STATES::GO_STRAIGHT:
     Serial.println("GO_STRAIGHT STATE");
+    bluetooth.println("GO_STRAIGHT STATE");
     if (line_sensor_.isFrontLine())
     {
       drive_.acceptInput(0, 0, 0);
