@@ -182,7 +182,7 @@ void loop()
       start_time = millis();
     }
 
-    if(millis() - start_time > 5000){
+    if(millis() - start_time > 2500){
       elevator_.setState(1);
       if(millis() - start_time > 10000){
         elevator_.setState(0);
