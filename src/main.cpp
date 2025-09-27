@@ -20,6 +20,7 @@ enum class STATES
   AVOID_OBSTACLE_RIGHT,
   GO_STRAIGHT,
   ENDLINE,
+  ELEVATOR_DEMO,
   RIGHTMOST,
   AVOID_OBSTACLE_LEFT_RETURN,
   AVOID_OBSTACLE_RIGHT_RETURN,
@@ -164,12 +165,32 @@ void loop()
 
     if(line_sensor_.isLeftLine()){
       drive_.acceptInput(0,0,0);
-      currentState = STATES::RIGHTMOST;
+      currentState = STATES::ELEVATOR_DEMO;
     }else{
       drive_.acceptInput(-60,0,0);
     }
 
     break;
+
+  case STATES::ELEVATOR_DEMO:
+    Serial.println("ELEVATOR DEMO STATE");
+    bluetooth.println("ELEVATOR DEMO STATE");
+    drive_.moveRightCm(20);
+    start_time = 0;
+
+    if(start_time == 0){
+      start_time = millis();
+    }
+
+    if(millis() - start_time > 5000){
+      elevator_.setState(1);
+      if(millis() - start_time > 10000){
+        elevator_.setState(0);
+        currentState = STATES::RIGHTMOST;
+        start_time = 0;
+      }
+    }
+
 
   case STATES::RIGHTMOST:
     Serial.println("Estado: RIGHTMOST");
