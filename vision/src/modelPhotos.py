@@ -1,12 +1,13 @@
+import numpy as np
 import time
 from ultralytics import YOLO
 import cv2
-import math
 
 model = YOLO("vision/model/mediumModel.pt")
 class_names = model.names
+zoom_factor = 4
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(2)
 if not cap.isOpened():
     print("Can't open camera.")
     exit()
@@ -16,6 +17,25 @@ coffee_labels = ["mature", "overmature", "inmature"]
 
 image = cv2.imread("vision/imagesTest/IMG_2503.JPG")
 image = cv2.resize(image, (640, 480)) if image is not None else None
+
+def zoom_frame(frame, zoom_factor):
+    height, width = frame.shape[:2]
+    new_height = int(height * zoom_factor)
+    new_width = int(width * zoom_factor)
+    
+    # Resize the frame
+    resized_frame = cv2.resize(frame, (new_width, new_height))
+    
+    # Calculate the region of interest (ROI)
+    roi_x = int((new_width - width) / 2)
+    roi_y = int((new_height - height) / 2)
+    roi_width = width
+    roi_height = height
+    
+    # Crop the frame to the ROI
+    zoomed_frame = resized_frame[roi_y:roi_y+roi_height, roi_x:roi_x+roi_width]
+    return zoomed_frame
+
 # Option 1: Use camera
 # source = cap
 
@@ -29,8 +49,16 @@ if source is cap:
             if not ret:
                 print("No se pudo leer el frame.")
                 break
+            
+            zoomed_frame = zoom_frame(frame, zoom_factor)
+            
+            # Display the zoomed frame
+            # cv2.imshow('Zoomed Video', zoomed_frame)
 
-            results = model(frame)
+            # if cv2.waitKey(1) & 0xFF == ord('q'):
+            #     break     
+              
+            results = model(zoomed_frame)
             boxes = results[0].boxes
 
             trees = []
@@ -56,7 +84,8 @@ if source is cap:
                     print("\nNo se detectaron al menos 3 árboles válidos.")
 
             time.sleep(2)
-
+        cap.release()
+        cv2.destroyAllWindows()
     except KeyboardInterrupt:
         print("Proceso terminado por el usuario.")
 
@@ -82,15 +111,12 @@ else:
             inmature = sum(1 for l in labels if l == "inmature")
             mature = sum(1 for l in labels if l =="mature")
             overmature = sum(1 for l in labels if l =="overmature")
-
-            # for label in coffee_labels:
-            #     print(f"Cantidad de '{label}': {labels.count(label)}")
         
         print(f"Number of coffees: {coffees}")
         print(f"Inmatures beans: {inmature}" )
         print(f"Mature beans: {mature}")
         print(f"Overmature beans: {overmature}" )
-
+        
         if coffees == 16:
             print("Tree is fully detected!")
         else:
