@@ -29,7 +29,6 @@ enum class STATES
 };
 
 unsigned long start_time = 0;
-uint8_t after_obstacle_offset = 200;
 
 STATES currentState;
 
@@ -47,12 +46,18 @@ void setup()
   distance_sensor_.begin();
   drive_.setState(0);
   drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
-  currentState = STATES::GO_STRAIGHT;
+  currentState = STATES::START;
 }
 
 void loop()
 {
   drive_.update();
+
+  // drive_.acceptInput(0,70,0);
+
+  // delay(2000);
+
+  // drive_.acceptInput(0,0,0);
 
   switch (currentState)
   {
@@ -94,7 +99,7 @@ void loop()
       start_time = 0;
     }
 
-    if (!distance_sensor_.isObstacle() && start_time > 0 && (millis() - start_time > after_obstacle_offset))
+    if (!distance_sensor_.isObstacle() && start_time > 0 && (millis() - start_time > 3000))
     {
       start_time = 0;
       drive_.acceptInput(0, 0, 0);
@@ -125,7 +130,7 @@ void loop()
       start_time = 0;
     }
 
-    if (!distance_sensor_.isObstacle() && start_time > 0 && (millis() - start_time > after_obstacle_offset))
+    if (!distance_sensor_.isObstacle() && start_time > 0 && (millis() - start_time > 3000))
     {
       start_time = 0;
       drive_.acceptInput(0, 0, 0);
@@ -142,8 +147,8 @@ void loop()
 
     if (distance_sensor_.isTree())
     {
-      Serial.println("LINE DETECTED");
-      bluetooth.println("LINE DETECTED");
+      // Serial.println("LINE DETECTED");
+      // bluetooth.println("LINE DETECTED");
       
       drive_.acceptInput(0, 0, 0);
       drive_.hardBrake();
@@ -169,17 +174,17 @@ void loop()
     Serial.println("ENDLINE STATE");
     bluetooth.println("ENDLINE STATE");
     drive_.acceptInput(0, 0, 0);
-    // if(line_sensor_.isLeftLine())
-    // {
-    //   drive_.acceptInput(0, 0, 0);
-    //   drive_.hardBrake();
-    //   start_time = 0;
-    //   currentState = STATES::ELEVATOR_DEMO;
-    // }
-    // else
-    // {
-    //   drive_.acceptInput(-60, 0, 0);
-    // }
+    if(line_sensor_.isLeftLine())
+    {
+      drive_.acceptInput(0, 0, 0);
+      drive_.hardBrake();
+      start_time = 0;
+      currentState = STATES::ELEVATOR_DEMO;
+    }
+    else
+    {
+      drive_.acceptInput(-60, 0, 0);
+    }
 
     break;
 
@@ -187,6 +192,8 @@ void loop()
     Serial.println("ELEVATOR DEMO STATE");
     bluetooth.println("ELEVATOR DEMO STATE");
     drive_.acceptInput(0, 0, 0);
+
+    currentState = STATES::RIGHTMOST;
     // drive_.moveRightCm(20);
     // start_time = 0;
 
@@ -210,15 +217,15 @@ void loop()
     Serial.println("Estado: RIGHTMOST");
     bluetooth.println("Estado: RIGHTMOST");
     drive_.acceptInput(0, 0, 0);
-    // if (line_sensor_.isRightLine())
-    // {
-    //   drive_.acceptInput(0, 0, 0);
-    //   currentState = STATES::RETURN;
-    // }
-    // else
-    // {
-    //   drive_.acceptInput(60, 0, 0);
-    // }
+    if (line_sensor_.isRightLine())
+    {
+      drive_.acceptInput(0, 0, 0);
+      currentState = STATES::RETURN;
+    }
+    else
+    {
+      drive_.acceptInput(60, 0, 0);
+    }
     break;
 
   case STATES::RETURN:
@@ -226,18 +233,18 @@ void loop()
     bluetooth.println("Estado: RETURN");
     drive_.acceptInput(0, 0, 0);
     
-    // if (distance_sensor_.isObstacle())
-    // {
-    //   currentState = STATES::AVOID_OBSTACLE_LEFT_RETURN;
-    // }
-    // else if (!distance_sensor_.obstacleInThePath())
-    // {
-    //   currentState = STATES::GO_BEGINNING;
-    // }
-    // else
-    // {
-    //   drive_.acceptInput(0, 70, 180);
-    // }
+    if (distance_sensor_.isObstacle())
+    {
+      currentState = STATES::AVOID_OBSTACLE_LEFT_RETURN;
+    }
+    else if (!distance_sensor_.obstacleInThePath())
+    {
+      currentState = STATES::GO_BEGINNING;
+    }
+    else
+    {
+      drive_.acceptInput(0, 70, 180);
+    }
     break;
 
   case STATES::AVOID_OBSTACLE_LEFT_RETURN:
@@ -245,28 +252,28 @@ void loop()
     bluetooth.println("AVOID OBSTACLE LEFT RETURN STATE");
     drive_.acceptInput(0, 0, 0);
 
-    // if (line_sensor_.isLeftLine())
-    // {
-    //   start_time = 0;
-    //   currentState = STATES::AVOID_OBSTACLE_RIGHT_RETURN;
-    // }
-    // else
-    // {
-    //   drive_.acceptInput(-60, 0, 180);
-    // }
+    if (line_sensor_.isLeftLine())
+    {
+      start_time = 0;
+      currentState = STATES::AVOID_OBSTACLE_RIGHT_RETURN;
+    }
+    else
+    {
+      drive_.acceptInput(-60, 0, 180);
+    }
 
-    // if (start_time == 0)
-    // {
-    //   start_time = millis();
-    // }
+    if (start_time == 0)
+    {
+      start_time = millis();
+    }
 
-    // if (!distance_sensor_.isObstacle() && millis() - start_time > 5000)
-    // {
-    //   start_time = 0;
-    //   drive_.acceptInput(0, 0, 180);
-    //   drive_.hardBrake();
-    //   currentState = STATES::GO_BEGINNING;
-    // }
+    if (!distance_sensor_.isObstacle() && millis() - start_time > 5000)
+    {
+      start_time = 0;
+      drive_.acceptInput(0, 0, 180);
+      drive_.hardBrake();
+      currentState = STATES::GO_BEGINNING;
+    }
     break;
   
   case STATES::AVOID_OBSTACLE_RIGHT_RETURN:
@@ -274,28 +281,28 @@ void loop()
     bluetooth.println("AVOID OBSTACLE RIGHT RETURN STATE");
     drive_.acceptInput(0, 0, 0);
 
-    // if (line_sensor_.isRightLine())
-    // {
-    //   start_time = 0;
-    //   currentState = STATES::AVOID_OBSTACLE_LEFT_RETURN;
-    // }
-    // else
-    // {
-    //   drive_.acceptInput(60, 0, 180);
-    // }
+    if (line_sensor_.isRightLine())
+    {
+      start_time = 0;
+      currentState = STATES::AVOID_OBSTACLE_LEFT_RETURN;
+    }
+    else
+    {
+      drive_.acceptInput(60, 0, 180);
+    }
 
-    // if (start_time == 0)
-    // {
-    //   start_time = millis();
-    // }
+    if (start_time == 0)
+    {
+      start_time = millis();
+    }
 
-    // if (!distance_sensor_.isObstacle() && millis() - start_time > 5000)
-    // {
-    //   start_time = 0;
-    //   drive_.acceptInput(0, 0, 180);
-    //   drive_.hardBrake();
-    //   currentState = STATES::GO_BEGINNING;
-    // }
+    if (!distance_sensor_.isObstacle() && millis() - start_time > 5000)
+    {
+      start_time = 0;
+      drive_.acceptInput(0, 0, 180);
+      drive_.hardBrake();
+      currentState = STATES::GO_BEGINNING;
+    }
     break;
 
   case STATES::GO_BEGINNING:
@@ -303,12 +310,12 @@ void loop()
     bluetooth.println("GO BEGINNING STATE");
     drive_.acceptInput(0, 0, 0);
 
-    // if(line_sensor_.isFrontLine()){
-    //   drive_.acceptInput(0,0,0);
-    //   Serial.println("FOUND THE BEGINNING");
-    // }else{
-    //   drive_.acceptInput(0,70,180);
-    // }
+    if(line_sensor_.isFrontLine()){
+      drive_.acceptInput(0,0,0);
+      Serial.println("FOUND THE BEGINNING");
+    }else{
+      drive_.acceptInput(0,70,180);
+    }
     break;
 
   default:

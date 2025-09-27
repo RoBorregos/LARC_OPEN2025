@@ -42,12 +42,14 @@ void LineSensor::printSensors() const {
 
 bool LineSensor::isFrontLine() const {
     auto v = readSensors();
-    return v[0] && v[1];
+    // return v[0] && v[1];
+    return v[0];
 }
 
 bool LineSensor::isBackLine() const {
     auto v = readSensors();
-    return v[2] && v[3];
+    // return v[2] && v[3];
+    return v[2];
 }
 
 bool LineSensor::isLeftLine() const {
