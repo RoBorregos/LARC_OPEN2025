@@ -32,7 +32,7 @@ namespace Pins {
     constexpr uint8_t kDistanceSensors[4][2] = {
         // trig, echo
         {35, 33},
-        {36, 34},
+        {30, 34},
     };
 
     // READY
