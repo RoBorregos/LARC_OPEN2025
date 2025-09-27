@@ -2,9 +2,9 @@
 
 #include "../subsystem/Drive/Drive.hpp"
 #include "../subsystem/DistanceSensors/DistanceSensor.hpp"
+#include "../subsystem/LineSensor/LineSensor.hpp"
 #include "../subsystem/Communication/Communication.hpp"
 #include "../subsystem/Elevator/Elevator.hpp"
-#include "../subsystem/LineSensor/LineSensor.hpp"
 #include "../../lib/sensors/bno.hpp"
 
 extern Drive drive_;

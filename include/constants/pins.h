@@ -49,7 +49,8 @@ namespace Pins {
     constexpr uint8_t kGripperServoPin = 0;
     constexpr uint8_t kUpperSorterServoPin = 0;
     constexpr uint8_t kLowerSorterServoPin = 0;
-    constexpr uint8_t kLimitPin = 0;
+    constexpr uint8_t kElevatorStepPin = 0;
+    constexpr uint8_t kElevatorDirPin = 0;
 
     // NOT YET
     static constexpr uint8_t kLineSensorFL = 28;

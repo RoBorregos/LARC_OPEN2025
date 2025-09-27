@@ -1,61 +1,61 @@
-/*
- * @file Elevador.cpp
- * @date 25/04/2025
- * @author Brisma Alvarez Valdez
- *
- * @brief Implementation of the Elevador class to control a stepper motor
- */
 #include "Elevator.hpp"
-#include <Arduino.h>
 
+//* Constructor
 Elevator::Elevator()
-{
+    : step_pin_(Pins::kElevatorStepPin), dir_pin_(Pins::kElevatorDirPin) {}
+
+//* Begin method to initialize the elevator (required by System interface)
+void Elevator::begin() {
+    setup();
 }
 
-void Elevator::begin()
-{
+//* Setup method to initialize the motors
+bool Elevator::setup() {
+    elevator_state_ = ElevatorState::ON;
+    Serial.println("Elevator initialized.");
+    return true; // Return true when setup is successful
 }
 
-void Elevator::update()
-{
+//* Method to move the elevator up or down depending on the goal step count
+void Elevator::moveToStepCount(int goalSteps) {
+    if (current_step_count_ == goalSteps)
+        return;
+    
+    // Calculate distance to travel
+    int steps = abs(goalSteps - current_step_count_);
 
-    if (getLimitState())
-    {
-        resetPosition(ElevatorConstants::kIdleLevel);
+    // Determine direction
+    if (goalSteps > current_step_count_) {
+        digitalWrite(dir_pin_, HIGH);  // Up
+    } else {
+        digitalWrite(dir_pin_, LOW);   // Down
+    }
+
+    // Perform step movements
+    for (int i = 0; i < steps; i++) {
+        digitalWrite(step_pin_, HIGH);
+        delayMicroseconds(1000);
+
+        digitalWrite(step_pin_, LOW);
+        delayMicroseconds(1000);
+    }
+
+    // Update current position
+    current_step_count_ = goalSteps;
+}
+
+//* Method to update elevator height if needed
+void Elevator::update() {
+    switch (elevator_state_) {
+        case ElevatorState::OFF:
+            moveToStepCount(0);
+            break;
+        case ElevatorState::ON:
+            moveToStepCount(kONStepCount);
+            break;
     }
 }
 
-void Elevator::setState(int state)
-{
-    switch (state)
-    {
-    case 0: // HOME
-        target_position_ = ElevatorConstants::kIdleLevel;
-        break;
-    case 1: // LOWER
-        target_position_ = ElevatorConstants::kLowerLevel;
-        break;
-    case 2: // MID
-        target_position_ = ElevatorConstants::kMidLevel;
-        break;
-    case 3: // UPPER
-        target_position_ = ElevatorConstants::kUpperLevel;
-        break;
-    }
-}
-
-bool Elevator::getLimitState()
-{
-    return false;
-}
-
-void Elevator::resetPosition(double position)
-{
-    Serial.println(position);
-    current_position_ = position;
-}
-
-int Elevator::getCurrentPosition()
-{
-    return current_position_;
+void Elevator::setState(int state) {
+    elevator_state_ = static_cast<ElevatorState>(state);
 }

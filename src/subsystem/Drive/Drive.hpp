@@ -18,6 +18,7 @@
 #include "controllers/drive_controller.hpp"
 #include "controllers/heading_controller.hpp"
 #include "constants/constants.h"
+#include "../DistanceSensors/DistanceSensor.hpp"
 #include "../LineSensor/LineSensor.hpp"
 using namespace Constants;
 
