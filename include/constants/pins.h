@@ -28,12 +28,14 @@ namespace Pins {
         6  // IN4.2 LOWER RIGHT MOTOR
     }; 
     
+    // READY
     constexpr uint8_t kDistanceSensors[4][2] = {
         // trig, echo
         {35, 33},
         {36, 34},
     };
 
+    // READY
     constexpr uint8_t kEncoders[8]{
         40, // ENC1B
         39, // ENC1A
@@ -45,14 +47,11 @@ namespace Pins {
         16 // ENC4B
     };
 
-    // UNUSED
-    constexpr uint8_t kGripperServoPin = 0;
-    constexpr uint8_t kUpperSorterServoPin = 0;
-    constexpr uint8_t kLowerSorterServoPin = 0;
-    constexpr uint8_t kElevatorStepPin = 0;
-    constexpr uint8_t kElevatorDirPin = 0;
-
     // NOT YET
+    constexpr uint8_t kElevatorStepPin = 22;
+    constexpr uint8_t kElevatorDirPin = 7;
+
+    // READY
     static constexpr uint8_t kLineSensorFL = 28;
     static constexpr uint8_t kLineSensorFR = 27;
     static constexpr uint8_t kLineSensorBL = 20;
