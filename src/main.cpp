@@ -193,6 +193,11 @@ void loop()
     }else{
       drive_.acceptInput(0, 70, 0);
     }
+
+    if(!distance_sensor_.obstacleInThePath())
+    {
+      currentState = STATES::GO_BEGINNING;
+    }
     break;
 
   case STATES::AVOID_OBSTACLE_LEFT_RETURN:
