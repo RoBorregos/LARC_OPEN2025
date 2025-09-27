@@ -15,6 +15,7 @@ tree_detection_tolerance = 0.8
 coffee_labels = ["mature", "overmature", "inmature"]
 
 image = cv2.imread("vision/imagesTest/IMG_2503.JPG")
+image = cv2.resize(image, (640, 480)) if image is not None else None
 # Option 1: Use camera
 # source = cap
 
@@ -68,30 +69,38 @@ else:
 
         trees = []
         coffees = []
-
+        class_counts = []
         for box in boxes:
             cls = int(box.cls[0])
             conf = float(box.conf[0])
+
             label = class_names[cls]
+            labels = [class_names[int(b.cls[0])] for b in boxes]
 
-            if conf < tree_detection_tolerance:
-                continue
+            # Counters for each class
+            coffees = sum(1 for l in labels if l in coffee_labels)
+            inmature = sum(1 for l in labels if l == "inmature")
+            mature = sum(1 for l in labels if l =="mature")
+            overmature = sum(1 for l in labels if l =="overmature")
 
-            xyxy = box.xyxy[0].tolist()
+            # for label in coffee_labels:
+            #     print(f"Cantidad de '{label}': {labels.count(label)}")
+        
+        print(f"Number of coffees: {coffees}")
+        print(f"Inmatures beans: {inmature}" )
+        print(f"Mature beans: {mature}")
+        print(f"Overmature beans: {overmature}" )
 
-            if label == "tree":
-                trees.append((xyxy, conf))
-            elif label in coffee_labels:
-                coffees.append((xyxy, label, conf))
+        if coffees == 16:
+            print("Tree is fully detected!")
+        else:
+            print("Tree is not fully detected")
 
         annotated_img = results[0].plot()
         cv2.imshow("YOLO inference", annotated_img)
         cv2.waitKey(0) 
         cv2.destroyAllWindows()  
 
-        if len(trees) >= 3:
-            print(f"Se detectaron {len(trees)} árboles.")
-        else:
-            print("No se detectaron al menos 3 árboles válidos.")
+  
     else:
         print("No se pudo cargar la imagen.")
