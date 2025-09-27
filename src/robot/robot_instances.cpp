@@ -9,3 +9,4 @@ Elevator elevator_;
 LineSensor line_sensor_;
 DistanceSensor distance_sensor_;
 Communication com_;
+BNO bno_;

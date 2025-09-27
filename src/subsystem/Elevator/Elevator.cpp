@@ -37,7 +37,7 @@ void Elevator::moveToStepCount(int goalSteps) {
 
     // Update current position
     current_step_count_ = goalSteps;
-}
+n}
 
 //* Method to update elevator height if needed
 void Elevator::update() {

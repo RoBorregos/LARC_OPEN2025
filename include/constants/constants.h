@@ -23,10 +23,32 @@ namespace Constants {
         constexpr bool kEncoderActiveState = LOW;
 
     }
+    namespace DistanceSensorConstants{
+        constexpr int kObstacleDistance = 30;
+        constexpr int kMaxObstacleDistance = 120;
+        constexpr int kTreeDistance = 13;
+    }
 
-    namespace IntakeConstants {
-        constexpr int kIdle = 90;
-        constexpr int kCollect = 180;
+    namespace LineSensorConstants{
+        constexpr int kPoolDistance = 10;
+        constexpr int kTreeDistance = 15;
+    }
+
+    namespace GripperConstants {
+        constexpr int kOpenAngle = 140;
+        constexpr int kClosedAngle = 40;
+    }
+
+    namespace UpperSorterConstants {
+        constexpr int kLeftAngle = 0;
+        constexpr int kCenterAngle = 90;
+        constexpr int kRightAngle = 180;
+    }
+
+    namespace LowerSorterConstants {
+        constexpr int kLeftAngle = 180;
+        constexpr int kCenterAngle = 90;
+        constexpr int kRightAngle = 0;
     }
 
     namespace DriveConstants {

@@ -23,6 +23,8 @@ class BNO
         float getRoll() const;
         float getPitch() const;
         float getYaw() const;
+        void runCalibration();
+        void getAngular();
 
     private:
         Adafruit_BNO055 bno;
