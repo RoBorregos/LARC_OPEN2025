@@ -186,8 +186,10 @@ void loop()
       elevator_.setState(1);
       if(millis() - start_time > 10000){
         elevator_.setState(0);
-        currentState = STATES::RIGHTMOST;
-        start_time = 0;
+        if(millis() - start_time > 20000){
+          currentState = STATES::RIGHTMOST;
+          start_time = 0;
+        }
       }
     }
 
