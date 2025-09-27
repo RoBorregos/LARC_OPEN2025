@@ -140,34 +140,35 @@ void loop()
       if (start_time == 0)
       {
         start_time = millis();
-        while (millis() - start_time < 1000)
-        {
-          drive_.acceptInput(0, -90, 0);
-        }
+      }
+      
+      if (millis() - start_time < 1000)
+      {
+        drive_.acceptInput(0, -90, 0);
+      }
+      else
+      {
         currentState = STATES::ENDLINE;
+        start_time = 0;
       }
     }
 
     break;
 
   case STATES::ENDLINE:
-  Serial.println("ENDLINE STATE");
-    // if (line_sensor_.isLeftLine() || line_sensor_.isFrontLine())
-    // {
-    //   drive_.acceptInput(0, 0, 0);
-    //   // currentState = STATES::RIGHTMOST; // esto esta mals
-    // }
-    // else
-    // {
-    //     drive_.acceptInput(-60, 0, 0);
-
-    // }
-
-    if(line_sensor_.isLeftLine()){
-      drive_.acceptInput(0,0,0);
+    Serial.println("ENDLINE STATE");
+    bluetooth.println("ENDLINE STATE");
+    
+    if(line_sensor_.isLeftLine())
+    {
+      drive_.acceptInput(0, 0, 0);
+      drive_.hardBrake();
+      start_time = 0;
       currentState = STATES::ELEVATOR_DEMO;
-    }else{
-      drive_.acceptInput(-60,0,0);
+    }
+    else
+    {
+      drive_.acceptInput(-60, 0, 0);
     }
 
     break;
@@ -192,7 +193,7 @@ void loop()
         }
       }
     }
-
+    break;
 
   case STATES::RIGHTMOST:
     Serial.println("Estado: RIGHTMOST");
@@ -209,17 +210,18 @@ void loop()
 
   case STATES::RETURN:
     Serial.println("Estado: RETURN");
-    drive_.acceptInput(0, 0, 180);
+    
     if (distance_sensor_.isObstacle())
     {
       currentState = STATES::AVOID_OBSTACLE_LEFT_RETURN;
-    }else{
-      drive_.acceptInput(0, 70, 0);
     }
-
-    if(!distance_sensor_.obstacleInThePath())
+    else if (!distance_sensor_.obstacleInThePath())
     {
       currentState = STATES::GO_BEGINNING;
+    }
+    else
+    {
+      drive_.acceptInput(0, 70, 180);
     }
     break;
 
