@@ -15,7 +15,8 @@ if not cap.isOpened():
 tree_detection_tolerance = 0.8 
 coffee_labels = ["mature", "overmature", "inmature"]
 
-image = cv2.imread("vision/imagesTest/IMG_2503.JPG")
+# image = cv2.imread("vision/imagesTest/IMG_2503.JPG") It has a tree and the coffes
+image = cv2.imread("vision/imagesTest/IMG_2526.JPG")
 image = cv2.resize(image, (640, 480)) if image is not None else None
 
 def zoom_frame(frame, zoom_factor):
@@ -111,11 +112,13 @@ else:
             inmature = sum(1 for l in labels if l == "inmature")
             mature = sum(1 for l in labels if l =="mature")
             overmature = sum(1 for l in labels if l =="overmature")
+            pools = sum(1 for l in labels if l == "pool")
         
         print(f"Number of coffees: {coffees}")
         print(f"Inmatures beans: {inmature}" )
         print(f"Mature beans: {mature}")
         print(f"Overmature beans: {overmature}" )
+        print(f"Number of pools: {pools}")
         
         if coffees == 16:
             print("Tree is fully detected!")
