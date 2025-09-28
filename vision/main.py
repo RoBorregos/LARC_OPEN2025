@@ -1,4 +1,4 @@
-from src.communication import Function, send_message, receive_response, process_command
+from vision.src.communication import Function, send_message, receive_response, process_command
 from vision.src.modelIRL import Camera
 
 class SystemController:

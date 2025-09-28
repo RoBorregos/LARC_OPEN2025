@@ -1,4 +1,4 @@
 #!/bin/bash
 
-echo "Downloading dataset..."
-python src/modelPhotos.py
+echo "Running vision module"
+python src/main.py
