@@ -333,7 +333,7 @@ void Drive::keepObstacleDistance(int movement){
         float distance_error = front_left - SAFE_DISTANCE;
         
         if(front_left < SAFE_DISTANCE - TOLERANCE) {
-            moveBackward(40);
+            acceptInput(-60,0,0);
             if(movement == 0){
                 acceptInput(70,0,0);
             }else{
@@ -341,7 +341,7 @@ void Drive::keepObstacleDistance(int movement){
             }
         }
         else if(front_left > SAFE_DISTANCE + TOLERANCE) {
-            moveForward(40);
+            acceptInput(0,70,0);
             if(movement == 0){
                 acceptInput(-70,0,0);
             }else{
