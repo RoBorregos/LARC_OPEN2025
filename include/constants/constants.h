@@ -33,7 +33,7 @@ namespace Constants {
     }
 
     namespace DistanceSensorConstants{
-        constexpr int kObstacleDistance = 30;
+        constexpr int kObstacleDistance = 25;
         constexpr int kMaxObstacleDistance = 120;
         constexpr int kTreeDistance = 13;
     }
@@ -65,7 +65,7 @@ namespace Constants {
         constexpr float kWheelRadius = kWheelDiameter / 2.0; // in m
         constexpr float kWheelCircumference = 2 * M_PI * kWheelRadius; // in m
 
-        constexpr float kHeadingControllerKp = 240.0f;
+        constexpr float kHeadingControllerKp = 270.0f; // ORIGINAL: 240.0f - WORKING GREAT RN 28/09/2025 12:02 PM
         constexpr float kHeadingControllerKi = 0.0f;
         constexpr float kHeadingControllerKd = 0.0f;
     }

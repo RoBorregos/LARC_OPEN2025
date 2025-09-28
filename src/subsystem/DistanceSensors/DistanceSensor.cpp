@@ -65,7 +65,9 @@ bool DistanceSensor::isObstacle() const {
     auto distanceValues = getArrayDistance();
     int frontLeftDistance = distanceValues[0];
     int frontRightDistance = distanceValues[1];
-    bool obstacle = (((frontLeftDistance > 0 && frontLeftDistance < DistanceSensorConstants::kObstacleDistance)) || ((frontRightDistance > 0 && frontRightDistance < DistanceSensorConstants::kObstacleDistance)));
+    // bool obstacle = (((frontLeftDistance > 0 && frontLeftDistance < DistanceSensorConstants::kObstacleDistance)) || ((frontRightDistance > 0 && frontRightDistance < DistanceSensorConstants::kObstacleDistance)));
+
+    bool obstacle = (frontLeftDistance < DistanceSensorConstants::kObstacleDistance);
 
     return obstacle;
 }
@@ -75,7 +77,8 @@ bool DistanceSensor::obstacleInThePath() const {
     int frontLeftDistance = distanceValues[0];
     int frontRightDistance = distanceValues[1];
 
-    bool obstacle = (frontLeftDistance < DistanceSensorConstants::kMaxObstacleDistance) && (frontRightDistance < DistanceSensorConstants::kMaxObstacleDistance);
+    // bool obstacle = (frontLeftDistance < DistanceSensorConstants::kMaxObstacleDistance) && (frontRightDistance < DistanceSensorConstants::kMaxObstacleDistance);
+    bool obstacle = (frontLeftDistance < DistanceSensorConstants::kMaxObstacleDistance);
 
     return obstacle;
 }

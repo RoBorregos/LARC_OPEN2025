@@ -312,9 +312,9 @@ void Drive::avoidFrontLine(){
     bool front_right_detects = sensors[1];  
     
     if (front_left_detects || front_right_detects) {
-        moveBackward(60);
+        acceptInput(0,-60,0);
     }else{
-        moveLeft(60);
+        acceptInput(60,0,0);
     }
 }
 
@@ -324,37 +324,35 @@ void Drive::keepObstacleDistance(int movement){
 
     auto value = distance_sensor_.getArrayDistance();
     float front_left = value[0];
-    float front_right = value[1];
-    float min_distance = min(front_left, front_right);
-
-    const float SAFE_DISTANCE = 30.0f;
-    const float TOLERANCE = 5.0f;
+    
+    const float SAFE_DISTANCE = 20.0f;
+    const float TOLERANCE = 15.0f;
 
     if(distance_sensor_.isObstacle())
     {
-        float distance_error = min_distance - SAFE_DISTANCE;
+        float distance_error = front_left - SAFE_DISTANCE;
         
-        if(min_distance < SAFE_DISTANCE - TOLERANCE) {
-            moveBackward(30);
+        if(front_left < SAFE_DISTANCE - TOLERANCE) {
+            moveBackward(40);
             if(movement == 0){
-                moveLeft(40);
+                acceptInput(70,0,0);
             }else{
-                moveRight(40);
+                acceptInput(-70,0,0);
             }
         }
-        else if(min_distance > SAFE_DISTANCE + TOLERANCE) {
-            moveForward(30);
+        else if(front_left > SAFE_DISTANCE + TOLERANCE) {
+            moveForward(40);
             if(movement == 0){
-                moveLeft(40);
+                acceptInput(-70,0,0);
             }else{
-                moveRight(40);
+                acceptInput(70,0,0);
             }
         }
         else {
             if(movement == 0){
-                moveLeft(50);
+                acceptInput(70,0,0);
             }else{
-                moveRight(50);
+                acceptInput(-70,0,0);
             }
         }
     }
