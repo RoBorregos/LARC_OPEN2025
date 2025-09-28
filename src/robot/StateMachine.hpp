@@ -1,0 +1,51 @@
+#ifndef STATEMACHINE_HPP
+#define STATEMACHINE_HPP
+
+#include <Arduino.h>
+#include <SoftwareSerial.h>
+
+enum class STATES
+{
+  START, // Represents the start of the robot
+  AVOID_OBSTACLE_LEFT,
+  AVOID_OBSTACLE_RIGHT,
+  GO_STRAIGHT,
+  ENDLINE,
+  RIGHTMOST,
+  AVOID_OBSTACLE_LEFT_RETURN,
+  AVOID_OBSTACLE_RIGHT_RETURN,
+  RETURN,
+  GO_BEGINNING
+};
+
+class StateMachine
+{
+private:
+  STATES currentState;
+  unsigned long start_time;
+  uint8_t after_obstacle_offset;
+  SoftwareSerial& bluetooth;
+
+public:
+  StateMachine(SoftwareSerial& bluetoothRef);
+  
+  void begin();
+  void update();
+  
+  STATES getCurrentState() const;
+  void setState(STATES newState);
+  
+private:
+  void handleStartState();
+  void handleAvoidObstacleLeftState();
+  void handleAvoidObstacleRightState();
+  void handleGoStraightState();
+  void handleEndlineState();
+  void handleRightmostState();
+  void handleReturnState();
+  void handleAvoidObstacleLeftReturnState();
+  void handleAvoidObstacleRightReturnState();
+  void handleGoBeginningState();
+};
+
+#endif // STATEMACHINE_HPP
