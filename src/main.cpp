@@ -47,7 +47,7 @@ void setup()
   distance_sensor_.begin();
   drive_.setState(0);
   drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
-  currentState = STATES::GO_STRAIGHT;
+  currentState = STATES::ENDLINE;
 }
 
 void loop()
@@ -60,7 +60,7 @@ void loop()
     Serial.println("START STATE");
     bluetooth.println("START STATE");
 
-    drive_.acceptInput(0, 80, 0);
+    drive_.acceptInput(0, 120, 0);
     if (distance_sensor_.isObstacle())
     {
       drive_.acceptInput(0, 0, 0);
@@ -76,7 +76,7 @@ void loop()
     Serial.println("AVOID OBSTACLE LEFT STATE");
     bluetooth.println("AVOID OBSTACLE LEFT STATE");
     
-    drive_.acceptInput(-60, 0, 0);
+    drive_.acceptInput(-100, 0, 0);
 
     if (line_sensor_.isLeftLine())
     {
@@ -107,7 +107,7 @@ void loop()
     Serial.println("AVOID OBSTACLE RIGHT STATE");
     bluetooth.println("AVOID OBSTACLE RIGHT STATE");
 
-    drive_.acceptInput(60, 0, 0);
+    drive_.acceptInput(130, 0, 0);
 
     if (line_sensor_.isRightLine())
     {
@@ -138,29 +138,33 @@ void loop()
     Serial.println("GO_STRAIGHT STATE");
     bluetooth.println("GO_STRAIGHT STATE");
     
-    drive_.acceptInput(0, 70, 0);
-
-    if (distance_sensor_.isTree())
+    if (start_time > 0)  // Si estamos en modo corrección
     {
-      Serial.println("LINE DETECTED");
-      bluetooth.println("LINE DETECTED");
-      
-      drive_.acceptInput(0, 0, 0);
-      drive_.hardBrake();
-      if (start_time == 0)
-      {
-        start_time = millis();
-      }
-      
-      if (millis() - start_time < 1000)
-      {
-        drive_.acceptInput(0, -90, 0);
-      }
-      else
-      {
-        currentState = STATES::ENDLINE;
-        start_time = 0;
-      }
+        if (millis() - start_time < 300)
+        {
+            drive_.acceptInput(0, -90, 0);
+        }
+        else
+        {
+            start_time = 0;
+            currentState = STATES::ENDLINE;
+        }
+    }
+    else  // Si no estamos en modo corrección
+    {
+        if (line_sensor_.isFrontLine())
+        {
+            Serial.println("LINE DETECTED");
+            bluetooth.println("LINE DETECTED");
+            
+            drive_.acceptInput(0, 0, 0);
+            drive_.hardBrake();
+            start_time = millis();
+        }
+        else
+        {
+            drive_.acceptInput(0, 70, 0);  // Solo avanzar si no estamos corrigiendo
+        }
     }
 
     break;
@@ -168,18 +172,15 @@ void loop()
   case STATES::ENDLINE:
     Serial.println("ENDLINE STATE");
     bluetooth.println("ENDLINE STATE");
-    drive_.acceptInput(0, 0, 0);
-    // if(line_sensor_.isLeftLine())
-    // {
-    //   drive_.acceptInput(0, 0, 0);
-    //   drive_.hardBrake();
-    //   start_time = 0;
-    //   currentState = STATES::ELEVATOR_DEMO;
-    // }
-    // else
-    // {
-    //   drive_.acceptInput(-60, 0, 0);
-    // }
+    
+    drive_.acceptInput(-70, 0, 0);
+    if(line_sensor_.isLeftLine())
+    {
+      drive_.acceptInput(0, 0, 0);
+      drive_.hardBrake();
+      start_time = 0;
+      currentState = STATES::RIGHTMOST;
+    }
 
     break;
 
@@ -209,16 +210,14 @@ void loop()
   case STATES::RIGHTMOST:
     Serial.println("Estado: RIGHTMOST");
     bluetooth.println("Estado: RIGHTMOST");
-    drive_.acceptInput(0, 0, 0);
-    // if (line_sensor_.isRightLine())
-    // {
-    //   drive_.acceptInput(0, 0, 0);
-    //   currentState = STATES::RETURN;
-    // }
-    // else
-    // {
-    //   drive_.acceptInput(60, 0, 0);
-    // }
+
+    drive_.acceptInput(70, 0, 0);
+
+    if (line_sensor_.isRightLine())
+    {
+      drive_.acceptInput(0, 0, 0);
+      currentState = STATES::RETURN;
+    }
     break;
 
   case STATES::RETURN:
