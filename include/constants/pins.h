@@ -34,8 +34,7 @@ namespace Pins {
         {35, 33},
         {30, 34},
     };
-
-    // READY
+ 
     constexpr uint8_t kEncoders[8]{
         40, // ENC1B
         39, // ENC1A
@@ -54,8 +53,8 @@ namespace Pins {
     // READY
     static constexpr uint8_t kLineSensorFL = 28;
     static constexpr uint8_t kLineSensorFR = 27;
-    static constexpr uint8_t kLineSensorBL = 20;
-    static constexpr uint8_t kLineSensorBR = 21;
+    static constexpr uint8_t kLineSensorBL = 21;
+    static constexpr uint8_t kLineSensorBR = 20;
 }
 
 #endif
