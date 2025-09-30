@@ -35,22 +35,25 @@ void setup()
 {
   Serial.begin(9800);
   bluetooth.begin(9800);
-  Serial.println("Starting...");
+  bluetooth.println("Starting...");
   Wire.begin();
 
   // All systems must begin after initializing the serial and as the code starts running
+  bluetooth.println("Initializing systems...");
   drive_.begin();
   com_.begin();
   line_sensor_.begin();
   distance_sensor_.begin();
+  stateMachine.begin();
+  bluetooth.println("All systems initialized...");
+
   drive_.setState(0);
   drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
 
-  // Initialize state machine
-  stateMachine.begin();
-
   // Wait for "r" message from Bluetooth before continuing
   String btInput = "";
+  bluetooth.println("Waiting for ready command (r)...");
+
   while (true)
   {
     if (bluetooth.available())
