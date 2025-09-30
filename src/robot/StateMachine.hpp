@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <SoftwareSerial.h>
+#include "StateUtils.h"
 
 enum class STATES
 {

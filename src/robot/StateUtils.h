@@ -15,8 +15,8 @@ void maintainDistance(float distance, float lateralSpeed)
     float leftDistance = distance_sensor_.getDistance(0);
     float rightDistance = distance_sensor_.getDistance(1);
 
-    float leftOutput = leftDistancePID.update(leftDistance, DistanceSensorConstants::kPoolTargetDistance);
-    float rightOutput = rightDistancePID.update(rightDistance, DistanceSensorConstants::kPoolTargetDistance);
+    float leftOutput = leftDistancePID.update(leftDistance, distance);
+    float rightOutput = rightDistancePID.update(rightDistance, distance);
 
     float forwardOutput = (leftOutput + rightOutput) / 2.0 * -1;
 

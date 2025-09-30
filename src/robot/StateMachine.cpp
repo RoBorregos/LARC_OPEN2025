@@ -85,7 +85,6 @@ void StateMachine::handleStartState()
     state_start_time = 0;
     currentState = STATES::AVOID_OBSTACLE_LEFT;
   }
-
 }
 
 void StateMachine::handleAvoidObstacleLeftState()
@@ -93,7 +92,7 @@ void StateMachine::handleAvoidObstacleLeftState()
   Serial.println("AVOID OBSTACLE LEFT STATE");
   bluetooth.println("AVOID OBSTACLE LEFT STATE");
 
-  drive_.acceptInput(-75, 0, 0);
+  maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -75);
 
   if (line_sensor_.isLeftLine())
   {
@@ -115,10 +114,12 @@ void StateMachine::handleAvoidObstacleRightState()
   Serial.println("AVOID OBSTACLE RIGHT STATE");
   bluetooth.println("AVOID OBSTACLE RIGHT STATE");
 
-  drive_.acceptInput(75, 0, 0);
+  maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 75);
 
   if (line_sensor_.isRightLine())
   {
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
     currentState = STATES::AVOID_OBSTACLE_LEFT;
   }
 
