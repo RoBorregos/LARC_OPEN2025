@@ -23,11 +23,12 @@ StateMachine stateMachine(bluetooth);
 // PIDController rightDistancePID(10, 0.00, 0.0, -150.0, 150.0); // kp, ki, kd, min, max
 
 // PID controller for line following using front sensors
-PIDController linePID(15.0, 0.0, 2.0, -100.0, 100.0); // kp, ki, kd, min, max
+PIDController linePID(5.0, 0.0, 0.1, -100.0, 100.0); // kp, ki, kd, min, max
+
+PIDController rotationPID(8.0, 0.0, 0.2, -100.0, 100.0);
 
 // Line following parameters
-const float BASE_SPEED = 70.0;  // Base forward speed
-const float TURN_SPEED = 50.0;  // Speed for turning corrections
+const float LATERAL_SPEED = 50.0;  // LATERAL forward speed
 
 // Target distance in cm 
 // const float TARGET_DISTANCE = 16.0;
@@ -52,28 +53,28 @@ void setup()
   // Initialize state machine
   stateMachine.begin();
   // Wait for "ready" message from Bluetooth before continuing
-  String btInput = "";
-  while (true)
-  {
-    if (bluetooth.available())
-    {
-      char c = bluetooth.read();
-      if (c == '\n' || c == '\r')
-      {
-        btInput.trim();
-        if (btInput.equalsIgnoreCase("ready"))
-        {
-          Serial.println("Bluetooth ready received.");
-          break;
-        }
-        btInput = "";
-      }
-      else
-      {
-        btInput += c;
-      }
-    }
-  }
+  // String btInput = "";
+  // while (true)
+  // {
+  //   if (bluetooth.available())
+  //   {
+  //     char c = bluetooth.read();
+  //     if (c == '\n' || c == '\r')
+  //     {
+  //       btInput.trim();
+  //       if (btInput.equalsIgnoreCase("ready"))
+  //       {
+  //         Serial.println("Bluetooth ready received.");
+  //         break;
+  //       }
+  //       btInput = "";
+  //     }
+  //     else
+  //     {
+  //       btInput += c;
+  //     }
+  //   }
+  // }
 }
 
 void loop()
@@ -88,59 +89,53 @@ void loop()
   auto lineValues = line_sensor_.readSensors();
   bool frontLeft = lineValues[0];
   bool frontRight = lineValues[1];
-  bool backLeft = lineValues[2];
-  bool backRight = lineValues[3]; 
+
+  float frontError = 0.0;
+  if (frontLeft && !frontRight) frontError = -1.0;
+  if (!frontLeft && frontRight) frontError = 1.0;
+
+  float positionError = frontError;
+
+  float rotationError = frontError;
   
-  // Calculate line error based on front sensors
-  // Error calculation: -1 = too far forward (need to move back), 0 = centered, +1 = too far back (need to move forward)
-  float lineError = 0.0;
-  
-  if (frontLeft && frontRight) {
-    // Both sensors detect line - perfectly positioned on line
-    lineError = 0.0;
-  } else if (frontLeft && !frontRight) {
-    // Only front left detects - robot is too far forward, need to move back
-    lineError = -1.0;
-  } else if (!frontLeft && frontRight) {
-    // Only front right detects - robot is too far back, need to move forward  
-    lineError = 1.0;
+  bool isLineDetected = frontLeft || frontRight;
+  static float lastKnownPositionError = 0.0; 
+  static bool wasGoingBackward = false;
+  static unsigned long backwardStartTime = 0;
+  static const unsigned long BACKWARD_DURATION = 400;
+
+  if (isLineDetected) {
+      // If we were going backward and now detect the line, change direction to forward
+      if (wasGoingBackward) {
+          wasGoingBackward = false;
+      }
+      
+      float vy_correction = linePID.update(positionError, 0.0);
+      float omega_correction = rotationPID.update(rotationError, 0.0);
+
+      drive_.acceptInput(LATERAL_SPEED, vy_correction, omega_correction);
+      
+      lastKnownPositionError = positionError;
   } else {
-    // No line detected - maintain last error or stop
-    lineError = 0.0;
-    // Could implement search behavior here
+      if (!wasGoingBackward) {
+          wasGoingBackward = true;
+          backwardStartTime = millis();
+      }
+      
+      // Check if 400ms have passed since going backward
+      if (millis() - backwardStartTime >= BACKWARD_DURATION) {
+          // Change direction to forward after 400ms
+          float recovery_vy = (lastKnownPositionError > 0) ? -40.0 : 40.0;
+          drive_.acceptInput(LATERAL_SPEED * 0.7, recovery_vy, 0.0);
+      } else {
+          // Continue going backward for the first 400ms
+          float recovery_vy = (lastKnownPositionError > 0) ? 40.0 : -40.0;
+          drive_.acceptInput(LATERAL_SPEED * 0.7, recovery_vy, 0.0);
+      }
+      
+      bluetooth.println("Searching line");
   }
-  
-  // Calculate PID output for position correction
-  float pidOutput = linePID.update(lineError, 0.0); // Target error is 0 (centered on line)
-  
-  // Apply control to robot movement
-  if (frontLeft || frontRight) {
-    // Line detected - follow it horizontally
-    float vx = BASE_SPEED;          // Lateral movement (left/right) - main direction
-    float vy = pidOutput;           // Forward/backward correction to stay on line
-    float omega = 0.0;              // No rotation
-    
-    drive_.acceptInput(vx, vy, omega);
-    
-    // Debug output via Bluetooth
-    bluetooth.print("Horizontal Line Follow - FL: ");
-    bluetooth.print(frontLeft ? "1" : "0");
-    bluetooth.print(" FR: ");
-    bluetooth.print(frontRight ? "1" : "0");
-    bluetooth.print(" Error: ");
-    bluetooth.print(lineError, 2);
-    bluetooth.print(" PID: ");
-    bluetooth.print(pidOutput, 2);
-    bluetooth.print(" vx(lateral): ");
-    bluetooth.print(vx, 2);
-    bluetooth.print(" vy(correction): ");
-    bluetooth.print(vy, 2);
-    bluetooth.println("");
-  } else {
-    // No line detected - stop or search
-    drive_.acceptInput(0.0, 0.0, 0.0);
-    bluetooth.println("No horizontal line detected - stopped");
-  }
+
   
   /*
   if (USE_LEFT_ONLY)
