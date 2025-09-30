@@ -15,26 +15,27 @@ enum class STATES
   AVOID_OBSTACLE_LEFT_RETURN,
   AVOID_OBSTACLE_RIGHT_RETURN,
   RETURN,
-  GO_BEGINNING
+  GO_BEGINNING,
+  STOP
 };
 
 class StateMachine
 {
 private:
   STATES currentState;
-  unsigned long start_time;
+  unsigned long state_start_time;
   uint8_t after_obstacle_offset;
-  SoftwareSerial& bluetooth;
+  SoftwareSerial &bluetooth;
 
 public:
-  StateMachine(SoftwareSerial& bluetoothRef);
-  
+  StateMachine(SoftwareSerial &bluetoothRef);
+
   void begin();
   void update();
-  
+
   STATES getCurrentState() const;
   void setState(STATES newState);
-  
+
 private:
   void handleStartState();
   void handleAvoidObstacleLeftState();
@@ -46,6 +47,7 @@ private:
   void handleAvoidObstacleLeftReturnState();
   void handleAvoidObstacleRightReturnState();
   void handleGoBeginningState();
+  void handleStopState();
 };
 
 #endif // STATEMACHINE_HPP
