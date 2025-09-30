@@ -11,6 +11,9 @@
 #include "robot/StateMachine.hpp"
 #include <SoftwareSerial.h>
 #include "../../lib/controllers/PIDController.hpp"
+#include "constants/constants.h"
+
+using namespace Constants;
 
 // --- Bluetooth Setup ---
 SoftwareSerial bluetooth(0, 1); // RX, TX pins for Bluetooth module
@@ -18,21 +21,15 @@ SoftwareSerial bluetooth(0, 1); // RX, TX pins for Bluetooth module
 // State machine instance
 StateMachine stateMachine(bluetooth);
 
-// PID controllers for distance control
-// PIDController leftDistancePID(10, 0.00, 0.1, -150.0, 150.0);  // kp, ki, kd, min, max
-// PIDController rightDistancePID(10, 0.00, 0.0, -150.0, 150.0); // kp, ki, kd, min, max
-
 // PID controller for line following using front sensors
-PIDController linePID(20.0, 0.0, 0.1, -100.0, 100.0); // kp, ki, kd, min, max
+PIDController linePID(20.0, 0.0, 0.1, -100.0, 100.0);
 PIDController rotationPID(8.0, 0.0, 0.2, -100.0, 100.0);
 
 // Line following parameters
-const float LATERAL_SPEED = 70.0;  // LATERAL  speed
+const float LATERAL_SPEED = 70.0;
 
-// Target distance in cm 
-// const float TARGET_DISTANCE = 16.0;
-// Mode flag: when true, use ONLY left distance for control 
-// const bool USE_LEFT_ONLY = false;
+PIDController leftDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);  // kp, ki, kd, min, max
+PIDController rightDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0); // kp, ki, kd, min, max
 
 void setup()
 {
@@ -51,148 +48,126 @@ void setup()
 
   // Initialize state machine
   stateMachine.begin();
-  // Wait for "ready" message from Bluetooth before continuing
-  // String btInput = "";
-  // while (true)
-  // {
-  //   if (bluetooth.available())
-  //   {
-  //     char c = bluetooth.read();
-  //     if (c == '\n' || c == '\r')
-  //     {
-  //       btInput.trim();
-  //       if (btInput.equalsIgnoreCase("ready"))
-  //       {
-  //         Serial.println("Bluetooth ready received.");
-  //         break;
-  //       }
-  //       btInput = "";
-  //     }
-  //     else
-  //     {
-  //       btInput += c;
-  //     }
-  //   }
-  // }
+
+  // Wait for "r" message from Bluetooth before continuing
+  String btInput = "";
+  while (true)
+  {
+    if (bluetooth.available())
+    {
+      char c = bluetooth.read();
+      if (c == '\n' || c == '\r')
+      {
+        btInput.trim();
+        if (btInput.equalsIgnoreCase("r"))
+        {
+          Serial.println("Bluetooth ready received.");
+          break;
+        }
+        btInput = "";
+      }
+      else
+      {
+        btInput += c;
+      }
+    }
+  }
 }
 
 void loop()
 {
-  // Get current distance readings
-  // auto distanceValues = distance_sensor_.getArrayDistance();
-  // float leftDistance = distanceValues[0];
-  // float rightDistance = distanceValues[1];
+  // Update drive system
+  drive_.update();
 
+  delay(20);
+}
 
+void followLine()
+{
   // Get current line senssor readings
   auto lineValues = line_sensor_.readSensors();
   bool frontLeft = lineValues[0];
   bool frontRight = lineValues[1];
 
   float frontError = 0.0;
-  if (frontLeft && !frontRight) frontError = -1.0;
-  if (!frontLeft && frontRight) frontError = 1.0;
+  if (frontLeft && !frontRight)
+    frontError = -1.0;
+  if (!frontLeft && frontRight)
+    frontError = 1.0;
 
   float positionError = frontError;
 
   float rotationError = frontError;
-  
+
   bool isLineDetected = frontLeft || frontRight;
-  static float lastKnownPositionError = 0.0; 
+  static float lastKnownPositionError = 0.0;
   static bool wasGoingBackward = false;
   static unsigned long backwardStartTime = 0;
   static const unsigned long BACKWARD_DURATION = 200;
   static unsigned long forwardStartTime = 0;
   static const unsigned long FORWARD_DURATION = 100;
 
-  if (isLineDetected) {
-      // If we were going backward and now detect the line, change direction to forward
-      if (wasGoingBackward) {
-          wasGoingBackward = false;
-      }
-      
-      float vy_correction = linePID.update(positionError, 0.0);
-      float omega_correction = rotationPID.update(rotationError, 0.0);
-
-      drive_.acceptInput(LATERAL_SPEED, vy_correction, omega_correction);
-
-      lastKnownPositionError = positionError;
-  } else {
-      if (!wasGoingBackward) {
-          wasGoingBackward = true;
-          backwardStartTime = millis();
-      }
-      
-      // Check if 100ms have passed since going backward
-      if (millis() - backwardStartTime >= BACKWARD_DURATION) {
-          // Change direction to forward after 100ms
-          float recovery_vy = (lastKnownPositionError > 0) ? -40.0 : 40.0;
-          drive_.acceptInput(LATERAL_SPEED * 0.7, recovery_vy, 0.0);
-      } else {
-          // Continue going backward for the first 100ms
-          float recovery_vy = (lastKnownPositionError > 0) ? 40.0 : -40.0;
-          drive_.acceptInput(LATERAL_SPEED * 0.7, recovery_vy, 0.0);
-      }
-      
-      bluetooth.println("Searching line");
-  }
-
-  
-  /*
-  if (USE_LEFT_ONLY)
+  if (isLineDetected)
   {
-    // LEFT-ONLY CONTROL: maintain 16cm to the left obstacle using lateral movement only
-    float leftOnlyOutput = leftDistancePID.update(leftDistance, TARGET_DISTANCE);
+    // If we were going backward and now detect the line, change direction to forward
+    if (wasGoingBackward)
+    {
+      wasGoingBackward = false;
+    }
 
-    // Map PID to lateral (vx). Sign chosen consistent with forward sign flip
-    float vx = 75.0;  // strafe left/right to correct left distance
-    float vy = -leftOnlyOutput;              // no forward motion in left-only mode
+    float vy_correction = linePID.update(positionError, 0.0);
+    float omega_correction = rotationPID.update(rotationError, 0.0);
 
-    drive_.acceptInput(vx, vy, 0.0);
+    drive_.acceptInput(LATERAL_SPEED, vy_correction, omega_correction);
 
-    // Debug
-    bluetooth.print("[LEFT-ONLY] L: ");
-    bluetooth.print(leftDistance);
-    bluetooth.print("cm (out: ");
-    bluetooth.print(leftOnlyOutput);
-    bluetooth.println(")");
+    lastKnownPositionError = positionError;
   }
   else
   {
-    // DUAL-SENSOR CONTROL (existing): maintain ~16cm on both sensors
-    // Calculate PID outputs for both sensors
-    float leftOutput = leftDistancePID.update(leftDistance, TARGET_DISTANCE);
-    float rightOutput = rightDistancePID.update(rightDistance, TARGET_DISTANCE);
+    if (!wasGoingBackward)
+    {
+      wasGoingBackward = true;
+      backwardStartTime = millis();
+    }
 
-    // Calculate average output for forward/backward movement
-    float forwardOutput = (leftOutput + rightOutput) / 2.0 * -1;
+    // Check if 100ms have passed since going backward
+    if (millis() - backwardStartTime >= BACKWARD_DURATION)
+    {
+      // Change direction to forward after 100ms
+      float recovery_vy = (lastKnownPositionError > 0) ? -40.0 : 40.0;
+      drive_.acceptInput(LATERAL_SPEED * 0.7, recovery_vy, 0.0);
+    }
+    else
+    {
+      // Continue going backward for the first 100ms
+      float recovery_vy = (lastKnownPositionError > 0) ? 40.0 : -40.0;
+      drive_.acceptInput(LATERAL_SPEED * 0.7, recovery_vy, 0.0);
+    }
 
-    // Calculate difference for left/right movement (to center between obstacles)
-    float lateralOutput = (rightDistance - leftDistance) * 0.1; // Simple proportional control for centering
-
-    // Apply the control outputs to the drive system
-    // forwardOutput controls forward/backward movement
-    // lateralOutput controls left/right movement
-    drive_.acceptInput(75.0, forwardOutput, 0.0);
-
-    // Debug output
-    bluetooth.print("L: ");
-    bluetooth.print(leftDistance);
-    bluetooth.print("cm (");
-    bluetooth.print(leftOutput);
-    bluetooth.print(") R: ");
-    bluetooth.print(rightDistance);
-    bluetooth.print("cm (");
-    bluetooth.print(rightOutput);
-    bluetooth.print(") Fwd: ");
-    bluetooth.print(forwardOutput);
-    bluetooth.print(" Lat: ");
-    bluetooth.println(lateralOutput);
+    bluetooth.println("Searching line");
   }
-  */
+}
 
-  // Update drive system
-  drive_.update();
+void maintainDistance(float distance, float lateralSpeed)
+{
+  float leftDistance = distance_sensor_.getDistance(0);
+  float rightDistance = distance_sensor_.getDistance(1);
 
-  delay(20); // Control loop frequency
+  float leftOutput = leftDistancePID.update(leftDistance, DistanceSensorConstants::kPoolTargetDistance);
+  float rightOutput = rightDistancePID.update(rightDistance, DistanceSensorConstants::kPoolTargetDistance);
+
+  float forwardOutput = (leftOutput + rightOutput) / 2.0 * -1;
+
+  drive_.acceptInput(lateralSpeed, forwardOutput, 0.0);
+
+  bluetooth.print("L: ");
+  bluetooth.print(leftDistance);
+  bluetooth.print("cm (");
+  bluetooth.print(leftOutput);
+  bluetooth.print(") R: ");
+  bluetooth.print(rightDistance);
+  bluetooth.print("cm (");
+  bluetooth.print(rightOutput);
+  bluetooth.print(") Fwd: ");
+  bluetooth.print(forwardOutput);
 }
