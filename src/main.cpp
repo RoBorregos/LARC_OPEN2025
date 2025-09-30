@@ -19,13 +19,13 @@ SoftwareSerial bluetooth(0, 1); // RX, TX pins for Bluetooth module
 StateMachine stateMachine(bluetooth);
 
 // PID controllers for distance control
-PIDController leftDistancePID(10, 0.00, 0.0, -150.0, 150.0);  // kp, ki, kd, min, max
+PIDController leftDistancePID(10, 0.00, 0.1, -150.0, 150.0);  // kp, ki, kd, min, max
 PIDController rightDistancePID(10, 0.00, 0.0, -150.0, 150.0); // kp, ki, kd, min, max
 
 // Target distance in cm
 const float TARGET_DISTANCE = 16.0;
 // Mode flag: when true, use ONLY left distance for control
-const bool USE_LEFT_ONLY = true;
+const bool USE_LEFT_ONLY = false;
 
 void setup()
 {
@@ -110,7 +110,7 @@ void loop()
     // Apply the control outputs to the drive system
     // forwardOutput controls forward/backward movement
     // lateralOutput controls left/right movement
-    drive_.acceptInput(lateralOutput, forwardOutput, 0.0);
+    drive_.acceptInput(75.0, forwardOutput, 0.0);
 
     // Debug output
     bluetooth.print("L: ");
