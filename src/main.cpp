@@ -15,9 +15,6 @@
 
 using namespace Constants;
 
-// --- Bluetooth Setup ---
-SoftwareSerial bluetooth(0, 1); // RX, TX pins for Bluetooth module
-
 // State machine instance
 StateMachine stateMachine(bluetooth);
 
@@ -27,9 +24,6 @@ PIDController rotationPID(8.0, 0.0, 0.2, -100.0, 100.0);
 
 // Line following parameters
 const float LATERAL_SPEED = 70.0;
-
-PIDController leftDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);  // kp, ki, kd, min, max
-PIDController rightDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0); // kp, ki, kd, min, max
 
 void setup()
 {
@@ -149,28 +143,4 @@ void followLine()
 
     bluetooth.println("Searching line");
   }
-}
-
-void maintainDistance(float distance, float lateralSpeed)
-{
-  float leftDistance = distance_sensor_.getDistance(0);
-  float rightDistance = distance_sensor_.getDistance(1);
-
-  float leftOutput = leftDistancePID.update(leftDistance, DistanceSensorConstants::kPoolTargetDistance);
-  float rightOutput = rightDistancePID.update(rightDistance, DistanceSensorConstants::kPoolTargetDistance);
-
-  float forwardOutput = (leftOutput + rightOutput) / 2.0 * -1;
-
-  drive_.acceptInput(lateralSpeed, forwardOutput, 0.0);
-
-  bluetooth.print("L: ");
-  bluetooth.print(leftDistance);
-  bluetooth.print("cm (");
-  bluetooth.print(leftOutput);
-  bluetooth.print(") R: ");
-  bluetooth.print(rightDistance);
-  bluetooth.print("cm (");
-  bluetooth.print(rightOutput);
-  bluetooth.print(") Fwd: ");
-  bluetooth.print(forwardOutput);
 }
