@@ -19,13 +19,20 @@ SoftwareSerial bluetooth(0, 1); // RX, TX pins for Bluetooth module
 StateMachine stateMachine(bluetooth);
 
 // PID controllers for distance control
-PIDController leftDistancePID(10, 0.00, 0.1, -150.0, 150.0);  // kp, ki, kd, min, max
-PIDController rightDistancePID(10, 0.00, 0.0, -150.0, 150.0); // kp, ki, kd, min, max
+// PIDController leftDistancePID(10, 0.00, 0.1, -150.0, 150.0);  // kp, ki, kd, min, max
+// PIDController rightDistancePID(10, 0.00, 0.0, -150.0, 150.0); // kp, ki, kd, min, max
 
-// Target distance in cm
-const float TARGET_DISTANCE = 16.0;
-// Mode flag: when true, use ONLY left distance for control
-const bool USE_LEFT_ONLY = false;
+// PID controller for line following using front sensors
+PIDController linePID(15.0, 0.0, 2.0, -100.0, 100.0); // kp, ki, kd, min, max
+
+// Line following parameters
+const float BASE_SPEED = 70.0;  // Base forward speed
+const float TURN_SPEED = 50.0;  // Speed for turning corrections
+
+// Target distance in cm 
+// const float TARGET_DISTANCE = 16.0;
+// Mode flag: when true, use ONLY left distance for control 
+// const bool USE_LEFT_ONLY = false;
 
 void setup()
 {
@@ -72,10 +79,70 @@ void setup()
 void loop()
 {
   // Get current distance readings
-  auto distanceValues = distance_sensor_.getArrayDistance();
-  float leftDistance = distanceValues[0];
-  float rightDistance = distanceValues[1];
+  // auto distanceValues = distance_sensor_.getArrayDistance();
+  // float leftDistance = distanceValues[0];
+  // float rightDistance = distanceValues[1];
 
+
+  // Get current line senssor readings
+  auto lineValues = line_sensor_.readSensors();
+  bool frontLeft = lineValues[0];
+  bool frontRight = lineValues[1];
+  bool backLeft = lineValues[2];
+  bool backRight = lineValues[3]; 
+  
+  // Calculate line error based on front sensors
+  // Error calculation: -1 = too far forward (need to move back), 0 = centered, +1 = too far back (need to move forward)
+  float lineError = 0.0;
+  
+  if (frontLeft && frontRight) {
+    // Both sensors detect line - perfectly positioned on line
+    lineError = 0.0;
+  } else if (frontLeft && !frontRight) {
+    // Only front left detects - robot is too far forward, need to move back
+    lineError = -1.0;
+  } else if (!frontLeft && frontRight) {
+    // Only front right detects - robot is too far back, need to move forward  
+    lineError = 1.0;
+  } else {
+    // No line detected - maintain last error or stop
+    lineError = 0.0;
+    // Could implement search behavior here
+  }
+  
+  // Calculate PID output for position correction
+  float pidOutput = linePID.update(lineError, 0.0); // Target error is 0 (centered on line)
+  
+  // Apply control to robot movement
+  if (frontLeft || frontRight) {
+    // Line detected - follow it horizontally
+    float vx = BASE_SPEED;          // Lateral movement (left/right) - main direction
+    float vy = pidOutput;           // Forward/backward correction to stay on line
+    float omega = 0.0;              // No rotation
+    
+    drive_.acceptInput(vx, vy, omega);
+    
+    // Debug output via Bluetooth
+    bluetooth.print("Horizontal Line Follow - FL: ");
+    bluetooth.print(frontLeft ? "1" : "0");
+    bluetooth.print(" FR: ");
+    bluetooth.print(frontRight ? "1" : "0");
+    bluetooth.print(" Error: ");
+    bluetooth.print(lineError, 2);
+    bluetooth.print(" PID: ");
+    bluetooth.print(pidOutput, 2);
+    bluetooth.print(" vx(lateral): ");
+    bluetooth.print(vx, 2);
+    bluetooth.print(" vy(correction): ");
+    bluetooth.print(vy, 2);
+    bluetooth.println("");
+  } else {
+    // No line detected - stop or search
+    drive_.acceptInput(0.0, 0.0, 0.0);
+    bluetooth.println("No horizontal line detected - stopped");
+  }
+  
+  /*
   if (USE_LEFT_ONLY)
   {
     // LEFT-ONLY CONTROL: maintain 16cm to the left obstacle using lateral movement only
@@ -126,6 +193,7 @@ void loop()
     bluetooth.print(" Lat: ");
     bluetooth.println(lateralOutput);
   }
+  */
 
   // Update drive system
   drive_.update();
