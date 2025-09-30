@@ -23,12 +23,11 @@ StateMachine stateMachine(bluetooth);
 // PIDController rightDistancePID(10, 0.00, 0.0, -150.0, 150.0); // kp, ki, kd, min, max
 
 // PID controller for line following using front sensors
-PIDController linePID(5.0, 0.0, 0.1, -100.0, 100.0); // kp, ki, kd, min, max
-
+PIDController linePID(20.0, 0.0, 0.1, -100.0, 100.0); // kp, ki, kd, min, max
 PIDController rotationPID(8.0, 0.0, 0.2, -100.0, 100.0);
 
 // Line following parameters
-const float LATERAL_SPEED = 50.0;  // LATERAL forward speed
+const float LATERAL_SPEED = 70.0;  // LATERAL  speed
 
 // Target distance in cm 
 // const float TARGET_DISTANCE = 16.0;
@@ -102,7 +101,9 @@ void loop()
   static float lastKnownPositionError = 0.0; 
   static bool wasGoingBackward = false;
   static unsigned long backwardStartTime = 0;
-  static const unsigned long BACKWARD_DURATION = 400;
+  static const unsigned long BACKWARD_DURATION = 200;
+  static unsigned long forwardStartTime = 0;
+  static const unsigned long FORWARD_DURATION = 100;
 
   if (isLineDetected) {
       // If we were going backward and now detect the line, change direction to forward
@@ -114,7 +115,7 @@ void loop()
       float omega_correction = rotationPID.update(rotationError, 0.0);
 
       drive_.acceptInput(LATERAL_SPEED, vy_correction, omega_correction);
-      
+
       lastKnownPositionError = positionError;
   } else {
       if (!wasGoingBackward) {
@@ -122,13 +123,13 @@ void loop()
           backwardStartTime = millis();
       }
       
-      // Check if 400ms have passed since going backward
+      // Check if 100ms have passed since going backward
       if (millis() - backwardStartTime >= BACKWARD_DURATION) {
-          // Change direction to forward after 400ms
+          // Change direction to forward after 100ms
           float recovery_vy = (lastKnownPositionError > 0) ? -40.0 : 40.0;
           drive_.acceptInput(LATERAL_SPEED * 0.7, recovery_vy, 0.0);
       } else {
-          // Continue going backward for the first 400ms
+          // Continue going backward for the first 100ms
           float recovery_vy = (lastKnownPositionError > 0) ? 40.0 : -40.0;
           drive_.acceptInput(LATERAL_SPEED * 0.7, recovery_vy, 0.0);
       }
