@@ -1,3 +1,11 @@
+/**
+ * @file StateUtils.h
+ * @date 30/09/2025
+ * @author Juan Pablo Gutiérrez
+ *
+ * @brief Utility functions for the state machine.
+ */
+
 #pragma once
 
 #include "../subsystem/DistanceSensors/DistanceSensor.hpp"
@@ -7,8 +15,8 @@
 
 using namespace Constants;
 
-PIDController leftDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);  // kp, ki, kd, min, max
-PIDController rightDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0); // kp, ki, kd, min, max
+PIDController leftDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);
+PIDController rightDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);
 
 void maintainDistance(float distance, float lateralSpeed)
 {

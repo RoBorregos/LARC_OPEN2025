@@ -73,9 +73,9 @@ void setup()
 
 void loop()
 {
-  // Update drive system
   drive_.update();
-
+  
+  stateMachine.update();
   delay(20);
 }
 
