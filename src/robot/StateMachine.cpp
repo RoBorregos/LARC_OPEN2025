@@ -148,13 +148,9 @@ void StateMachine::handleGoStraightState()
 
   if (line_sensor_.isFrontLine())
   {
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    if (millis() - state_start_time > 2500)
-    {
-      state_start_time = 0;
-      currentState = STATES::ENDLINE;
-    }
+    // drive_.acceptInput(0, 0, 0);
+    // drive_.hardBrake();
+    currentState = STATES::ENDLINE;
   }
   else
   {
@@ -180,8 +176,8 @@ void StateMachine::handleEndlineState()
 
     if (millis() - state_start_time > 2000)
     {
-      state_start_time = 0;
       currentState = STATES::RIGHTMOST;
+      state_start_time = 0;
     }
   }
 }

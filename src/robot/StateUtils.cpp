@@ -13,7 +13,7 @@ PIDController leftDistancePID(DistanceSensorConstants::kDistanceTargetController
 PIDController rightDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);
 
 PIDController linePID(40.0, 0.0, 0.1, -100.0, 100.0);
-PIDController rotationPID(8.0, 0.0, 0.2, -100.0, 100.0);
+PIDController rotationPID(200.0, 0.0, 0.2, -100.0, 100.0);
 
 
 void maintainDistance(float distance, float lateralSpeed)
