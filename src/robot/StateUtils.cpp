@@ -40,9 +40,9 @@ void maintainDistance(float distance, float lateralSpeed)
     bluetooth.print(forwardOutput);
 }
 
-void followLine(float LATERAL_SPEED)
+void followLine(float lateralSpeed)
 {
-  // Leer sensores
+  // Get current line senssor readings
   auto lineValues = line_sensor_.readSensors();
   bool frontLeft = lineValues[0];
   bool frontRight = lineValues[1];
@@ -54,84 +54,54 @@ void followLine(float LATERAL_SPEED)
     frontError = 1.0;
 
   float positionError = frontError;
+
   float rotationError = frontError;
 
   bool isLineDetected = frontLeft || frontRight;
-
-  // States
-  static bool wasGoingBackward = false;
-  static bool wasGoingForward = false;
   static float lastKnownPositionError = 0.0;
+  static bool wasGoingBackward = false;
   static unsigned long backwardStartTime = 0;
+  static const unsigned long BACKWARD_DURATION = 200;
   static unsigned long forwardStartTime = 0;
-
-  // Constants
-  static const unsigned long BACKWARD_DURATION = 400; // ms
-  static const unsigned long FORWARD_DURATION  = 400; // ms
-  static const float MAX_SEARCH_DISTANCE = 10;     // 10 cm sin línea
-  static const unsigned long MAX_SEARCH_TIME = 1500;  // 1.5s sin línea
-
-  // Acumuladores
-  static float searchDistanceAccum = 0.0;
-  static unsigned long lineLostTime = 0;
+  static const unsigned long FORWARD_DURATION = 100;
 
   if (isLineDetected)
   {
-    wasGoingBackward = false;
-    wasGoingForward  = false;
-    searchDistanceAccum = 0.0;
-    lineLostTime = millis();
+    // If we were going backward and now detect the line, change direction to forward
+    if (wasGoingBackward)
+    {
+      wasGoingBackward = false;
+    }
 
     float vy_correction = linePID.update(positionError, 0.0);
     float omega_correction = rotationPID.update(rotationError, 0.0);
 
-    drive_.acceptInput(LATERAL_SPEED, vy_correction, omega_correction);
+    drive_.acceptInput(lateralSpeed, vy_correction, omega_correction);
+
     lastKnownPositionError = positionError;
   }
   else
   {
-    if (lineLostTime == 0) {
-      lineLostTime = millis();
-      searchDistanceAccum = 0.0;
-      drive_.resetEncoders();
-    }
-
-    searchDistanceAccum += drive_.getAverageDistanceTraveled();
-    drive_.resetEncoders();
-
-    if (searchDistanceAccum > MAX_SEARCH_DISTANCE || millis() - lineLostTime > MAX_SEARCH_TIME)
+    if (!wasGoingBackward)
     {
-      drive_.brake();
-      bluetooth.println("Line lost");
-      return;
-    }
-
-    if (!wasGoingBackward && !wasGoingForward) {
       wasGoingBackward = true;
       backwardStartTime = millis();
     }
 
-    if (wasGoingBackward) {
-      if (millis() - backwardStartTime >= BACKWARD_DURATION) {
-        wasGoingBackward = false;
-        wasGoingForward = true;
-        forwardStartTime = millis();
-      } else {
-        float recovery_vy = (lastKnownPositionError > 0) ? 70.0 : -70.0;
-        drive_.acceptInput(LATERAL_SPEED * 0.7, recovery_vy, 0.0);
-      }
+    // Check if 100ms have passed since going backward
+    if (millis() - backwardStartTime >= BACKWARD_DURATION)
+    {
+      // Change direction to forward after 100ms
+      float recovery_vy = (lastKnownPositionError > 0) ? -40.0 : 40.0;
+      drive_.acceptInput(lateralSpeed * 0.7, recovery_vy, 0.0);
     }
-    else if (wasGoingForward) {
-      if (millis() - forwardStartTime >= FORWARD_DURATION) {
-        wasGoingForward = false;
-        wasGoingBackward = true;
-        backwardStartTime = millis();
-      } else {
-        float recovery_vy = (lastKnownPositionError > 0) ? -70.0 : 70.0;
-        drive_.acceptInput(LATERAL_SPEED * 0.7, recovery_vy, 0.0);
-      }
+    else
+    {
+      // Continue going backward for the first 100ms
+      float recovery_vy = (lastKnownPositionError > 0) ? 40.0 : -40.0;
+      drive_.acceptInput(lateralSpeed * 0.7, recovery_vy, 0.0);
     }
 
-    bluetooth.println("Searching line...");
+    bluetooth.println("Searching line");
   }
 }

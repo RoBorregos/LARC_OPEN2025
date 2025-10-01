@@ -150,7 +150,7 @@ void StateMachine::handleGoStraightState()
   {
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
-    if (millis() - state_start_time > 5000)
+    if (millis() - state_start_time > 2500)
     {
       state_start_time = 0;
       currentState = STATES::ENDLINE;
