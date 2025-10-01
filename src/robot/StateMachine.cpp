@@ -164,8 +164,8 @@ void StateMachine::handleEndlineState()
   Serial.println("ENDLINE STATE");
   bluetooth.println("ENDLINE STATE");
 
-  drive_.acceptInput(-70, 0, 0);
-  if (line_sensor_.isLeftLine())
+  followLine(-70);
+  if (line_sensor_.isLeftLine()) // Add the && for the frontLine to assure the robot is well positioned
   {
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
@@ -188,9 +188,9 @@ void StateMachine::handleRightmostState()
   Serial.println("Estado: RIGHTMOST");
   bluetooth.println("Estado: RIGHTMOST");
 
-  drive_.acceptInput(70, 0, 0);
+  followLine(70);
 
-  if (line_sensor_.isRightLine())
+  if (line_sensor_.isRightLine()) // same as above
   {
     drive_.acceptInput(0, 0, 0);
     currentState = STATES::RETURN;

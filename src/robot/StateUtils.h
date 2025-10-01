@@ -12,11 +12,17 @@
 #include "constants/constants.h"
 #include "../../lib/controllers/PIDController.hpp"
 #include "robot/robot_instances.h"
+#include "../subsystem/LineSensor/LineSensor.hpp"
 
 using namespace Constants;
 
 PIDController leftDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);
 PIDController rightDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);
+
+PIDController linePID(20.0, 0.0, 0.1, -100.0, 100.0);
+PIDController rotationPID(8.0, 0.0, 0.2, -100.0, 100.0);
+
+const float LATERAL_SPEED = 70.0;
 
 void maintainDistance(float distance, float lateralSpeed)
 {
@@ -40,4 +46,70 @@ void maintainDistance(float distance, float lateralSpeed)
     bluetooth.print(rightOutput);
     bluetooth.print(") Fwd: ");
     bluetooth.print(forwardOutput);
+}
+
+void followLine(float lateralSpeed)
+{
+  // Get current line senssor readings
+  auto lineValues = line_sensor_.readSensors();
+  bool frontLeft = lineValues[0];
+  bool frontRight = lineValues[1];
+
+  float frontError = 0.0;
+  if (frontLeft && !frontRight)
+    frontError = -1.0;
+  if (!frontLeft && frontRight)
+    frontError = 1.0;
+
+  float positionError = frontError;
+
+  float rotationError = frontError;
+
+  bool isLineDetected = frontLeft || frontRight;
+  static float lastKnownPositionError = 0.0;
+  static bool wasGoingBackward = false;
+  static unsigned long backwardStartTime = 0;
+  static const unsigned long BACKWARD_DURATION = 200;
+  static unsigned long forwardStartTime = 0;
+  static const unsigned long FORWARD_DURATION = 100;
+
+  if (isLineDetected)
+  {
+    // If we were going backward and now detect the line, change direction to forward
+    if (wasGoingBackward)
+    {
+      wasGoingBackward = false;
+    }
+
+    float vy_correction = linePID.update(positionError, 0.0);
+    float omega_correction = rotationPID.update(rotationError, 0.0);
+
+    drive_.acceptInput(LATERAL_SPEED, vy_correction, omega_correction);
+
+    lastKnownPositionError = positionError;
+  }
+  else
+  {
+    if (!wasGoingBackward)
+    {
+      wasGoingBackward = true;
+      backwardStartTime = millis();
+    }
+
+    // Check if 100ms have passed since going backward
+    if (millis() - backwardStartTime >= BACKWARD_DURATION)
+    {
+      // Change direction to forward after 100ms
+      float recovery_vy = (lastKnownPositionError > 0) ? -40.0 : 40.0;
+      drive_.acceptInput(LATERAL_SPEED * 0.7, recovery_vy, 0.0);
+    }
+    else
+    {
+      // Continue going backward for the first 100ms
+      float recovery_vy = (lastKnownPositionError > 0) ? 40.0 : -40.0;
+      drive_.acceptInput(LATERAL_SPEED * 0.7, recovery_vy, 0.0);
+    }
+
+    bluetooth.println("Searching line");
+  }
 }
