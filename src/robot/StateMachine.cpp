@@ -8,7 +8,7 @@ StateMachine::StateMachine(SoftwareSerial &bluetoothRef)
 
 void StateMachine::begin()
 {
-  currentState = STATES::START;
+  currentState = STATES::GO_STRAIGHT;
   state_start_time = 0;
 }
 
@@ -28,24 +28,24 @@ void StateMachine::update()
   case STATES::GO_STRAIGHT:
     handleGoStraightState();
     break;
-    // case STATES::ENDLINE:
-    //   handleEndlineState();
-    //   break;
-    // case STATES::RIGHTMOST:
-    //   handleRightmostState();
-    //   break;
-    // case STATES::RETURN:
-    //   handleReturnState();
-    //   break;
-    // case STATES::AVOID_OBSTACLE_LEFT_RETURN:
-    //   handleAvoidObstacleLeftReturnState();
-    //   break;
-    // case STATES::AVOID_OBSTACLE_RIGHT_RETURN:
-    //   handleAvoidObstacleRightReturnState();
-    //   break;
-    // case STATES::GO_BEGINNING:
-    //   handleGoBeginningState();
+  case STATES::ENDLINE:
+    handleEndlineState();
     break;
+  case STATES::RIGHTMOST:
+    handleRightmostState();
+    break;
+  // case STATES::RETURN:
+  //   handleReturnState();
+  //   break;
+  // case STATES::AVOID_OBSTACLE_LEFT_RETURN:
+  //   handleAvoidObstacleLeftReturnState();
+  //   break;
+  // case STATES::AVOID_OBSTACLE_RIGHT_RETURN:
+  //   handleAvoidObstacleRightReturnState();
+  //   break;
+  // case STATES::GO_BEGINNING:
+  //   handleGoBeginningState();
+  //   break; 
   case STATES::STOP:
     handleStopState();
     break;
@@ -103,10 +103,13 @@ void StateMachine::handleAvoidObstacleLeftState()
 
   if (!distance_sensor_.isObstacle())
   {
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    currentState = STATES::GO_STRAIGHT;
+    if(millis() - state_start_time > 3000){
+      drive_.acceptInput(0, 0, 0);
+      drive_.hardBrake();
+      currentState = STATES::GO_STRAIGHT;
+    }
   }
+
 }
 
 void StateMachine::handleAvoidObstacleRightState()
@@ -125,9 +128,11 @@ void StateMachine::handleAvoidObstacleRightState()
 
   if (!distance_sensor_.isObstacle())
   {
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    currentState = STATES::GO_STRAIGHT;
+    if(millis() - state_start_time > 3000){
+      drive_.acceptInput(0, 0, 0);
+      drive_.hardBrake();
+      currentState = STATES::GO_STRAIGHT;
+    }
   }
 }
 
@@ -136,27 +141,25 @@ void StateMachine::handleGoStraightState()
   Serial.println("GO_STRAIGHT STATE");
   bluetooth.println("GO_STRAIGHT STATE");
 
-  currentState = STATES::STOP;
+  if (state_start_time == 0)
+  {
+    state_start_time = millis();
+  }
 
-  // if (state_start_time == 0)
-  // {
-  //   state_start_time = millis();
-  // }
-
-  // if (line_sensor_.isFrontLine())
-  // {
-  //   drive_.acceptInput(0, 0, 0);
-  //   drive_.hardBrake();
-  //   if (millis() - state_start_time > 2000)
-  //   {
-  //     state_start_time = 0;
-  //     currentState = STATES::ENDLINE;
-  //   }
-  // }
-  // else
-  // {
-  //   drive_.acceptInput(0, 70, 0);
-  // }
+  if (line_sensor_.isFrontLine())
+  {
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    if (millis() - state_start_time > 5000)
+    {
+      state_start_time = 0;
+      currentState = STATES::ENDLINE;
+    }
+  }
+  else
+  {
+    drive_.acceptInput(0, 70, 0);
+  }
 }
 
 void StateMachine::handleEndlineState()
@@ -185,36 +188,38 @@ void StateMachine::handleEndlineState()
 
 void StateMachine::handleRightmostState()
 {
-  Serial.println("Estado: RIGHTMOST");
-  bluetooth.println("Estado: RIGHTMOST");
+  Serial.println("RIGHTMOST STATE");
+  bluetooth.println("RIGHTMOST STATE");
 
-  followLine(70);
+  // followLine(70);
 
-  if (line_sensor_.isRightLine()) // same as above
-  {
-    drive_.acceptInput(0, 0, 0);
-    currentState = STATES::RETURN;
-  }
+  // if (line_sensor_.isRightLine()) // same as above
+  // {
+  //   drive_.acceptInput(0, 0, 0);
+  //   currentState = STATES::RETURN;
+  // }
+
+  currentState = STATES::STOP;
 }
 
 void StateMachine::handleReturnState()
 {
   Serial.println("RETURN STATE");
   bluetooth.println("RETURN STATE");
-  drive_.acceptInput(0, 0, 180);
+  drive_.acceptInput(0, 0, 0);
 
-  if (distance_sensor_.isObstacle())
-  {
-    currentState = STATES::AVOID_OBSTACLE_RIGHT_RETURN;
-  }
-  else if (!distance_sensor_.obstacleInThePath())
-  {
-    currentState = STATES::GO_BEGINNING;
-  }
-  else
-  {
-    drive_.acceptInput(0, 70, 180);
-  }
+  // if (distance_sensor_.isObstacle())
+  // {
+  //   currentState = STATES::AVOID_OBSTACLE_RIGHT_RETURN;
+  // }
+  // else if (!distance_sensor_.obstacleInThePath())
+  // {
+  //   currentState = STATES::GO_BEGINNING;
+  // }
+  // else
+  // {
+  //   drive_.acceptInput(0, 70, 180);
+  // }
 }
 
 void StateMachine::handleAvoidObstacleLeftReturnState()

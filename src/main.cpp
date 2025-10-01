@@ -38,30 +38,30 @@ void setup()
   drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
 
   // Wait for "r" message from Bluetooth before continuing
-  String btInput = "";
-  bluetooth.println("Waiting for ready command (r)...");
+  // String btInput = "";
+  // bluetooth.println("Waiting for ready command (r)...");
 
-  while (true)
-  {
-    if (bluetooth.available())
-    {
-      char c = bluetooth.read();
-      if (c == '\n' || c == '\r')
-      {
-        btInput.trim();
-        if (btInput.equalsIgnoreCase("r"))
-        {
-          Serial.println("Bluetooth ready received.");
-          break;
-        }
-        btInput = "";
-      }
-      else
-      {
-        btInput += c;
-      }
-    }
-  }
+  // while (true)
+  // {
+  //   if (bluetooth.available())
+  //   {
+  //     char c = bluetooth.read();
+  //     if (c == '\n' || c == '\r')
+  //     {
+  //       btInput.trim();
+  //       if (btInput.equalsIgnoreCase("r"))
+  //       {
+  //         Serial.println("Bluetooth ready received.");
+  //         break;
+  //       }
+  //       btInput = "";
+  //     }
+  //     else
+  //     {
+  //       btInput += c;
+  //     }
+  //   }
+  // }
 }
 
 void loop()
@@ -69,5 +69,6 @@ void loop()
   drive_.update();
   
   stateMachine.update();
+  
   delay(20);
 }
