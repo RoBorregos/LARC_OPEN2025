@@ -68,9 +68,7 @@ void loop()
 {
   drive_.update();
   
-  // stateMachine.update();
-
-  line_sensor_.printSensors();
+  stateMachine.update();
   
   delay(20);
 }

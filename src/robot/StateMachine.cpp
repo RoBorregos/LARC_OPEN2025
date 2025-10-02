@@ -8,7 +8,7 @@ StateMachine::StateMachine(SoftwareSerial &bluetoothRef)
 
 void StateMachine::begin()
 {
-  currentState = STATES::GO_STRAIGHT;
+  currentState = STATES::START;
   state_start_time = 0;
 }
 
@@ -100,12 +100,17 @@ void StateMachine::handleAvoidObstacleLeftState()
     drive_.hardBrake();
     currentState = STATES::AVOID_OBSTACLE_RIGHT;
   }
+  if (state_start_time == 0)
+  {
+    state_start_time = millis();
+  }
 
   if (!distance_sensor_.isObstacle())
   {
-    if(millis() - state_start_time > 3000){
-      drive_.acceptInput(0, 0, 0);
-      drive_.hardBrake();
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    if(millis() - state_start_time > 2500){
+      state_start_time = 0;
       currentState = STATES::GO_STRAIGHT;
     }
   }
@@ -126,11 +131,17 @@ void StateMachine::handleAvoidObstacleRightState()
     currentState = STATES::AVOID_OBSTACLE_LEFT;
   }
 
+  if (state_start_time == 0)
+  {
+    state_start_time = millis();
+  }
+
   if (!distance_sensor_.isObstacle())
   {
-    if(millis() - state_start_time > 3000){
-      drive_.acceptInput(0, 0, 0);
-      drive_.hardBrake();
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    if(millis() - state_start_time > 1500){
+      state_start_time = 0;
       currentState = STATES::GO_STRAIGHT;
     }
   }
@@ -148,9 +159,9 @@ void StateMachine::handleGoStraightState()
 
   if (line_sensor_.isFrontLine())
   {
-    // drive_.acceptInput(0, 0, 0);
-    // drive_.hardBrake();
-    currentState = STATES::ENDLINE;
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    // currentState = STATES::ENDLINE;
   }
   else
   {
@@ -163,7 +174,7 @@ void StateMachine::handleEndlineState()
   Serial.println("ENDLINE STATE");
   bluetooth.println("ENDLINE STATE");
 
-  followLine(-70);
+  followLine(-75);
   if (line_sensor_.isLeftLine()) // Add the && for the frontLine to assure the robot is well positioned
   {
     drive_.acceptInput(0, 0, 0);
