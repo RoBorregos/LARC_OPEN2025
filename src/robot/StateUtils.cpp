@@ -12,7 +12,7 @@
 PIDController leftDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);
 PIDController rightDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);
 
-PIDController linePID(20.0, 0.0, 0.1, -100.0, 100.0);
+PIDController linePID(20.0, 0.0, 0.2, -100.0, 100.0);
 PIDController rotationPID(8.0, 0.0, 0.2, -100.0, 100.0);
 
 
@@ -61,9 +61,9 @@ void followLine(float lateralSpeed)
   static float lastKnownPositionError = 0.0;
   static bool wasGoingBackward = false;
   static unsigned long backwardStartTime = 0;
-  static const unsigned long BACKWARD_DURATION = 400;
+  static const unsigned long BACKWARD_DURATION = 250;
   static unsigned long forwardStartTime = 0;
-  static const unsigned long FORWARD_DURATION = 400;
+  static const unsigned long FORWARD_DURATION = 250;
 
   if (isLineDetected)
   {

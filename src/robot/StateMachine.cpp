@@ -8,7 +8,7 @@ StateMachine::StateMachine(SoftwareSerial &bluetoothRef)
 
 void StateMachine::begin()
 {
-  currentState = STATES::START;
+  currentState = STATES::RIGHTMOST;
   state_start_time = 0;
 }
 
@@ -175,22 +175,22 @@ void StateMachine::handleEndlineState()
   bluetooth.println("ENDLINE STATE");
 
   followLine(-75);
-  if (line_sensor_.isLeftLine()) // Add the && for the frontLine to assure the robot is well positioned
-  {
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
+  // if (line_sensor_.isLeftLine()) // Add the && for the frontLine to assure the robot is well positioned
+  // {
+  //   drive_.acceptInput(0, 0, 0);
+  //   drive_.hardBrake();
 
-    if (state_start_time == 0)
-    {
-      state_start_time = millis();
-    }
+  //   if (state_start_time == 0)
+  //   {
+  //     state_start_time = millis();
+  //   }
 
-    if (millis() - state_start_time > 2000)
-    {
-      currentState = STATES::RIGHTMOST;
-      state_start_time = 0;
-    }
-  }
+  //   if (millis() - state_start_time > 2000)
+  //   {
+  //     currentState = STATES::RIGHTMOST;
+  //     state_start_time = 0;
+  //   }
+  // }
 }
 
 void StateMachine::handleRightmostState()
@@ -198,7 +198,7 @@ void StateMachine::handleRightmostState()
   Serial.println("RIGHTMOST STATE");
   bluetooth.println("RIGHTMOST STATE");
 
-  // followLine(70);
+  followLine(70);
 
   // if (line_sensor_.isRightLine()) // same as above
   // {
@@ -206,7 +206,7 @@ void StateMachine::handleRightmostState()
   //   currentState = STATES::RETURN;
   // }
 
-  currentState = STATES::STOP;
+  // currentState = STATES::STOP;
 }
 
 void StateMachine::handleReturnState()
