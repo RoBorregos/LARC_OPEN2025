@@ -38,7 +38,6 @@ namespace Constants
     namespace DistanceSensorConstants
     {
         constexpr int kObstacleDistance = 25;
-        constexpr int kMaxObstacleDistance = 120;
         constexpr int kTreeDistance = 13;
 
         constexpr float kPoolTargetDistance = 16.0; // in cm

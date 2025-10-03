@@ -9,21 +9,21 @@
 
 using namespace Constants;
 
-class DistanceSensor : public System{
-    public:
-        DistanceSensor();
-        void begin() override;
-        void update() override;
-        void setState(int state) override;
-        std::vector<float> getArrayDistance() const;
-        float getDistance(int kSensor);
+class DistanceSensor : public System
+{
+public:
+    DistanceSensor();
+    void begin() override;
+    void update() override;
+    void setState(int state) override;
 
-        bool isObstacle() const;
-        bool isTree() const;
-        bool obstacleInThePath() const;
+    bool isObstacle() const;
+    bool isTree() const;
+    float getDistance(int kSensor);
 
-    private:
-        float readSensor(uint8_t trigPin, uint8_t echoPin) const;
+private:
+    float readSensor(uint8_t trigPin, uint8_t echoPin) const;
+    std::vector<float> getArrayDistance() const;
 };
 
 #endif
