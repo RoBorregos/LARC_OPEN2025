@@ -41,27 +41,27 @@ void setup()
   bluetooth.println("Waiting for ready command (r)...");
   
   String btInput = "";
-  while (true)
-  {
-    if (bluetooth.available())
-    {
-      char c = bluetooth.read();
-      if (c == '\n' || c == '\r')
-      {
-        btInput.trim();
-        if (btInput.equalsIgnoreCase("r"))
-        {
-          Serial.println("Bluetooth ready received.");
-          break;
-        }
-        btInput = "";
-      }
-      else
-      {
-        btInput += c;
-      }
-    }
-  }
+  // while (true)
+  // {
+  //   if (bluetooth.available())
+  //   {
+  //     char c = bluetooth.read();
+  //     if (c == '\n' || c == '\r')
+  //     {
+  //       btInput.trim();
+  //       if (btInput.equalsIgnoreCase("r"))
+  //       {
+  //         Serial.println("Bluetooth ready received.");
+  //         break;
+  //       }
+  //       btInput = "";
+  //     }
+  //     else
+  //     {
+  //       btInput += c;
+  //     }
+  //   }
+  // }
 }
 
 void loop()

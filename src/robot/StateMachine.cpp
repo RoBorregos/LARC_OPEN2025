@@ -8,7 +8,7 @@ StateMachine::StateMachine(SoftwareSerial &bluetoothRef)
 
 void StateMachine::begin()
 {
-  currentState = STATES::ENDLINE;
+  currentState = STATES::RIGHTMOST;
   state_start_time = 0;
 }
 
@@ -31,9 +31,9 @@ void StateMachine::update()
   case STATES::ENDLINE:
     handleEndlineState();
     break;
-  // case STATES::RIGHTMOST:
-  //   handleRightmostState();
-  //   break;
+  case STATES::RIGHTMOST:
+    handleRightmostState();
+    break;
   // case STATES::RETURN:
   //   handleReturnState();
   //   break;
@@ -202,15 +202,13 @@ void StateMachine::handleRightmostState()
   Serial.println("RIGHTMOST STATE");
   bluetooth.println("RIGHTMOST STATE");
 
-  followLine(70);
+  followLine(65);
 
-  // if (line_sensor_.isRightLine()) // same as above
-  // {
-  //   drive_.acceptInput(0, 0, 0);
-  //   currentState = STATES::RETURN;
-  // }
-
-  // currentState = STATES::STOP;
+  if (line_sensor_.isRightLine())
+  {
+    drive_.acceptInput(0, 0, 0);
+    currentState = STATES::STOP;
+  }
 }
 
 void StateMachine::handleReturnState()

@@ -12,9 +12,7 @@
 PIDController leftDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);
 PIDController rightDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);
 
-PIDController linePID(10.0, 0.0, 0.2, -100.0, 100.0);
-PIDController rotationPID(250.0, 0.0, 0.2, -100.0, 100.0);
-
+PIDController positionPID(25.0, 0.0, 2.0, -100.0, 100.0);
 
 void maintainDistance(float distance, float lateralSpeed)
 {
@@ -55,8 +53,6 @@ void followLine(float lateralSpeed)
 
   float positionError = frontError;
 
-  float rotationError = frontError;
-
   bool isLineDetected = frontLeft || frontRight;
   static float lastKnownPositionError = 0.0;
   static bool wasGoingBackward = false;
@@ -75,10 +71,9 @@ void followLine(float lateralSpeed)
       wasGoingForward = false;
     }
 
-    float vy_correction = linePID.update(positionError, 0.0);
-    float omega_correction = rotationPID.update(rotationError, 0.0);
+    float vy_correction = positionPID.update(positionError, 0.0);
 
-    drive_.acceptInput(lateralSpeed, vy_correction, omega_correction);
+    drive_.acceptInput(lateralSpeed, vy_correction, 0.0);
 
     lastKnownPositionError = positionError;
   }
