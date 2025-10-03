@@ -17,7 +17,5 @@ void loop()
   Serial.print(distance_sensor_.getDistance(1));
   Serial.println(" cm");
   Serial.print(distance_sensor_.isObstacle() ? "Obstacle yes" : "Obstacle no");
-  Serial.print(", ");
-  Serial.print(distance_sensor_.obstacleInThePath() ? "Path yes" : "Path no");
   delay(100);
 }

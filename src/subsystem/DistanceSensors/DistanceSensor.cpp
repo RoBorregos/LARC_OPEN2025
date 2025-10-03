@@ -31,43 +31,44 @@ float DistanceSensor::readSensor(uint8_t trigPin, uint8_t echoPin) const
     return distance;
 }
 
-std::vector<float> DistanceSensor::getArrayDistance() const
-{
-    float kLeftDistance = readSensor(Pins::kDistanceSensors[0][0], Pins::kDistanceSensors[0][1]);
-    delay(50);
-    float kRightDistance = readSensor(Pins::kDistanceSensors[1][0], Pins::kDistanceSensors[1][1]);
-
-    if (kLeftDistance > 250)
-    {
-        kLeftDistance = 250;
-    }
-    if (kRightDistance > 250)
-    {
-        kRightDistance = 250;
-    }
-
-    std::vector<float> distances = {kLeftDistance, kRightDistance};
-    return distances;
-}
-
 float DistanceSensor::getDistance(int kSensor)
 {
     if (kSensor == 0)
     {
-        return readSensor(Pins::kDistanceSensors[0][0], Pins::kDistanceSensors[0][1]);
+        float measurement = readSensor(Pins::kDistanceSensors[0][0], Pins::kDistanceSensors[0][1]);
+        insertReadingLeft(measurement);
+
+        float sum = 0;
+        for (float reading : leftSensorReadings)
+        {
+            sum += reading;
+        }
+        float average = leftSensorReadings.size() > 0 ? sum / leftSensorReadings.size() : 0;
+
+        return average;
     }
     else if (kSensor == 1)
     {
-        return readSensor(Pins::kDistanceSensors[1][0], Pins::kDistanceSensors[1][1]);
+        float measurement = readSensor(Pins::kDistanceSensors[1][0], Pins::kDistanceSensors[1][1]);
+        insertReadingRight(measurement);
+
+        float sum = 0;
+        for (float reading : rightSensorReadings)
+        {
+            sum += reading;
+        }
+        float average = rightSensorReadings.size() > 0 ? sum / rightSensorReadings.size() : 0;
+
+        return average;
     }
+
     return -1.0f;
 }
 
-bool DistanceSensor::isObstacle() const
+bool DistanceSensor::isObstacle()
 {
-    auto distanceValues = getArrayDistance();
-    int frontLeftDistance = distanceValues[0];
-    int frontRightDistance = distanceValues[1];
+    float frontLeftDistance = getDistance(0);
+    float frontRightDistance = getDistance(1);
     bool obstacle = (frontLeftDistance < DistanceSensorConstants::kObstacleDistance) || (frontRightDistance < DistanceSensorConstants::kObstacleDistance);
 
     // bool obstacle = (frontLeftDistance < DistanceSensorConstants::kObstacleDistance);
@@ -75,14 +76,33 @@ bool DistanceSensor::isObstacle() const
     return obstacle;
 }
 
-bool DistanceSensor::isTree() const
+bool DistanceSensor::isTree()
 {
-    auto distanceValues = getArrayDistance();
-    int frontLeftDistance = distanceValues[0];
-    int frontRightDistance = distanceValues[1];
+    float frontLeftDistance = getDistance(0);
+    float frontRightDistance = getDistance(1);
 
     bool tree = (frontLeftDistance < DistanceSensorConstants::kTreeDistance) || (frontRightDistance < DistanceSensorConstants::kTreeDistance);
     // bool tree = (frontLeftDistance < DistanceSensorConstants::kTreeDistance);
 
     return tree;
+}
+
+void DistanceSensor::insertReadingLeft(float measurement)
+{
+    leftSensorReadings.push_back(measurement);
+
+    if (leftSensorReadings.size() > 5)
+    {
+        leftSensorReadings.erase(leftSensorReadings.begin());
+    }
+}
+
+void DistanceSensor::insertReadingRight(float measurement)
+{
+    rightSensorReadings.push_back(measurement);
+
+    if (rightSensorReadings.size() > 5)
+    {
+        rightSensorReadings.erase(rightSensorReadings.begin());
+    }
 }

@@ -6,6 +6,7 @@
 #include "../systems/system.hpp"
 #include "constants/constants.h"
 #include "constants/pins.h"
+#include "queue"
 
 using namespace Constants;
 
@@ -17,13 +18,17 @@ public:
     void update() override;
     void setState(int state) override;
 
-    bool isObstacle() const;
-    bool isTree() const;
+    bool isObstacle();
+    bool isTree();
     float getDistance(int kSensor);
 
 private:
+    void insertReadingLeft(float measurement);
+    void insertReadingRight(float measurement);
+
     float readSensor(uint8_t trigPin, uint8_t echoPin) const;
-    std::vector<float> getArrayDistance() const;
+    std::vector<float> leftSensorReadings;
+    std::vector<float> rightSensorReadings;
 };
 
 #endif

@@ -8,7 +8,7 @@ StateMachine::StateMachine(SoftwareSerial &bluetoothRef)
 
 void StateMachine::begin()
 {
-  currentState = STATES::START;
+  currentState = STATES::ENDLINE;
   state_start_time = 0;
 }
 
@@ -100,7 +100,15 @@ void StateMachine::handleAvoidObstacleLeftState()
   Serial.println("AVOID OBSTACLE LEFT STATE");
   bluetooth.println("AVOID OBSTACLE LEFT STATE");
 
-  maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -75);
+  // if the distance is greater than the max target distance, it means we've reached the edge of the pool with one sensor, so we should keep moving until both sensors dont see the pool
+  if (distance_sensor_.getDistance(0) > DistanceSensorConstants::kMaxTargetDistance || distance_sensor_.getDistance(1) > DistanceSensorConstants::kMaxTargetDistance)
+  {
+    drive_.acceptInput(-75, 0, 0);
+  }
+  else
+  {
+    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -75);
+  }
 
   if (line_sensor_.isLeftLine())
   {
@@ -111,6 +119,7 @@ void StateMachine::handleAvoidObstacleLeftState()
 
   if (!distance_sensor_.isObstacle())
   {
+    delay(500);
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
     currentState = STATES::GO_STRAIGHT;
@@ -122,7 +131,14 @@ void StateMachine::handleAvoidObstacleRightState()
   Serial.println("AVOID OBSTACLE RIGHT STATE");
   bluetooth.println("AVOID OBSTACLE RIGHT STATE");
 
-  maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 75);
+  if (distance_sensor_.getDistance(0) > DistanceSensorConstants::kMaxTargetDistance || distance_sensor_.getDistance(1) > DistanceSensorConstants::kMaxTargetDistance)
+  {
+    drive_.acceptInput(75, 0, 0);
+  }
+  else
+  {
+    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 75);
+  }
 
   if (line_sensor_.isRightLine())
   {
@@ -133,6 +149,7 @@ void StateMachine::handleAvoidObstacleRightState()
 
   if (!distance_sensor_.isObstacle())
   {
+    delay(500);
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
     currentState = STATES::GO_STRAIGHT;
@@ -160,24 +177,17 @@ void StateMachine::handleEndlineState()
 {
   Serial.println("ENDLINE STATE");
   bluetooth.println("ENDLINE STATE");
-  currentState = STATES::STOP;
-  followLine(-75);
-  // if (line_sensor_.isLeftLine()) // Add the && for the frontLine to assure the robot is well positioned
-  // {
-  //   drive_.acceptInput(0, 0, 0);
-  //   drive_.hardBrake();
 
-  //   if (state_start_time == 0)
-  //   {
-  //     state_start_time = millis();
-  //   }
-
-  //   if (millis() - state_start_time > 2000)
-  //   {
-  //     currentState = STATES::RIGHTMOST;
-  //     state_start_time = 0;
-  //   }
-  // }
+  if (distance_sensor_.getDistance(0) > 50 || distance_sensor_.getDistance(1) > 50)
+  {
+    drive_.acceptInput(-65, 0, 0);
+    bluetooth.println("NO OBSTACLE DETECTED");
+  }
+  else
+  {
+    bluetooth.println("OBSTACLE DETECTED");
+    maintainDistance(DistanceSensorConstants::kTreeTargetDistance, -65);
+  }
 }
 
 void StateMachine::handleRightmostState()
