@@ -178,16 +178,23 @@ void StateMachine::handleEndlineState()
   Serial.println("ENDLINE STATE");
   bluetooth.println("ENDLINE STATE");
 
-  if (distance_sensor_.getDistance(0) > 50 || distance_sensor_.getDistance(1) > 50)
-  {
-    drive_.acceptInput(-65, 0, 0);
-    bluetooth.println("NO OBSTACLE DETECTED");
-  }
-  else
-  {
-    bluetooth.println("OBSTACLE DETECTED");
-    maintainDistance(DistanceSensorConstants::kTreeTargetDistance, -65);
-  }
+  // if (distance_sensor_.getDistance(0) > 50 || distance_sensor_.getDistance(1) > 50)
+  // {
+  //   drive_.acceptInput(-65, 0, 0);
+  //   bluetooth.println("NO OBSTACLE DETECTED");
+  // }
+  // else
+  // {
+  //   bluetooth.println("OBSTACLE DETECTED");
+  //   maintainDistance(DistanceSensorConstants::kTreeTargetDistance, -65);
+  // }
+
+  followLine(65);
+  // if(line_sensor_.isLeftLine()) {
+  //   drive_.acceptInput(0, 0, 0);
+  //   drive_.hardBrake();
+  //   currentState = STATES::STOP;
+  // }
 }
 
 void StateMachine::handleRightmostState()

@@ -12,8 +12,8 @@
 PIDController leftDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);
 PIDController rightDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);
 
-PIDController linePID(20.0, 0.0, 0.2, -100.0, 100.0);
-PIDController rotationPID(8.0, 0.0, 0.2, -100.0, 100.0);
+PIDController linePID(10.0, 0.0, 0.2, -100.0, 100.0);
+PIDController rotationPID(250.0, 0.0, 0.2, -100.0, 100.0);
 
 
 void maintainDistance(float distance, float lateralSpeed)
@@ -60,6 +60,7 @@ void followLine(float lateralSpeed)
   bool isLineDetected = frontLeft || frontRight;
   static float lastKnownPositionError = 0.0;
   static bool wasGoingBackward = false;
+  static bool wasGoingForward = false;
   static unsigned long backwardStartTime = 0;
   static const unsigned long BACKWARD_DURATION = 250;
   static unsigned long forwardStartTime = 0;
@@ -67,10 +68,11 @@ void followLine(float lateralSpeed)
 
   if (isLineDetected)
   {
-    // If we were going backward and now detect the line, change direction to forward
-    if (wasGoingBackward)
+    // If we were going backward/forward and now detect the line, reset states
+    if (wasGoingBackward || wasGoingForward)
     {
       wasGoingBackward = false;
+      wasGoingForward = false;
     }
 
     float vy_correction = linePID.update(positionError, 0.0);
@@ -82,24 +84,37 @@ void followLine(float lateralSpeed)
   }
   else
   {
-    if (!wasGoingBackward)
+    if (!wasGoingBackward && !wasGoingForward)
     {
       wasGoingBackward = true;
       backwardStartTime = millis();
     }
 
-    // Check if 100ms have passed since going backward
-    if (millis() - backwardStartTime >= BACKWARD_DURATION)
+    // Check if backward duration has passed
+    if (wasGoingBackward && millis() - backwardStartTime >= BACKWARD_DURATION)
     {
-      // Change direction to forward after 100ms
+      // Switch to forward phase
+      wasGoingBackward = false;
+      wasGoingForward = true;
+      forwardStartTime = millis();
+    }
+
+    if (wasGoingBackward)
+    {
+      // Continue going backward for the first 250ms
+      float recovery_vy = (lastKnownPositionError > 0) ? 40.0 : -40.0;
+      drive_.acceptInput(lateralSpeed * 0.7, recovery_vy, 0.0);
+    }
+    else if (wasGoingForward && millis() - forwardStartTime < FORWARD_DURATION)
+    {
+      // Go forward for 250ms after backward phase
       float recovery_vy = (lastKnownPositionError > 0) ? -40.0 : 40.0;
       drive_.acceptInput(lateralSpeed * 0.7, recovery_vy, 0.0);
     }
     else
     {
-      // Continue going backward for the first 100ms
-      float recovery_vy = (lastKnownPositionError > 0) ? 40.0 : -40.0;
-      drive_.acceptInput(lateralSpeed * 0.7, recovery_vy, 0.0);
+      // Reset states to start over with backward phase
+      wasGoingForward = false;
     }
 
     bluetooth.println("Searching line");
