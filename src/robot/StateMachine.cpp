@@ -184,20 +184,6 @@ void StateMachine::handleEndlineState()
     drive_.hardBrake();
     currentState = STATES::RIGHTMOST;
   }
-
-  // if (distance_sensor_.getDistance(0) > 50 || distance_sensor_.getDistance(1) > 50)
-  // {
-  //   drive_.acceptInput(-65, 0, 0);
-  //   bluetooth.println("NO OBSTACLE DETECTED");
-  // }
-  // else
-  // {
-  //   bluetooth.println("OBSTACLE DETECTED");
-  //   maintainDistance(DistanceSensorConstants::kTreeTargetDistance, -65);
-  // }
-
-  // drive_.acceptInput(0, 0, 0);
-  // drive_.hardBrake();
 }
 
 void StateMachine::handleRightmostState()
