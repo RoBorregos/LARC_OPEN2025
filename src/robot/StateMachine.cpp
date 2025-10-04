@@ -8,7 +8,7 @@ StateMachine::StateMachine(SoftwareSerial &bluetoothRef)
 
 void StateMachine::begin()
 {
-  currentState = STATES::ENDLINE;
+  currentState = STATES::START;
   state_start_time = 0;
 }
 
@@ -78,13 +78,13 @@ void StateMachine::handleStartState()
     state_start_time = millis();
   }
 
-  if (millis() - state_start_time > 3000)
-  {
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    state_start_time = 0;
-    currentState = STATES::STOP;
-  }
+  // if (millis() - state_start_time > 3000)
+  // {
+  //   drive_.acceptInput(0, 0, 0);
+  //   drive_.hardBrake();
+  //   state_start_time = 0;
+  //   currentState = STATES::STOP;
+  // }
 
   if (distance_sensor_.isObstacle())
   {
@@ -114,6 +114,7 @@ void StateMachine::handleAvoidObstacleLeftState()
   {
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
+    state_start_time = 0;
     currentState = STATES::AVOID_OBSTACLE_RIGHT;
   }
 
@@ -144,6 +145,7 @@ void StateMachine::handleAvoidObstacleRightState()
   {
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
+    state_start_time = 0;
     currentState = STATES::AVOID_OBSTACLE_LEFT;
   }
 
@@ -165,11 +167,14 @@ void StateMachine::handleGoStraightState()
   {
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
-    currentState = STATES::ENDLINE;
+    if(millis() - state_start_time > 3000) {
+      state_start_time = 0;
+      currentState = STATES::ENDLINE;
+    }
   }
   else
   {
-    drive_.acceptInput(0, 70, 0);
+    drive_.acceptInput(0, 60, 0);
   }
 }
 
@@ -177,24 +182,26 @@ void StateMachine::handleEndlineState()
 {
   Serial.println("ENDLINE STATE");
   bluetooth.println("ENDLINE STATE");
+  drive_.acceptInput(0, 0, 0);
+  drive_.hardBrake();
 
-  // if (distance_sensor_.getDistance(0) > 50 || distance_sensor_.getDistance(1) > 50)
-  // {
-  //   drive_.acceptInput(-65, 0, 0);
-  //   bluetooth.println("NO OBSTACLE DETECTED");
-  // }
-  // else
-  // {
-  //   bluetooth.println("OBSTACLE DETECTED");
-  //   maintainDistance(DistanceSensorConstants::kTreeTargetDistance, -65);
-  // }
-
-  followLine(-65);
-  if(line_sensor_.isBackLeftLine()) {
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    currentState = STATES::RIGHTMOST;
+  if (distance_sensor_.getDistance(0) > 50 || distance_sensor_.getDistance(1) > 50)
+  {
+    drive_.acceptInput(-65, 0, 0);
+    bluetooth.println("NO OBSTACLE DETECTED");
   }
+  else
+  {
+    bluetooth.println("OBSTACLE DETECTED");
+    maintainDistance(DistanceSensorConstants::kTreeTargetDistance, -65);
+  }
+
+  // followLine(-65);
+  // if(line_sensor_.isBackLeftLine()) {
+  //   drive_.acceptInput(0, 0, 0);
+  //   drive_.hardBrake();
+  //   currentState = STATES::RIGHTMOST;
+  // }
 }
 
 void StateMachine::handleRightmostState()
