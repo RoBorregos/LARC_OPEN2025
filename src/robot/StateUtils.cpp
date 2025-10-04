@@ -58,9 +58,9 @@ void followLine(float lateralSpeed)
   static bool wasGoingBackward = false;
   static bool wasGoingForward = false;
   static unsigned long backwardStartTime = 0;
-  static const unsigned long BACKWARD_DURATION = 250;
+  static const unsigned long BACKWARD_DURATION = 200;
   static unsigned long forwardStartTime = 0;
-  static const unsigned long FORWARD_DURATION = 250;
+  static const unsigned long FORWARD_DURATION = 200;
 
   if (isLineDetected)
   {

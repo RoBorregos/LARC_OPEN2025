@@ -101,7 +101,7 @@ void StateMachine::handleAvoidObstacleLeftState()
   bluetooth.println("AVOID OBSTACLE LEFT STATE");
 
   // if the distance is greater than the max target distance, it means we've reached the edge of the pool with one sensor, so we should keep moving until both sensors dont see the pool
-  if (distance_sensor_.getDistance(0) > DistanceSensorConstants::kMaxTargetDistance || distance_sensor_.getDistance(1) > DistanceSensorConstants::kMaxTargetDistance)
+  if (distance_sensor_.getDistance(0) > DistanceSensorConstants::kMaxTargetDistance && distance_sensor_.getDistance(1) > DistanceSensorConstants::kMaxTargetDistance)
   {
     drive_.acceptInput(-75, 0, 0);
   }
@@ -163,8 +163,6 @@ void StateMachine::handleGoStraightState()
 
   if (line_sensor_.isFrontLine())
   {
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
     currentState = STATES::ENDLINE;
   }
   else
@@ -177,6 +175,15 @@ void StateMachine::handleEndlineState()
 {
   Serial.println("ENDLINE STATE");
   bluetooth.println("ENDLINE STATE");
+  
+  followLine(-65);
+  
+  if(line_sensor_.isLeftLine())
+  {
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    currentState = STATES::RIGHTMOST;
+  }
 
   // if (distance_sensor_.getDistance(0) > 50 || distance_sensor_.getDistance(1) > 50)
   // {
@@ -191,15 +198,6 @@ void StateMachine::handleEndlineState()
 
   // drive_.acceptInput(0, 0, 0);
   // drive_.hardBrake();
-
-  followLine(-60);
-
-  if(line_sensor_.isLeftLine())
-  {
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    currentState = STATES::RIGHTMOST;
-  }
 }
 
 void StateMachine::handleRightmostState()
@@ -207,13 +205,13 @@ void StateMachine::handleRightmostState()
   Serial.println("RIGHTMOST STATE");
   bluetooth.println("RIGHTMOST STATE");
 
-  followLine(70);
+  followLine(65);
 
   if(line_sensor_.isRightLine())
   {
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
-    currentState = STATES::RIGHTMOST;
+    currentState = STATES::RETURN;
   }
 }
 
