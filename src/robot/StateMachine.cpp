@@ -8,7 +8,7 @@ StateMachine::StateMachine(SoftwareSerial &bluetoothRef)
 
 void StateMachine::begin()
 {
-  currentState = STATES::START;
+  currentState = STATES::ENDLINE;
   state_start_time = 0;
 }
 
@@ -140,7 +140,7 @@ void StateMachine::handleAvoidObstacleRightState()
     maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 75);
   }
 
-  if (line_sensor_.isRightLine())
+  if (line_sensor_.isFrontRightLine())
   {
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
@@ -180,7 +180,7 @@ void StateMachine::handleEndlineState()
   Serial.println("ENDLINE STATE");
   bluetooth.println("ENDLINE STATE");
   
-  followLine(-50);
+  followLine(-55);
   
   if(line_sensor_.isLeftLine())
   {
@@ -195,7 +195,7 @@ void StateMachine::handleRightmostState()
   Serial.println("RIGHTMOST STATE");
   bluetooth.println("RIGHTMOST STATE");
 
-  followLine(50);
+  followLine(55);
 
   if(line_sensor_.isRightLine())
   {
