@@ -72,5 +72,5 @@ void loop()
 
   // line_sensor_.printSensors();
 
-  // delay(20);
+  delay(20);
 }

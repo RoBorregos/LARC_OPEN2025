@@ -31,9 +31,9 @@ void StateMachine::update()
   case STATES::ENDLINE:
     handleEndlineState();
     break;
-  case STATES::RIGHTMOST:
-    handleRightmostState();
-    break;
+  // case STATES::RIGHTMOST:
+  //   handleRightmostState();
+  //   break;
   // case STATES::RETURN:
   //   handleReturnState();
   //   break;
@@ -114,7 +114,6 @@ void StateMachine::handleAvoidObstacleLeftState()
   {
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
-    state_start_time = 0;
     currentState = STATES::AVOID_OBSTACLE_RIGHT;
   }
 
@@ -145,7 +144,6 @@ void StateMachine::handleAvoidObstacleRightState()
   {
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
-    state_start_time = 0;
     currentState = STATES::AVOID_OBSTACLE_LEFT;
   }
 
@@ -167,14 +165,11 @@ void StateMachine::handleGoStraightState()
   {
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
-    if(millis() - state_start_time > 3000) {
-      state_start_time = 0;
-      currentState = STATES::ENDLINE;
-    }
+    currentState = STATES::ENDLINE;
   }
   else
   {
-    drive_.acceptInput(0, 60, 0);
+    drive_.acceptInput(0, 40, 0);
   }
 }
 
@@ -182,26 +177,29 @@ void StateMachine::handleEndlineState()
 {
   Serial.println("ENDLINE STATE");
   bluetooth.println("ENDLINE STATE");
-  drive_.acceptInput(0, 0, 0);
-  drive_.hardBrake();
 
-  if (distance_sensor_.getDistance(0) > 50 || distance_sensor_.getDistance(1) > 50)
-  {
-    drive_.acceptInput(-65, 0, 0);
-    bluetooth.println("NO OBSTACLE DETECTED");
-  }
-  else
-  {
-    bluetooth.println("OBSTACLE DETECTED");
-    maintainDistance(DistanceSensorConstants::kTreeTargetDistance, -65);
-  }
-
-  // followLine(-65);
-  // if(line_sensor_.isBackLeftLine()) {
-  //   drive_.acceptInput(0, 0, 0);
-  //   drive_.hardBrake();
-  //   currentState = STATES::RIGHTMOST;
+  // if (distance_sensor_.getDistance(0) > 50 || distance_sensor_.getDistance(1) > 50)
+  // {
+  //   drive_.acceptInput(-65, 0, 0);
+  //   bluetooth.println("NO OBSTACLE DETECTED");
   // }
+  // else
+  // {
+  //   bluetooth.println("OBSTACLE DETECTED");
+  //   maintainDistance(DistanceSensorConstants::kTreeTargetDistance, -65);
+  // }
+
+  // drive_.acceptInput(0, 0, 0);
+  // drive_.hardBrake();
+
+  followLine(-60);
+
+  if(line_sensor_.isLeftLine())
+  {
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    currentState = STATES::RIGHTMOST;
+  }
 }
 
 void StateMachine::handleRightmostState()
@@ -209,12 +207,13 @@ void StateMachine::handleRightmostState()
   Serial.println("RIGHTMOST STATE");
   bluetooth.println("RIGHTMOST STATE");
 
-  followLine(65);
+  followLine(70);
 
-  if (line_sensor_.isBackRightLine())
+  if(line_sensor_.isRightLine())
   {
     drive_.acceptInput(0, 0, 0);
-    currentState = STATES::STOP;
+    drive_.hardBrake();
+    currentState = STATES::RIGHTMOST;
   }
 }
 
@@ -222,21 +221,7 @@ void StateMachine::handleReturnState()
 {
   Serial.println("RETURN STATE");
   bluetooth.println("RETURN STATE");
-  drive_.acceptInput(0, 0, 0);
-
-  if (distance_sensor_.isObstacle())
-  {
-    currentState = STATES::AVOID_OBSTACLE_RIGHT_RETURN;
-  }
-  else if (!distance_sensor_.obstacleInThePath())
-  {
-    currentState = STATES::GO_BEGINNING;
-  }
-  else
-  {
-    drive_.acceptHeadingInput(Rotation2D::fromDegrees(180));
-    drive_.acceptInput(0, 70, 180);
-  }
+  drive_.acceptHeadingInput(Rotation2D::fromDegrees(180));
 }
 
 void StateMachine::handleAvoidObstacleLeftReturnState()
@@ -260,7 +245,7 @@ void StateMachine::handleAvoidObstacleLeftReturnState()
     state_start_time = millis();
   }
 
-  if (!distance_sensor_.isObstacle() && millis() - state_start_time > 12000)
+  if (!distance_sensor_.isObstacle() || millis() - state_start_time > 12000)
   {
     state_start_time = 0;
     drive_.acceptInput(0, 0, 180);
@@ -290,7 +275,7 @@ void StateMachine::handleAvoidObstacleRightReturnState()
     state_start_time = millis();
   }
 
-  if (!distance_sensor_.isObstacle() && millis() - state_start_time > 12000)
+  if (!distance_sensor_.isObstacle() || millis() - state_start_time > 12000)
   {
     state_start_time = 0;
     drive_.acceptInput(0, 0, 180);
