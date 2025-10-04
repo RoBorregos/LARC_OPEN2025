@@ -71,8 +71,6 @@ bool DistanceSensor::isObstacle()
     float frontRightDistance = getDistance(1);
     bool obstacle = (frontLeftDistance < DistanceSensorConstants::kObstacleDistance) || (frontRightDistance < DistanceSensorConstants::kObstacleDistance);
 
-    // bool obstacle = (frontLeftDistance < DistanceSensorConstants::kObstacleDistance);
-
     return obstacle;
 }
 
@@ -82,9 +80,18 @@ bool DistanceSensor::isTree()
     float frontRightDistance = getDistance(1);
 
     bool tree = (frontLeftDistance < DistanceSensorConstants::kTreeDistance) || (frontRightDistance < DistanceSensorConstants::kTreeDistance);
-    // bool tree = (frontLeftDistance < DistanceSensorConstants::kTreeDistance);
 
     return tree;
+}
+
+bool DistanceSensor::obstacleInThePath()
+{
+    int frontLeftDistance = getDistance(0);
+    int frontRightDistance = getDistance(1);
+
+    bool obstacle = (frontLeftDistance < DistanceSensorConstants::kMaxObstacleDistance) && (frontRightDistance < DistanceSensorConstants::kMaxObstacleDistance);
+
+    return obstacle;
 }
 
 void DistanceSensor::insertReadingLeft(float measurement)

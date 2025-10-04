@@ -47,8 +47,7 @@ bool LineSensor::isFrontLine() const {
 
 bool LineSensor::isBackLine() const {
     auto v = readSensors();
-    // return v[2] && v[3];
-    return v[2];
+    return v[2] && v[3];
 }
 
 bool LineSensor::isLeftLine() const {
@@ -59,6 +58,26 @@ bool LineSensor::isLeftLine() const {
 bool LineSensor::isRightLine() const {
     auto v = readSensors();
     return v[1] && v[3];
+}
+
+bool LineSensor::isFrontLeftLine() const {
+    auto v = readSensors();
+    return v[0];
+}
+
+bool LineSensor::isFrontRightLine() const {
+    auto v = readSensors();
+    return v[1];
+}
+
+bool LineSensor::isBackLeftLine() const {
+    auto v = readSensors();
+    return v[2];
+}
+
+bool LineSensor::isBackRightLine() const {
+    auto v = readSensors();
+    return v[3];
 }
 
 int LineSensor::readSensor(int kSensor){

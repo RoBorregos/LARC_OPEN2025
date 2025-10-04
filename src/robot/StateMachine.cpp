@@ -8,7 +8,7 @@ StateMachine::StateMachine(SoftwareSerial &bluetoothRef)
 
 void StateMachine::begin()
 {
-  currentState = STATES::RIGHTMOST;
+  currentState = STATES::ENDLINE;
   state_start_time = 0;
 }
 
@@ -189,12 +189,12 @@ void StateMachine::handleEndlineState()
   //   maintainDistance(DistanceSensorConstants::kTreeTargetDistance, -65);
   // }
 
-  followLine(65);
-  // if(line_sensor_.isLeftLine()) {
-  //   drive_.acceptInput(0, 0, 0);
-  //   drive_.hardBrake();
-  //   currentState = STATES::STOP;
-  // }
+  followLine(-65);
+  if(line_sensor_.isBackLeftLine()) {
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    currentState = STATES::RIGHTMOST;
+  }
 }
 
 void StateMachine::handleRightmostState()
@@ -204,7 +204,7 @@ void StateMachine::handleRightmostState()
 
   followLine(65);
 
-  if (line_sensor_.isRightLine())
+  if (line_sensor_.isBackRightLine())
   {
     drive_.acceptInput(0, 0, 0);
     currentState = STATES::STOP;
@@ -217,18 +217,19 @@ void StateMachine::handleReturnState()
   bluetooth.println("RETURN STATE");
   drive_.acceptInput(0, 0, 0);
 
-  // if (distance_sensor_.isObstacle())
-  // {
-  //   currentState = STATES::AVOID_OBSTACLE_RIGHT_RETURN;
-  // }
-  // else if (!distance_sensor_.obstacleInThePath())
-  // {
-  //   currentState = STATES::GO_BEGINNING;
-  // }
-  // else
-  // {
-  //   drive_.acceptInput(0, 70, 180);
-  // }
+  if (distance_sensor_.isObstacle())
+  {
+    currentState = STATES::AVOID_OBSTACLE_RIGHT_RETURN;
+  }
+  else if (!distance_sensor_.obstacleInThePath())
+  {
+    currentState = STATES::GO_BEGINNING;
+  }
+  else
+  {
+    drive_.acceptHeadingInput(Rotation2D::fromDegrees(180));
+    drive_.acceptInput(0, 70, 180);
+  }
 }
 
 void StateMachine::handleAvoidObstacleLeftReturnState()

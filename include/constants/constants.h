@@ -43,6 +43,7 @@ namespace Constants
         constexpr float kPoolTargetDistance = 16.0; // in cm
         constexpr float kTreeTargetDistance = 25.0; // in cm
         constexpr float kMaxTargetDistance = 80.0; // in cm
+        constexpr float kMaxObstacleDistance = 120.0; // in cm
         constexpr float kDistanceTargetControllerKp = 8.0;
         constexpr float kDistanceTargetControllerKi = 0.00;
         constexpr float kDistanceTargetControllerKd = 0.1;

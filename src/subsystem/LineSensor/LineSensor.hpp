@@ -23,6 +23,11 @@ class LineSensor : public System{
         bool isLeftLine() const;
         bool isRightLine() const;
 
+        bool isFrontLeftLine() const;
+        bool isFrontRightLine() const;
+        bool isBackLeftLine() const;
+        bool isBackRightLine() const;
+
     private:
         int readSensor(int kSensor);
 };
