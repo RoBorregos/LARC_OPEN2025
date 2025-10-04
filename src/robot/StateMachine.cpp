@@ -31,21 +31,21 @@ void StateMachine::update()
   case STATES::ENDLINE:
     handleEndlineState();
     break;
-  // case STATES::RIGHTMOST:
-  //   handleRightmostState();
-  //   break;
-  // case STATES::RETURN:
-  //   handleReturnState();
-  //   break;
-  // case STATES::AVOID_OBSTACLE_LEFT_RETURN:
-  //   handleAvoidObstacleLeftReturnState();
-  //   break;
-  // case STATES::AVOID_OBSTACLE_RIGHT_RETURN:
-  //   handleAvoidObstacleRightReturnState();
-  //   break;
-  // case STATES::GO_BEGINNING:
-  //   handleGoBeginningState();
-  //   break;
+  case STATES::RIGHTMOST:
+    handleRightmostState();
+    break;
+  case STATES::RETURN:
+    handleReturnState();
+    break;
+  case STATES::AVOID_OBSTACLE_LEFT_RETURN:
+    handleAvoidObstacleLeftReturnState();
+    break;
+  case STATES::AVOID_OBSTACLE_RIGHT_RETURN:
+    handleAvoidObstacleRightReturnState();
+    break;
+  case STATES::GO_BEGINNING:
+    handleGoBeginningState();
+    break;
   case STATES::STOP:
     handleStopState();
     break;
@@ -78,13 +78,13 @@ void StateMachine::handleStartState()
     state_start_time = millis();
   }
 
-  // if (millis() - state_start_time > 3000)
-  // {
-  //   drive_.acceptInput(0, 0, 0);
-  //   drive_.hardBrake();
-  //   state_start_time = 0;
-  //   currentState = STATES::STOP;
-  // }
+  if (millis() - state_start_time > 3000)
+  {
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    state_start_time = 0;
+    currentState = STATES::GO_STRAIGHT;
+  }
 
   if (distance_sensor_.isObstacle())
   {
@@ -163,6 +163,10 @@ void StateMachine::handleGoStraightState()
 
   if (line_sensor_.isFrontLine())
   {
+    drive_.acceptInput(0, 15, 0);
+    delay(100); 
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
     currentState = STATES::ENDLINE;
   }
   else
@@ -176,7 +180,7 @@ void StateMachine::handleEndlineState()
   Serial.println("ENDLINE STATE");
   bluetooth.println("ENDLINE STATE");
   
-  followLine(-65);
+  followLine(-50);
   
   if(line_sensor_.isLeftLine())
   {
@@ -191,7 +195,7 @@ void StateMachine::handleRightmostState()
   Serial.println("RIGHTMOST STATE");
   bluetooth.println("RIGHTMOST STATE");
 
-  followLine(65);
+  followLine(50);
 
   if(line_sensor_.isRightLine())
   {

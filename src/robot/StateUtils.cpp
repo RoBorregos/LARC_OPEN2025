@@ -12,7 +12,7 @@
 PIDController leftDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);
 PIDController rightDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);
 
-PIDController positionPID(15.0, 0.0, 2.5, -100.0, 100.0);
+PIDController positionPID(20.0, 0.0, 1.5, -80.0, 80.0);
 
 void maintainDistance(float distance, float lateralSpeed)
 {
@@ -58,9 +58,9 @@ void followLine(float lateralSpeed)
   static bool wasGoingBackward = false;
   static bool wasGoingForward = false;
   static unsigned long backwardStartTime = 0;
-  static const unsigned long BACKWARD_DURATION = 200;
+  static const unsigned long BACKWARD_DURATION = 150;
   static unsigned long forwardStartTime = 0;
-  static const unsigned long FORWARD_DURATION = 200;
+  static const unsigned long FORWARD_DURATION = 150;
 
   if (isLineDetected)
   {
@@ -96,15 +96,15 @@ void followLine(float lateralSpeed)
 
     if (wasGoingBackward)
     {
-      // Continue going backward for the first 250ms
-      float recovery_vy = (lastKnownPositionError > 0) ? 40.0 : -40.0;
-      drive_.acceptInput(lateralSpeed * 0.7, recovery_vy, 0.0);
+      // Continue going backward for the first 150ms with reduced speed
+      float recovery_vy = (lastKnownPositionError > 0) ? 25.0 : -25.0;
+      drive_.acceptInput(lateralSpeed * 0.6, recovery_vy, 0.0);
     }
     else if (wasGoingForward && millis() - forwardStartTime < FORWARD_DURATION)
     {
-      // Go forward for 250ms after backward phase
-      float recovery_vy = (lastKnownPositionError > 0) ? -40.0 : 40.0;
-      drive_.acceptInput(lateralSpeed * 0.7, recovery_vy, 0.0);
+      // Go forward for 150ms after backward phase with reduced speed
+      float recovery_vy = (lastKnownPositionError > 0) ? -25.0 : 25.0;
+      drive_.acceptInput(lateralSpeed * 0.6, recovery_vy, 0.0);
     }
     else
     {
