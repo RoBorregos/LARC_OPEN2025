@@ -50,6 +50,12 @@ namespace Pins {
     constexpr uint8_t kElevatorStepPin = 22;
     constexpr uint8_t kElevatorDirPin = 7;
 
+    // Servo pins for Sorter and Dropper
+    constexpr uint8_t kSorterServo1Pin = 23;
+    constexpr uint8_t kSorterServo2Pin = 24;
+    constexpr uint8_t kSorterServo3Pin = 25;
+    constexpr uint8_t kDropperServoPin = 26;
+
     // READY
     static constexpr uint8_t kLineSensorFL = 28;
     static constexpr uint8_t kLineSensorFR = 27;
