@@ -5,7 +5,7 @@ using namespace Constants;
 
 // Define global instances of robot subsystems
 Drive drive_;
-Elevator elevator_;
+// Elevator elevator_;
 LineSensor line_sensor_;
 DistanceSensor distance_sensor_;
 Communication com_;
