@@ -16,7 +16,7 @@ void DistanceSensor::begin()
 void DistanceSensor::update() {}
 void DistanceSensor::setState(int state) {}
 
-float DistanceSensor::readSensor(uint8_t trigPin, uint8_t echoPin)
+float DistanceSensor::readSensor(uint8_t trigPin, uint8_t echoPin) const
 {
     digitalWrite(trigPin, LOW);
     delayMicroseconds(2);
@@ -31,43 +31,85 @@ float DistanceSensor::readSensor(uint8_t trigPin, uint8_t echoPin)
     return distance;
 }
 
-std::vector<float> DistanceSensor::getArrayDistance()
-{
-    float kLeftDistance = readSensor(Pins::kDistanceSensors[0][0], Pins::kDistanceSensors[0][1]);
-    delay(50);
-    float kRightDistance = readSensor(Pins::kDistanceSensors[1][0], Pins::kDistanceSensors[1][1]);
-
-    /* For Debugging
-    Serial.print("Left Distance: ");
-    if (kLeftDistance == -1.0f) {
-        Serial.print("Fuera de rango");
-    } else {
-        Serial.print(kLeftDistance);
-        Serial.print(" cm");
-    }
-
-    Serial.print(" | Right Distance: ");
-    if (kRightDistance == -1.0f) {
-        Serial.println("Fuera de rango");
-    } else {
-        Serial.print(kRightDistance);
-        Serial.println(" cm");
-    }
-    */
-
-    std::vector<float> distances = {kLeftDistance, kRightDistance};
-    return distances;
-}
-
 float DistanceSensor::getDistance(int kSensor)
 {
     if (kSensor == 0)
     {
-        return readSensor(Pins::kDistanceSensors[0][0], Pins::kDistanceSensors[0][1]);
+        float measurement = readSensor(Pins::kDistanceSensors[0][0], Pins::kDistanceSensors[0][1]);
+        insertReadingLeft(measurement);
+
+        float sum = 0;
+        for (float reading : leftSensorReadings)
+        {
+            sum += reading;
+        }
+        float average = leftSensorReadings.size() > 0 ? sum / leftSensorReadings.size() : 0;
+
+        return average;
     }
     else if (kSensor == 1)
     {
-        return readSensor(Pins::kDistanceSensors[1][0], Pins::kDistanceSensors[1][1]);
+        float measurement = readSensor(Pins::kDistanceSensors[1][0], Pins::kDistanceSensors[1][1]);
+        insertReadingRight(measurement);
+
+        float sum = 0;
+        for (float reading : rightSensorReadings)
+        {
+            sum += reading;
+        }
+        float average = rightSensorReadings.size() > 0 ? sum / rightSensorReadings.size() : 0;
+
+        return average;
     }
+
     return -1.0f;
+}
+
+bool DistanceSensor::isObstacle()
+{
+    float frontLeftDistance = getDistance(0);
+    float frontRightDistance = getDistance(1);
+    bool obstacle = (frontLeftDistance < DistanceSensorConstants::kObstacleDistance) || (frontRightDistance < DistanceSensorConstants::kObstacleDistance);
+
+    return obstacle;
+}
+
+bool DistanceSensor::isTree()
+{
+    float frontLeftDistance = getDistance(0);
+    float frontRightDistance = getDistance(1);
+
+    bool tree = (frontLeftDistance < DistanceSensorConstants::kTreeDistance) || (frontRightDistance < DistanceSensorConstants::kTreeDistance);
+
+    return tree;
+}
+
+bool DistanceSensor::obstacleInThePath()
+{
+    int frontLeftDistance = getDistance(0);
+    int frontRightDistance = getDistance(1);
+
+    bool obstacle = (frontLeftDistance < DistanceSensorConstants::kMaxObstacleDistance) && (frontRightDistance < DistanceSensorConstants::kMaxObstacleDistance);
+
+    return obstacle;
+}
+
+void DistanceSensor::insertReadingLeft(float measurement)
+{
+    leftSensorReadings.push_back(measurement);
+
+    if (leftSensorReadings.size() > 5)
+    {
+        leftSensorReadings.erase(leftSensorReadings.begin());
+    }
+}
+
+void DistanceSensor::insertReadingRight(float measurement)
+{
+    rightSensorReadings.push_back(measurement);
+
+    if (rightSensorReadings.size() > 5)
+    {
+        rightSensorReadings.erase(rightSensorReadings.begin());
+    }
 }

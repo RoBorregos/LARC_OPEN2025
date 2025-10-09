@@ -2,7 +2,7 @@
  * @file constants.h
  * @date 24/04/2025
  * @author Juan Pablo Gutiérrez
- * 
+ *
  * @brief Constants for the robot.
  */
 
@@ -11,17 +11,20 @@
 
 #include <math.h>
 
-namespace Constants {
+namespace Constants
+{
 
-    namespace SystemConstants {
+    namespace SystemConstants
+    {
         constexpr float kUpdateInterval = 50.0; // in ms -> 20Hz
     }
 
-    namespace ElevatorConstants {
-        constexpr float kUpperLevel = 0.0; 
-        constexpr float kMidLevel = 0.0; 
+    namespace ElevatorConstants
+    {
+        constexpr float kUpperLevel = 0.0;
+        constexpr float kMidLevel = 0.0;
         constexpr float kLowerLevel = 0.0;
-        constexpr float kIdleLevel = 0.0; 
+        constexpr float kIdleLevel = 0.0;
 
         constexpr float kP = 0.01;
         constexpr float kI = 0.00;
@@ -32,39 +35,59 @@ namespace Constants {
 
     }
 
-    namespace LineSensorConstants{
+    namespace DistanceSensorConstants
+    {
+        constexpr int kObstacleDistance = 30;
+        constexpr int kTreeDistance = 13;
+
+        constexpr float kPoolTargetDistance = 16.0; // in cm
+        constexpr float kTreeTargetDistance = 25.0; // in cm
+        constexpr float kMaxTargetDistance = 80.0; // in cm
+        constexpr float kMaxObstacleDistance = 120.0; // in cm
+        constexpr float kDistanceTargetControllerKp = 8.0;
+        constexpr float kDistanceTargetControllerKi = 0.00;
+        constexpr float kDistanceTargetControllerKd = 0.1;
+    }
+
+    namespace LineSensorConstants
+    {
         constexpr int kPoolDistance = 10;
         constexpr int kTreeDistance = 15;
     }
 
-    namespace GripperConstants {
+    namespace GripperConstants
+    {
         constexpr int kOpenAngle = 140;
         constexpr int kClosedAngle = 40;
     }
 
-    namespace UpperSorterConstants {
+    namespace UpperSorterConstants
+    {
         constexpr int kLeftAngle = 0;
         constexpr int kCenterAngle = 90;
         constexpr int kRightAngle = 180;
     }
 
-    namespace LowerSorterConstants {
+    namespace LowerSorterConstants
+    {
         constexpr int kLeftAngle = 180;
         constexpr int kCenterAngle = 90;
         constexpr int kRightAngle = 0;
     }
 
-    namespace DriveConstants {
-        constexpr float kWheelDiameter = 0.1; // in m
-        constexpr float kWheelRadius = kWheelDiameter / 2.0; // in m
+    namespace DriveConstants
+    {
+        constexpr float kWheelDiameter = 0.1;                          // in m
+        constexpr float kWheelRadius = kWheelDiameter / 2.0;           // in m
         constexpr float kWheelCircumference = 2 * M_PI * kWheelRadius; // in m
 
-        constexpr float kHeadingControllerKp = 240.0f;
+        constexpr float kHeadingControllerKp = 270.0f; // ORIGINAL: 240.0f - WORKING GREAT RN 28/09/2025 12:02 PM
         constexpr float kHeadingControllerKi = 0.0f;
         constexpr float kHeadingControllerKd = 0.0f;
     }
 
-    namespace VisionConstants {
+    namespace VisionConstants
+    {
         constexpr float kCenterPIDKp = 0.0f;
         constexpr float kCenterPIDKi = 0.0f;
         constexpr float kCenterPIDKd = 0.0f;
@@ -75,8 +98,10 @@ namespace Constants {
         constexpr float kCenterOffsetY = 10.0f;
     }
 
-    namespace BeanConstants {
-        enum BeanType {
+    namespace BeanConstants
+    {
+        enum BeanType
+        {
             NONE,
             MADURO,
             SOBREMADURO
