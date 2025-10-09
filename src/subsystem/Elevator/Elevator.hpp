@@ -1,50 +1,44 @@
-/*
- * @file Elevador.h
- * @date 25/04/2025
- * @author Brisma Alvarez Valdez
- *
- * @brief Head file of the Elevador class to control a stepper motor.
- */
-
-#pragma once
+#ifndef ELEVATOR_H
+#define ELEVATOR_H
 
 #include <Arduino.h>
-#include "constants/constants.h"
 #include "../systems/system.hpp"
+#include "constants/constants.h"
 #include "constants/pins.h"
 
 using namespace Constants;
 
-class Elevator : public System
-{
+class Elevator : public System {
+private:
+    const int step_pin_;
+    const int dir_pin_;
+    
+    const int kONStepCount = 200;
 
+    int current_step_count_ = 0;
+    
+    // Method to move the elevator up or down depending on the goal step count
+    void moveToStepCount(int goalSteps);
+    
 public:
+    // Constructor with pin initialization
     Elevator();
 
-    void update() override;           
+    // Method to initialize the elevator system
+    void begin() override;
+    
+    // Method to initialize the elevator system, move elevator to ON position
+    bool setup();
+
+    void update() override;
     void setState(int state) override;
-    void setTargetPosition(int position);
-    int getCurrentPosition();
 
-private:
-    float actual_position_cm;
-    float target_position_cm;
-
-    void Move(int steps);
-    void resetPosition(double position);
-    bool getLimitState();
-
-    // States
-    enum class ElevatorState
-    {
-        HOME = 0,
-        LOWER = 2,
-        MID = 3,
-        UPPER = 4,
+    enum class ElevatorState {
+        OFF = 0,
+        ON = 1,
     };
 
-    ElevatorState elevator_state_ = ElevatorState::HOME;
-
-    int current_position_ = 0;
-    int limitPin = -1;
+    ElevatorState elevator_state_ = ElevatorState::OFF;
 };
+
+#endif // ELEVATOR_H

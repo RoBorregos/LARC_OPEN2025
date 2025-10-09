@@ -1,4 +1,4 @@
-#include "actions.hpp"
+#include "robot/robot_instances.h"
 #include "constants/constants.h"
 
 using namespace Constants;
@@ -6,10 +6,8 @@ using namespace Constants;
 // Define global instances of robot subsystems
 Drive drive_;
 Elevator elevator_;
-Gripper gripper_;
-LowerSorter lower_sorter_;
-UpperSorter upper_sorter_;
-Camera camera_;
-PIDController centerPID_(VisionConstants::kCenterPIDKp, VisionConstants::kCenterPIDKi, VisionConstants::kCenterPIDKd, 
-                        VisionConstants::kCenterPIDOutputMin, VisionConstants::kCenterPIDOutputMax);
-LineSensor line_sensor_; 
+LineSensor line_sensor_;
+DistanceSensor distance_sensor_;
+Communication com_;
+BNO bno_;
+SoftwareSerial bluetooth(0, 1);

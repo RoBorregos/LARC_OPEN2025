@@ -4,48 +4,57 @@
 #include <Arduino.h>
 
 namespace Pins {
+    // READY
     constexpr uint8_t kPwmPin[4] = {
-        24, // PWM2 UPPER LEFT MOTOR (PURPLE CABLE) 
-        25,  // PWM4 UPPER RIGHT MOTOR (GRAY CABLE)
-        28, // PWM3 BOTTOM LEFT MOTOR (GRAY CABLE)
-        29  //  PWM1 BOTTOM RIGHT MOTOR (PURPLE CABLE)
+        10, // PWM1 UPPER LEFT MOTOR 
+        2, // PWM2 UPPER RIGHT MOTOR
+        29, // PWM3 BOTTOM LEFT MOTOR
+        5, // PWM4 BOTTOM RIGHT MOTOR
     };
     
+    // READY
     constexpr uint8_t kUpperMotors[4] = {
-        0, // IN1.1 UPPER LEFT MOTOR 
-        1, // IN1.2 UPPER LEFT MOTOR
-        2, // IN2.1 UPPER RIGHT MOTOR
+        12, // IN1.1 UPPER LEFT MOTOR 
+        11, // IN1.2 UPPER LEFT MOTOR
+        4, // IN2.1 UPPER RIGHT MOTOR
         3, // IN2.2 UPPER RIGHT MOTOR
     };
 
+    //READY
     constexpr uint8_t kLowerMotors[4] = {
-        4, // IN3.1 LOWER LEFT MOTOR
-        5, // IN3.2 LOWER LEFT MOTOR
-        6, // IN4.1 LOWER RIGHT MOTOR
-        7  // IN4.2 LOWER RIGHT MOTOR
-    };  
+        32, // IN3.1 LOWER LEFT MOTOR
+        31, // IN3.2 LOWER LEFT MOTOR
+        9, // IN4.1 LOWER RIGHT MOTOR
+        6  // IN4.2 LOWER RIGHT MOTOR
+    }; 
     
-    constexpr uint8_t kEncoders[4]{
-        32, // ENC 1 UPPER LEFT MOTOR
-        33, // ENC 2 UPPER RIGHT MOTOR
-        34, //ENC 3 LOWER LEFT MOTOR
-        35 //ENC 4 LOWER RIGHT MOTOR
+    // READY
+    constexpr uint8_t kDistanceSensors[4][2] = {
+        // trig, echo
+        {35, 33},
+        {30, 34},
+    };
+ 
+    constexpr uint8_t kEncoders[8]{
+        40, // ENC1B
+        39, // ENC1A
+        15, // ENC2A
+        14, // ENC2B
+        41, // ENC3A
+        13, // ENC3B
+        17, // ENC4A
+        16 // ENC4B
     };
 
-    constexpr uint8_t kGripperServoPin = 15;
-    constexpr uint8_t kUpperSorterServoPin = 14;
-    constexpr uint8_t kLowerSorterServoPin = 13;
+    // NOT YET
+    constexpr uint8_t kElevatorStepPin = 22;
+    constexpr uint8_t kElevatorDirPin = 7;
 
-    constexpr uint8_t kStepperPin = 10;
-    constexpr uint8_t kDirPin = 11;
-    constexpr uint8_t kLimitPin = 12;
-
-    constexpr uint8_t kLineSensorLeftPin = 2;
-    constexpr uint8_t kLineSensorRightPin = 3;
+    // READY
+    static constexpr uint8_t kLineSensorFL = 28;
+    static constexpr uint8_t kLineSensorFR = 27;
+    static constexpr uint8_t kLineSensorBL = 21;
+    static constexpr uint8_t kLineSensorBR = 20;
 }
 
 #endif
-
-
-
-

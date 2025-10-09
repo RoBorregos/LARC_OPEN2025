@@ -1,61 +1,61 @@
-/*
- * @file Elevador.cpp
- * @date 25/04/2025
- * @author Brisma Alvarez Valdez
- *
- * @brief Implementation of the Elevador class to control a stepper motor
- */
 #include "Elevator.hpp"
-#include <Arduino.h>
 
-Elevator::Elevator() : current_position_(ElevatorConstants::kIdleLevel) {
+//* Constructor
+Elevator::Elevator()
+    : step_pin_(Pins::kElevatorStepPin), dir_pin_(Pins::kElevatorDirPin) {}
+
+//* Begin method to initialize the elevator (required by System interface)
+void Elevator::begin() {
+    setup();
 }
 
-void Elevator::update() {
-    if (Serial.available()) {
-        String command = Serial.readStringUntil('\n');
-        command.trim();
-        
-        if (command.toInt() != 0 || command == "0") {
-            current_position_ = command.toInt();
-        }
+//* Setup method to initialize the motors
+bool Elevator::setup() {
+    elevator_state_ = ElevatorState::ON;
+    Serial.println("Elevator initialized.");
+    return true; // Return true when setup is successful
+}
+
+//* Method to move the elevator up or down depending on the goal step count
+void Elevator::moveToStepCount(int goalSteps) {
+    if (current_step_count_ == goalSteps)
+        return;
+    
+    // Calculate distance to travel
+    int steps = abs(goalSteps - current_step_count_);
+
+    // Determine direction
+    if (goalSteps > current_step_count_) {
+        digitalWrite(dir_pin_, HIGH);  // Up
+    } else {
+        digitalWrite(dir_pin_, LOW);   // Down
     }
+
+    // Perform step movements
+    for (int i = 0; i < steps; i++) {
+        digitalWrite(step_pin_, HIGH);
+        delayMicroseconds(1000);
+
+        digitalWrite(step_pin_, LOW);
+        delayMicroseconds(1000);
+    }
+
+    // Update current position
+    current_step_count_ = goalSteps;
 }
 
-bool Elevator::getLimitState() {
-    return digitalRead(limitPin) == LOW;
-}
-
-void Elevator::resetPosition(double position) {
-    Serial.print("SET_POSITION:");
-    Serial.println(position);
-}
-
-void Elevator::setTargetPosition(int position) {
-    Serial.print("SET_TARGET:");
-    Serial.println(position);
-}
-
-int Elevator::getCurrentPosition() {
-    Serial.println("GET_POS");
-    return current_position_;
+//* Method to update elevator height if needed
+void Elevator::update() {
+    switch (elevator_state_) {
+        case ElevatorState::OFF:
+            moveToStepCount(0);
+            break;
+        case ElevatorState::ON:
+            moveToStepCount(kONStepCount);
+            break;
+    }
 }
 
 void Elevator::setState(int state) {
-    int target_pos = 0;
-    switch (state) {
-        case 0: // HOME
-            target_pos = ElevatorConstants::kIdleLevel;
-            break;
-        case 1: // LOWER
-            target_pos = ElevatorConstants::kLowerLevel;
-            break;
-        case 2: // MID
-            target_pos = ElevatorConstants::kMidLevel;
-            break;
-        case 3: // UPPER
-            target_pos = ElevatorConstants::kUpperLevel;
-            break;
-    }
-    setTargetPosition(target_pos);
+    elevator_state_ = static_cast<ElevatorState>(state);
 }

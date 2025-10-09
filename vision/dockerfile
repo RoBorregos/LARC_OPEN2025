@@ -1,16 +1,17 @@
 FROM python:3.13
 
-WORKDIR /app
-
-COPY requirements.txt .
-
 RUN apt-get update && apt-get install -y \
     build-essential \
-    python3-dev \
-    git
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir --upgrade -r requirements.txt
+WORKDIR /app
 
 COPY . /app
 
-CMD ["fastapi", "run", "agent/app.py", "--port", "8000"]
+RUN chmod +x /app/run.sh
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+CMD ["bash", "/app/run.sh"]

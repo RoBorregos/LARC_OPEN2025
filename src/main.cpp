@@ -6,28 +6,75 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "pose2d.hpp"
-#include "robot/statemanager.hpp"
-#include "subsystem/Drive/Drive.hpp"
 
-StateManager state_manager;
+#include "robot/robot_instances.h"
+#include "robot/StateMachine.hpp"
+#include <SoftwareSerial.h>
+#include "../../lib/controllers/PIDController.hpp"
+#include "constants/constants.h"
 
-const unsigned long UPDATE_INTERVAL = 50;
+using namespace Constants;
 
-double state_start_time = 0;
+// State machine instance
+StateMachine stateMachine(bluetooth);
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(9800);
+  bluetooth.begin(9800);
+  bluetooth.println("Starting...");
   Wire.begin();
 
-  state_manager.setState(RobotState::PICK_LOW_LEVEL);
-  interrupts();
+  // All systems must begin after initializing the serial and as the code starts running
+  bluetooth.println("Initializing systems...");
+  drive_.begin();
+  com_.begin();
+  line_sensor_.begin();
+  distance_sensor_.begin();
+  stateMachine.begin();
+  bluetooth.println("All systems initialized...");
+
+  drive_.setState(0);
+  drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
+
+  // Wait for "r" message from Bluetooth before continuing
+  bluetooth.println("Waiting for ready command (r)...");
+  
+  String btInput = "";
+  // while (true)
+  // {
+  //   if (bluetooth.available())
+  //   {
+  //     char c = bluetooth.read();
+  //     if (c == '\n' || c == '\r')
+  //     {
+  //       btInput.trim();
+  //       if (btInput.equalsIgnoreCase("r"))
+  //       {
+  //         Serial.println("Bluetooth ready received.");
+  //         break;
+  //       }
+  //       btInput = "";
+  //     }
+  //     else
+  //     {
+  //       btInput += c;
+  //     }
+  //   }
+  // }
 }
 
 void loop()
 {
-  state_manager.update();
+  drive_.update();
 
-  delay(UPDATE_INTERVAL);
+  stateMachine.update();
+
+  // followLine(50);
+
+  // drive_.acceptInput(70,0,0);
+
+  // line_sensor_.printSensors();
+
+  delay(20);
 }

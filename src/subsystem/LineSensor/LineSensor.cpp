@@ -1,72 +1,86 @@
-/*
- * @file LineSensor.cpp
- * @date 07/05/2025
- * @author Brisma Alvarez Valdez
- *
- * @brief Cpp file of the Almacen class to control two servos.
- */
+#include <Arduino.h>
+#include "LineSensor.hpp"
+#include "constants/pins.h"
+#include <vector>
+using namespace std;
 
-#include "LineSensor.h"
-#include <cstdlib>
-
-/*LineSensor::LineSensor() {
-  this->leftPin = Pins::kLineSensorLeftPin;
-  this->rightPin = Pins::kLineSensorRightPin;
+LineSensor::LineSensor() : System(){
 }
 
 void LineSensor::begin() {
-  pinMode(leftPin, INPUT);
-  pinMode(rightPin, INPUT);
+    pinMode(Pins::kLineSensorFL, INPUT);
+    pinMode(Pins::kLineSensorFR, INPUT);
+    pinMode(Pins::kLineSensorBL, INPUT);
+    pinMode(Pins::kLineSensorBR, INPUT);
 }
 
-bool LineSensor::leftDetected() {
-  return digitalRead(leftPin) == HIGH;
+void LineSensor::update() { }
+
+void LineSensor::setState(int state) { }
+
+
+std::vector<int> LineSensor::readSensors() const {
+    return {
+        digitalRead(Pins::kLineSensorFL),
+        digitalRead(Pins::kLineSensorFR),
+        digitalRead(Pins::kLineSensorBL),
+        digitalRead(Pins::kLineSensorBR)
+    };
 }
 
-bool LineSensor::rightDetected() {
-  return digitalRead(rightPin) == HIGH;
-}*/
-
-LineSensor::LineSensor() {}
-
-void LineSensor::update() {
-  String received = Serial.readStringUntil('\n');
-  received.trim();
-  
-  int leftPos = received.indexOf("Left:");
-  int rightPos = received.indexOf("Right:");
-  
-  if (leftPos != -1) {
-    String leftValue = received.substring(leftPos + 5, rightPos != -1 ? rightPos : received.length());
-    leftValue = leftValue.trim();
-    bool new_left_detected = (leftValue == "YES");
-    if (new_left_detected && !left_detected_) {
-      left_detection_time_ = millis();
-    }
-    left_detected_ = new_left_detected;
-  }
-  
-  if (rightPos != -1) {
-    String rightValue = received.substring(rightPos + 6);
-    rightValue = rightValue.trim();
-    bool new_right_detected = (rightValue == "YES");
-    if (new_right_detected && !right_detected_) {
-      right_detection_time_ = millis();
-    }
-    right_detected_ = new_right_detected;
-  }
+void LineSensor::printSensors() const {
+    auto sensors = readSensors();
+    Serial.print("FL: ");
+    Serial.print(sensors[0]);
+    Serial.print(" FR: ");
+    Serial.print(sensors[1]);
+    Serial.print(" BL: ");
+    Serial.print(sensors[2]);
+    Serial.print(" BR: ");
+    Serial.println(sensors[3]);
 }
 
-bool LineSensor::leftDetected() {
-  return left_detected_;
+bool LineSensor::isFrontLine() const {
+    auto v = readSensors();
+    return v[0] || v[1];
 }
 
-bool LineSensor::rightDetected() {
-  return right_detected_;
+bool LineSensor::isBackLine() const {
+    auto v = readSensors();
+    return v[2] && v[3];
 }
 
-bool LineSensor::bothDetectedWithin500ms() {
-  if (!left_detected_ || !right_detected_) return false;
-  return std::abs(static_cast<long>(left_detection_time_ - right_detection_time_)) <= 500;
+bool LineSensor::isLeftLine() const {
+    auto v = readSensors();
+    return v[0] && v[2];
 }
 
+bool LineSensor::isRightLine() const {
+    auto v = readSensors();
+    return v[1] && v[3];
+}
+
+bool LineSensor::isFrontLeftLine() const {
+    auto v = readSensors();
+    return v[0];
+}
+
+bool LineSensor::isFrontRightLine() const {
+    auto v = readSensors();
+    return v[1];
+}
+
+bool LineSensor::isBackLeftLine() const {
+    auto v = readSensors();
+    return v[2];
+}
+
+bool LineSensor::isBackRightLine() const {
+    auto v = readSensors();
+    return v[3];
+}
+
+int LineSensor::readSensor(int kSensor){
+    int value = digitalRead(kSensor);
+    return value; 
+}
