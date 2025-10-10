@@ -66,17 +66,7 @@ void setup()
 
 void loop()
 {
-  drive_.update();
-
-  // stateMachine.update();
-
-  drive_.motorTest();
-
-  // followLine(50);
-
-  // drive_.acceptInput(70,0,0);
-
-  // line_sensor_.printSensors();
+  stateMachine.update();
 
   delay(20);
 }
