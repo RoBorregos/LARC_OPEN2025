@@ -9,7 +9,7 @@
 
 using namespace Constants;
 
-class Sorter : public System {
+class Intake : public System {
 private:
     Servo servo1_;
     Servo servo2_;
@@ -27,7 +27,7 @@ private:
     int servo3_position_;
     
 public:
-    Sorter();
+    Intake();
 
     void begin() override;
     void update() override;
@@ -52,13 +52,13 @@ public:
     void setAllServosTo180();
     void setAllServosToPosition(int position);
 
-    enum class SorterState {
+    enum class IntakeState {
         ALL_0 = 0,
         ALL_180 = 1,
         CUSTOM = 2
     };
 
-    SorterState sorter_state_ = SorterState::ALL_0;
+    IntakeState intake_state_ = IntakeState::ALL_0;
 };
 
 #endif // INTAKE_H

@@ -68,7 +68,9 @@ void loop()
 {
   drive_.update();
 
-  stateMachine.update();
+  // stateMachine.update();
+
+  drive_.motorTest();
 
   // followLine(50);
 

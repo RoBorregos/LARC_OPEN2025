@@ -1,5 +1,5 @@
-#ifndef S0RTER_H
-#define S0RTER_H
+#ifndef SORTER_H
+#define SORTER_H
 
 #include <Arduino.h>
 #include "../systems/system.hpp"
@@ -8,28 +8,51 @@
 
 using namespace Constants;
 
-class Elevator : public System {
+class Sorter : public System {
 private:
-    const int motor_pin_;
+    const int step_pin_;
+    const int dir_pin_;
+    
+    bool is_running_;
+    unsigned long last_step_time_;
+    unsigned long step_delay_us_;
+    
+    int current_position_;
+    int target_position_;
+    
+    static constexpr int POSITION_0 = 0;
+    static constexpr int POSITION_180 = 200;
     
 public:
-    Elevator();
+    Sorter();
 
     void begin() override;
-
     void update() override;
     void setState(int state) override;
 
-    void activateMotor();
-    void deactivateMotor();
-    bool isActive() const;
+    void startStepper(int target_position, unsigned long speed_us = 1000);
+    void stopStepper();
+    void step(bool direction = true);
+    bool isRunning() const;
+    
+    void moveToPosition0();
+    void moveToPosition180();
+    void moveToPosition(int position);
+    
+    int getCurrentPosition() const;
+    
+    void setDirection(bool forward = true);
 
-    enum class ElevatorState {
-        INACTIVE = 0,
-        ACTIVE = 1,
+    enum class SorterState {
+        POSITION_0 = 0,
+        POSITION_180 = 1,
+        CUSTOM = 2
     };
 
-    ElevatorState elevator_state_ = ElevatorState::INACTIVE;
+    SorterState sorter_state_ = SorterState::POSITION_0;
+
+private:
+    void performStep();
 };
 
-#endif // S0RTER_H
+#endif
