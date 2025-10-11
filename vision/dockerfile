@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Install only essential system packages for camera access
 RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -18,12 +18,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the entire vision directory
 COPY . .
 
-# Set environment variables
-ENV PYTHONPATH=/app
-ENV PYTHONUNBUFFERED=1
-
-# Grant execute permissions to run.sh
-RUN chmod +x run.sh
-
-# Default command
-CMD ["./run.sh"]
+# Default command to run the script
+CMD ["python", "src/modelIRL.py"]

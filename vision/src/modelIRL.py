@@ -2,11 +2,11 @@ import math
 from ultralytics import YOLO
 import cv2
 
-model = YOLO("vision/model/mediumModel.pt")
+model = YOLO("model/nanoModel.pt")
 IGNORE_CLASS = "green bean" 
 class_names = model.names  
 
-cap = cv2.VideoCapture(2)
+cap = cv2.VideoCapture(0)
 if not cap.isOpened():
     print("Can't open camera.")
     exit()
@@ -43,10 +43,10 @@ while True:
     #         if j > i and abs(cx - cx2) < tolerance:
     #             cv2.line(annotated_img, (cx, cy), (cx2, cy2), (0, 255, 0), 2)
 
-    cv2.imshow("YOLO inference", annotated_img)
+#    cv2.imshow("YOLO inference", annotated_img)
 
-    if cv2.waitKey(1) & 0xFF == 27: 
-        break
+ #   if cv2.waitKey(1) & 0xFF == 27: 
+  #      break
 
 cap.release()
 cv2.destroyAllWindows()
