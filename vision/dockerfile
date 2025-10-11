@@ -1,51 +1,26 @@
-FROM python:3.11-slim
+FROM python:3.11
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies for OpenCV and camera access
+# Install only essential system packages for camera access
 RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \
     libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libgomp1 \
-    libgstreamer1.0-0 \
-    libgstreamer-plugins-base1.0-0 \
-    libgstreamer-plugins-good1.0-0 \
-    libgstreamer-plugins-bad1.0-0 \
-    python3-dev \
-    python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better Docker layer caching
 COPY requirements.txt .
 
-# Install Python dependencies
+# Install Python dependencies from requirements.txt only
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Install additional vision-specific packages
-RUN pip install --no-cache-dir \
-    ultralytics \
-    opencv-python \
-    numpy \
-    pillow \
-    torch \
-    torchvision
 
 # Copy the entire vision directory
 COPY . .
 
-# Create necessary directories
-RUN mkdir -p /app/vision/model /app/vision/src
-
 # Set environment variables
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
-
-# Expose port for communication (if needed)
-EXPOSE 8080
 
 # Grant execute permissions to run.sh
 RUN chmod +x run.sh
