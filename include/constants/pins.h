@@ -59,10 +59,10 @@ namespace Pins {
     constexpr uint8_t kDropperServoPin = 26;
 
     // READY
-    static constexpr uint8_t kLineSensorFL = 28;
+    static constexpr uint8_t kLineSensorFL = 21;
     static constexpr uint8_t kLineSensorFR = 27;
-    static constexpr uint8_t kLineSensorBL = 21;
-    static constexpr uint8_t kLineSensorBR = 20;
+    static constexpr uint8_t kLineSensorBL = 29;
+    static constexpr uint8_t kLineSensorBR = 28;
 }
 
 #endif

@@ -66,7 +66,9 @@ void setup()
 
 void loop()
 {
-  stateMachine.update();
+  // stateMachine.update();
 
-  delay(20);
+  line_sensor_.printSensors();
+
+  // delay(20);
 }

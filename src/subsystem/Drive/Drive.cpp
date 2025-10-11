@@ -22,7 +22,7 @@ Drive::Drive() : front_left_(Pins::kUpperMotors[0], Pins::kUpperMotors[1], Pins:
 
 void Drive::begin()
 {
-    bno_.begin();
+    // bno_.begin();
     front_left_.begin();
     front_right_.begin();
     back_left_.begin();
