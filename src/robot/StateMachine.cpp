@@ -8,7 +8,7 @@ StateMachine::StateMachine(SoftwareSerial &bluetoothRef)
 
 void StateMachine::begin()
 {
-  currentState = STATES::ENDLINE;
+  currentState = STATES::START;
   state_start_time = 0;
 }
 
@@ -71,7 +71,7 @@ void StateMachine::handleStartState()
   Serial.println("START STATE");
   bluetooth.println("START STATE");
 
-  drive_.acceptInput(0, 70, 0);
+  drive_.acceptInput(0, 120, 0);
 
   if (state_start_time == 0)
   {

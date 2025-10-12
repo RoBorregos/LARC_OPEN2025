@@ -81,6 +81,11 @@ void Drive::move(ChassisSpeed chassis_speed)
     int back_left_speed = -chassis_speed.getVx() + chassis_speed.getVy() + chassis_speed.getOmega();
     int back_right_speed = chassis_speed.getVx() + chassis_speed.getVy() - chassis_speed.getOmega();
 
+    bluetooth.println("Front Left Speed: " + String(front_left_speed));
+    bluetooth.println(" Front Right Speed: " + String(front_right_speed));
+    bluetooth.println(" Back Left Speed: " + String(back_left_speed));
+    bluetooth.println(" Back Right Speed: " + String(back_right_speed));
+
     front_left_.move(front_left_speed);
     front_right_.move(front_right_speed);
     back_left_.move(back_left_speed);
@@ -187,7 +192,7 @@ void Drive::moveForwardCm(float distance_cm, int speed)
 {
     resetEncoders();
     float target_distance = distance_cm / 100.0f;
-    
+
     while (getAverageDistanceTraveled() < target_distance)
     {
         moveForward(speed);
@@ -200,7 +205,7 @@ void Drive::moveBackwardCm(float distance_cm, int speed)
 {
     resetEncoders();
     float target_distance = distance_cm / 100.0f;
-    
+
     while (getAverageDistanceTraveled() < target_distance)
     {
         moveBackward(speed);
@@ -213,7 +218,7 @@ void Drive::moveLeftCm(float distance_cm, int speed)
 {
     resetEncoders();
     float target_distance = distance_cm / 100.0f;
-    
+
     while (getAverageDistanceTraveled() < target_distance)
     {
         moveLeft(speed);
@@ -226,7 +231,7 @@ void Drive::moveRightCm(float distance_cm, int speed)
 {
     resetEncoders();
     float target_distance = distance_cm / 100.0f;
-    
+
     while (getAverageDistanceTraveled() < target_distance)
     {
         moveRight(speed);
@@ -249,6 +254,6 @@ float Drive::getAverageDistanceTraveled()
     float fr_distance = abs(front_right_.getPositionMeters());
     float bl_distance = abs(back_left_.getPositionMeters());
     float br_distance = abs(back_right_.getPositionMeters());
-    
+
     return (fl_distance + fr_distance + bl_distance + br_distance) / 4.0f;
 }
