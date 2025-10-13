@@ -48,9 +48,9 @@ namespace Pins {
     };
  
 
-    // NOT READY
-    constexpr uint8_t kSorterStepPin = 22;
-    constexpr uint8_t kSorterDirPin = 7;
+    // READY
+    constexpr uint8_t kSorterStepPin = 7;
+    constexpr uint8_t kSorterDirPin = 23;
 
     // NOT READY
     constexpr uint8_t kSorterServo1Pin = 23;
