@@ -19,8 +19,8 @@ using namespace Constants;
 // Declare external PID controllers (defined in StateUtils.cpp)
 extern PIDController leftDistancePID;
 extern PIDController rightDistancePID;
-extern PIDController linePID;
-extern PIDController rotationPID;
+extern PIDController followLinePID;
+extern PIDController lateralPID;
 
 // Declare constants
 extern const float LATERAL_SPEED;
@@ -28,3 +28,4 @@ extern const float LATERAL_SPEED;
 // Function declarations
 void maintainDistance(float distance, float lateralSpeed);
 void followLine(float lateralSpeed);
+void evadeLine(float lateralSpeed);

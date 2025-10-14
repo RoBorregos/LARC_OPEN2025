@@ -68,5 +68,7 @@ void loop()
 {
   drive_.update();
 
-  drive_.acceptInput(-80,0,0); 
+  stateMachine.update();
+
+  delay(20);
 }
