@@ -12,8 +12,9 @@
 PIDController leftDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);
 PIDController rightDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);
 
-PIDController followLinePID(20.0, 0.0, 2.0, -80.0, 80.0);
-PIDController lateralPID(20.0, 0.0, 2.0, -100.0, 100.0);
+PIDController lateralPID(20.0, 1.0, 2.0, -100.0, 100.0);
+
+PIDController followLinePID(20.0, 0.0, 1.0, -80.0, 80.0);
 
 void maintainDistance(float distance, float lateralSpeed)
 {
