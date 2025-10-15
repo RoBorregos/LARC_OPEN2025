@@ -163,8 +163,6 @@ void StateMachine::handleGoStraightState()
 
   if (line_sensor_.isFrontLine())
   {
-    // drive_.acceptInput(0, 15, 0);
-    // delay(100); 
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
     currentState = STATES::ENDLINE;
