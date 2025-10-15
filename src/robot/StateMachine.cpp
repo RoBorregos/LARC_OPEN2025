@@ -8,7 +8,7 @@ StateMachine::StateMachine(SoftwareSerial &bluetoothRef)
 
 void StateMachine::begin()
 {
-  currentState = STATES::START;
+  currentState = STATES::GO_STRAIGHT;
   state_start_time = 0;
 }
 
@@ -163,8 +163,6 @@ void StateMachine::handleGoStraightState()
 
   if (line_sensor_.isFrontLine())
   {
-    drive_.acceptInput(0, 15, 0);
-    delay(100); 
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
     currentState = STATES::ENDLINE;
@@ -180,7 +178,7 @@ void StateMachine::handleEndlineState()
   Serial.println("ENDLINE STATE");
   bluetooth.println("ENDLINE STATE");
   
-  followLine(-55);
+  followLine(-70);
   
   if(line_sensor_.isLeftLine())
   {
@@ -195,7 +193,7 @@ void StateMachine::handleRightmostState()
   Serial.println("RIGHTMOST STATE");
   bluetooth.println("RIGHTMOST STATE");
 
-  followLine(55);
+  followLine(70);
 
   if(line_sensor_.isRightLine())
   {

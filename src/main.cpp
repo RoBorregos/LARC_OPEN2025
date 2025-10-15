@@ -68,10 +68,7 @@ void loop()
 {
   drive_.update();
 
-  drive_.acceptInput(0, 100, 0);
-  // drive_.moveForward(100);
-
-  // stateMachine.update();
+  stateMachine.update();
 
   delay(20);
 }

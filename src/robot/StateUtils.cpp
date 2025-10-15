@@ -12,7 +12,9 @@
 PIDController leftDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);
 PIDController rightDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);
 
-PIDController positionPID(20.0, 0.0, 2.0, -80.0, 80.0);
+PIDController lateralPID(20.0, 1.0, 2.0, -100.0, 100.0);
+
+PIDController followLinePID(20.0, 0.0, 1.0, -80.0, 80.0);
 
 void maintainDistance(float distance, float lateralSpeed)
 {
@@ -40,7 +42,6 @@ void maintainDistance(float distance, float lateralSpeed)
 
 void followLine(float lateralSpeed)
 {
-  // Get current line senssor readings
   auto lineValues = line_sensor_.readSensors();
   bool frontLeft = lineValues[0];
   bool frontRight = lineValues[1];
@@ -48,70 +49,67 @@ void followLine(float lateralSpeed)
   float frontError = 0.0;
   if (frontLeft && !frontRight)
     frontError = -1.0;
-  if (!frontLeft && frontRight)
+  else if (!frontLeft && frontRight)
     frontError = 1.0;
 
-  float positionError = frontError;
-
   bool isLineDetected = frontLeft || frontRight;
-  static float lastKnownPositionError = 0.0;
-  static bool wasGoingBackward = false;
-  static bool wasGoingForward = false;
-  static unsigned long backwardStartTime = 0;
-  static const unsigned long BACKWARD_DURATION = 150;
-  static unsigned long forwardStartTime = 0;
-  static const unsigned long FORWARD_DURATION = 150;
+
+  static float lastKnownError = 0.0;
+  static float lastVyCorrection = 0.0;
+  static unsigned long lastDetectionTime = 0;
+
+  float vy_correction = 0.0;
 
   if (isLineDetected)
   {
-    // If we were going backward/forward and now detect the line, reset states
-    if (wasGoingBackward || wasGoingForward)
-    {
-      wasGoingBackward = false;
-      wasGoingForward = false;
-    }
-
-    float vy_correction = positionPID.update(positionError, 0.0);
-
-    drive_.acceptInput(lateralSpeed, vy_correction, 0.0);
-
-    lastKnownPositionError = positionError;
+    vy_correction = followLinePID.update(frontError, 0.0);
+    lastKnownError = frontError;
+    lastVyCorrection = vy_correction;
+    lastDetectionTime = millis();
+  }
+  else if (millis() - lastDetectionTime < 150) // persistencia corta
+  {
+    // Mantén el último control brevemente
+    vy_correction = lastVyCorrection;
   }
   else
   {
-    if (!wasGoingBackward && !wasGoingForward)
-    {
-      wasGoingBackward = true;
-      backwardStartTime = millis();
-    }
+    // Busca lateralmente sin retroceder
+    vy_correction = (lastKnownError > 0) ? 30.0 : -30.0;
+  }
 
-    // Check if backward duration has passed
-    if (wasGoingBackward && millis() - backwardStartTime >= BACKWARD_DURATION)
-    {
-      // Switch to forward phase
-      wasGoingBackward = false;
-      wasGoingForward = true;
-      forwardStartTime = millis();
-    }
+  drive_.acceptInput(lateralSpeed, vy_correction, 0.0);
+}
 
-    if (wasGoingBackward)
-    {
-      // Continue going backward for the first 150ms with reduced speed
-      float recovery_vy = (lastKnownPositionError > 0) ? 25.0 : -25.0;
-      drive_.acceptInput(lateralSpeed * 0.6, recovery_vy, 0.0);
-    }
-    else if (wasGoingForward && millis() - forwardStartTime < FORWARD_DURATION)
-    {
-      // Go forward for 150ms after backward phase with reduced speed
-      float recovery_vy = (lastKnownPositionError > 0) ? -25.0 : 25.0;
-      drive_.acceptInput(lateralSpeed * 0.6, recovery_vy, 0.0);
-    }
-    else
-    {
-      // Reset states to start over with backward phase
-      wasGoingForward = false;
-    }
 
-    bluetooth.println("Searching line");
+void evadeLine(float lateralSpeed)
+{
+  auto lineValues = line_sensor_.readSensors();
+  bool frontLeft = lineValues[0];
+  bool frontRight = lineValues[1];
+  bool isLineDetected = frontLeft || frontRight;
+
+  float frontError = 0.0;
+  if (frontLeft && !frontRight)
+    frontError = -1.0;
+  else if (!frontLeft && frontRight)
+    frontError = 1.0;
+
+  if (isLineDetected)
+  {
+    float backSpeed = -fabs(lateralSpeed) * 0.5;
+    float vy_correction = lateralPID.update(-frontError, 0.0);
+
+    drive_.acceptInput(backSpeed, vy_correction, 0.0);
+
+    bluetooth.print("Line detected | Error: ");
+    bluetooth.print(frontError);
+    bluetooth.print(" | vy_corr: ");
+    bluetooth.println(vy_correction);
+  }
+  else
+  {
+    drive_.acceptInput(lateralSpeed, 0.0, 0.0);
+    bluetooth.println("No line detected - moving lateral");
   }
 }
