@@ -9,13 +9,6 @@
 using namespace Constants;
 using namespace std;
 
-struct ObstacleData {
-    bool detected;
-    float distance;
-    float angle;
-    unsigned long timestamp;
-};
-
 class Communication : public System {
     public:
         Communication();
@@ -25,22 +18,18 @@ class Communication : public System {
         
         // Command processing
         string getCommand();
-        
-        // Vision data processing
-        ObstacleData getObstacleData();
-        bool hasNewObstacleData();
-        
-        // Send commands to vision system
-        void requestObstacleDetection();
+
+        void startDetection();
         void stopDetection();
         
     private:
+
+        enum class VisionState
+        {
+            GET_BEANS = 0,
+            GET_BENEFICIADEROS = 1,
+        };
+
+        VisionState vision_state_ = VisionState::GET_BEANS;
         string readCommunication();
-        void parseObstacleMessage(const string& message);
-        void parseVisionMessage(const string& message);
-        
-        // Vision data storage
-        ObstacleData latest_obstacle_data;
-        bool new_obstacle_data;
-        bool new_bean_data;
 };
