@@ -8,8 +8,6 @@ ultralytics
 
 matplotlib
 
-tensorrt
-
 opencv-python
 
 pillow-heif
