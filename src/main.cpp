@@ -68,7 +68,7 @@ void loop()
 {
   drive_.update();
 
-  stateMachine.update();
-
+  maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -75);
+  
   delay(20);
 }
