@@ -2,20 +2,9 @@
 # This file is used to install the necessary packages for the project.
 # use pip install -r requirements.txt to install the packages
 
-numpy
+numpy==1.24.4
+matplotlib==3.7.5
+opencv-python==4.6.0.66
+ultralytics==8.0.193
+pillow-heif==0.11.1
 
-ultralytics
-
-matplotlib
-
-opencv-python
-
-pillow-heif
-
-google-api-python-client 
-
-google-auth-httplib2 
-
-google-auth-oauthlib
-
-roboflow
