@@ -2,7 +2,8 @@ import math
 from ultralytics import YOLO
 import cv2
 
-model = YOLO("model/nanoModel.pt")
+# Load model once
+model = YOLO("model/nanoModel.engine")
 IGNORE_CLASS = "green bean" 
 class_names = model.names  
 
@@ -10,43 +11,30 @@ cap = cv2.VideoCapture(0)
 if not cap.isOpened():
     print("Can't open camera.")
     exit()
+
+# Set camera properties for better performance
+cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+cap.set(cv2.CAP_PROP_FPS, 60)
+
 print("ESC to exit.")
 
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        break
+try:
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
 
-    results = model(frame)
-    annotated_img = results[0].plot()
+        # Run inference
+        results = model(frame, verbose=False)
+        
+        # Display results
+        annotated_img = results[0].plot()
+        cv2.imshow('Detection', annotated_img)
+        
+        # Exit on ESC key
+        if cv2.waitKey(1) & 0xFF == 27:  # ESC key
+            break
 
-    # This code is for the centers of the boxes and lines between coffes
-    # centers = []
-    # for box in results[0].boxes:
-    #     cls = int(box.cls[0])       
-    #     label = class_names[cls]
-
-    #     if label == IGNORE_CLASS:
-    #         continue  
-
-    #     x1, y1, x2, y2 = box.xyxy[0]
-    #     cx = int((x1 + x2) / 2)
-    #     cy = int((y1 + y2) / 2)
-    #     centers.append((cx, cy))
-
-    #     cv2.circle(annotated_img, (cx, cy), 5, (0, 0, 255), -1)
-    # tolerance = 8
-    # centers.sort(key=lambda c: c[1]) 
-
-    # for i, (cx, cy) in enumerate(centers):
-    #     for j, (cx2, cy2) in enumerate(centers):
-    #         if j > i and abs(cx - cx2) < tolerance:
-    #             cv2.line(annotated_img, (cx, cy), (cx2, cy2), (0, 255, 0), 2)
-
-#    cv2.imshow("YOLO inference", annotated_img)
-
- #   if cv2.waitKey(1) & 0xFF == 27: 
-  #      break
-
-cap.release()
-cv2.destroyAllWindows()
+finally:
+    cap.release()
+    cv2.destroyAllWindows()
