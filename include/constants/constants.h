@@ -40,13 +40,13 @@ namespace Constants
         constexpr int kObstacleDistance = 30;
         constexpr int kTreeDistance = 13;
 
-        constexpr float kPoolTargetDistance = 16.0; // in cm
+        constexpr float kPoolTargetDistance = 20.0; // in cm
         constexpr float kTreeTargetDistance = 25.0; // in cm
         constexpr float kMaxTargetDistance = 80.0; // in cm
         constexpr float kMaxObstacleDistance = 120.0; // in cm
-        constexpr float kDistanceTargetControllerKp = 8.0;
+        constexpr float kDistanceTargetControllerKp = 5.5;
         constexpr float kDistanceTargetControllerKi = 0.00;
-        constexpr float kDistanceTargetControllerKd = 0.1;
+        constexpr float kDistanceTargetControllerKd = 0.7;
     }
 
     namespace LineSensorConstants

@@ -8,7 +8,7 @@ StateMachine::StateMachine(SoftwareSerial &bluetoothRef)
 
 void StateMachine::begin()
 {
-  currentState = STATES::GO_STRAIGHT;
+  currentState = STATES::START;
   state_start_time = 0;
 }
 
@@ -101,15 +101,16 @@ void StateMachine::handleAvoidObstacleLeftState()
   bluetooth.println("AVOID OBSTACLE LEFT STATE");
 
   // if the distance is greater than the max target distance, it means we've reached the edge of the pool with one sensor, so we should keep moving until both sensors dont see the pool
-  if (distance_sensor_.getDistance(0) > DistanceSensorConstants::kMaxTargetDistance || distance_sensor_.getDistance(1) > DistanceSensorConstants::kMaxTargetDistance)
-  {
-    drive_.acceptInput(-75, 0, 0);
-  }
-  else
-  {
-    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -75);
-  }
-
+  // if (distance_sensor_.getDistance(0) > DistanceSensorConstants::kMaxTargetDistance || distance_sensor_.getDistance(1) > DistanceSensorConstants::kMaxTargetDistance)
+  // {
+  //   drive_.acceptInput(-75, 0, 0);
+  // }
+  // else
+  // {
+  // }
+  
+  maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -75);
+  
   if (line_sensor_.isLeftLine())
   {
     drive_.acceptInput(0, 0, 0);
