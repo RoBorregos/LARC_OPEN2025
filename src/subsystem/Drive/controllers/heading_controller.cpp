@@ -7,7 +7,7 @@
  */
 
 #include "heading_controller.hpp"
-#include <Arduino.h>
+
 HeadingController::HeadingController() : pid_(PIDController(DriveConstants::kHeadingControllerKp, DriveConstants::kHeadingControllerKi, DriveConstants::kHeadingControllerKd, -255.0f, 255.0f)) {
     desired_heading_ = Rotation2D();
     pid_.setEnabled(true);
@@ -21,4 +21,8 @@ float HeadingController::update(Rotation2D current_heading) {
 
 void HeadingController::setDesiredHeading(Rotation2D desired_heading) {
     desired_heading_ = desired_heading;
+}
+
+Rotation2D HeadingController::getError(Rotation2D current_heading){
+    return desired_heading_ - current_heading;
 }
