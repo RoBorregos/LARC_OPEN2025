@@ -11,4 +11,4 @@ LineSensor line_sensor_;
 DistanceSensor distance_sensor_;
 Communication com_;
 BNO bno_;
-SoftwareSerial bluetooth(0, 1);
+Monitor monitor_;

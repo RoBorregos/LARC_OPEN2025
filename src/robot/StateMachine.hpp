@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 #include "StateUtils.h"
+#include "./monitor.h"
 
 enum class STATES
 {
@@ -26,10 +27,10 @@ private:
   STATES currentState;
   unsigned long state_start_time;
   uint8_t after_obstacle_offset;
-  SoftwareSerial &bluetooth;
+  Monitor &monitor;
 
 public:
-  StateMachine(SoftwareSerial &bluetoothRef);
+  StateMachine(Monitor &monitorRef);
 
   void begin();
   void update();

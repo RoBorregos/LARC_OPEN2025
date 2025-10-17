@@ -1,8 +1,8 @@
 #include "StateMachine.hpp"
 #include "robot/robot_instances.h"
 
-StateMachine::StateMachine(SoftwareSerial &bluetoothRef)
-    : bluetooth(bluetoothRef), state_start_time(0), after_obstacle_offset(200), currentState(STATES::START)
+StateMachine::StateMachine(Monitor &monitorRef)
+    : monitor(monitorRef), state_start_time(0), after_obstacle_offset(200), currentState(STATES::START)
 {
 }
 
@@ -69,7 +69,7 @@ void StateMachine::setState(STATES newState)
 void StateMachine::handleStartState()
 {
   Serial.println("START STATE");
-  bluetooth.println("START STATE");
+  monitor_.println("START STATE");
 
   drive_.acceptInput(0, 90, 0);
 
@@ -97,14 +97,14 @@ void StateMachine::handleStartState()
   }
 
   unsigned long __elapsed_us = micros() - __start_us;
-  bluetooth.print("handleStartState duration (us): ");
-  bluetooth.println(__elapsed_us);
+  monitor_.print("handleStartState duration (us): ");
+  monitor_.println(__elapsed_us);
 }
 
 void StateMachine::handleAvoidObstacleLeftState()
 {
   Serial.println("AVOID OBSTACLE LEFT STATE");
-  bluetooth.println("AVOID OBSTACLE LEFT STATE");
+  monitor_.println("AVOID OBSTACLE LEFT STATE");
 
   // if the distance is greater than the max target distance, it means we've reached the edge of the pool with one sensor, so we should keep moving until both sensors dont see the pool
   if (distance_sensor_.getDistance(0) > DistanceSensorConstants::kMaxTargetDistance || distance_sensor_.getDistance(1) > DistanceSensorConstants::kMaxTargetDistance)
@@ -137,7 +137,7 @@ void StateMachine::handleAvoidObstacleLeftState()
 void StateMachine::handleAvoidObstacleRightState()
 {
   Serial.println("AVOID OBSTACLE RIGHT STATE");
-  bluetooth.println("AVOID OBSTACLE RIGHT STATE");
+  monitor_.println("AVOID OBSTACLE RIGHT STATE");
 
   if (distance_sensor_.getDistance(0) > DistanceSensorConstants::kMaxTargetDistance || distance_sensor_.getDistance(1) > DistanceSensorConstants::kMaxTargetDistance)
   {
@@ -169,7 +169,7 @@ void StateMachine::handleAvoidObstacleRightState()
 void StateMachine::handleGoStraightState()
 {
   Serial.println("GO_STRAIGHT STATE");
-  bluetooth.println("GO_STRAIGHT STATE");
+  monitor_.println("GO_STRAIGHT STATE");
 
   if (line_sensor_.isFrontLine())
   {
@@ -187,7 +187,7 @@ void StateMachine::handleEndlineState()
 {
   currentState = STATES::STOP;
   // Serial.println("ENDLINE STATE");
-  // bluetooth.println("ENDLINE STATE");
+  // monitor_.println("ENDLINE STATE");
 
   // followLine(-70);
 
@@ -202,7 +202,7 @@ void StateMachine::handleEndlineState()
 void StateMachine::handleRightmostState()
 {
   Serial.println("RIGHTMOST STATE");
-  bluetooth.println("RIGHTMOST STATE");
+  monitor_.println("RIGHTMOST STATE");
 
   followLine(70);
 
@@ -217,14 +217,14 @@ void StateMachine::handleRightmostState()
 void StateMachine::handleReturnState()
 {
   Serial.println("RETURN STATE");
-  bluetooth.println("RETURN STATE");
+  monitor_.println("RETURN STATE");
   drive_.acceptHeadingInput(Rotation2D::fromDegrees(180));
 }
 
 void StateMachine::handleAvoidObstacleLeftReturnState()
 {
   Serial.println("AVOID OBSTACLE LEFT RETURN STATE");
-  bluetooth.println("AVOID OBSTACLE LEFT RETURN STATE");
+  monitor_.println("AVOID OBSTACLE LEFT RETURN STATE");
   drive_.acceptInput(0, 0, 0);
 
   if (line_sensor_.isLeftLine())
@@ -254,7 +254,7 @@ void StateMachine::handleAvoidObstacleLeftReturnState()
 void StateMachine::handleAvoidObstacleRightReturnState()
 {
   Serial.println("AVOID OBSTACLE RIGHT RETURN STATE");
-  bluetooth.println("AVOID OBSTACLE RIGHT RETURN STATE");
+  monitor_.println("AVOID OBSTACLE RIGHT RETURN STATE");
   drive_.acceptInput(0, 0, 0);
 
   if (line_sensor_.isRightLine())
@@ -284,7 +284,7 @@ void StateMachine::handleAvoidObstacleRightReturnState()
 void StateMachine::handleGoBeginningState()
 {
   Serial.println("GO BEGINNING STATE");
-  bluetooth.println("GO BEGINNING STATE");
+  monitor_.println("GO BEGINNING STATE");
   drive_.acceptInput(0, 0, 0);
 
   if (line_sensor_.isFrontLine())
@@ -301,7 +301,7 @@ void StateMachine::handleGoBeginningState()
 void StateMachine::handleStopState()
 {
   Serial.println("STOP STATE");
-  bluetooth.println("STOP STATE");
+  monitor_.println("STOP STATE");
   drive_.acceptInput(0, 0, 0);
   drive_.hardBrake();
 }
