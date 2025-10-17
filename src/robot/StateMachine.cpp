@@ -68,7 +68,6 @@ void StateMachine::setState(STATES newState)
 
 void StateMachine::handleStartState()
 {
-  Serial.println("START STATE");
   monitor_.println("START STATE");
 
   drive_.acceptInput(0, 90, 0);
@@ -86,8 +85,6 @@ void StateMachine::handleStartState()
     currentState = STATES::GO_STRAIGHT;
   }
 
-  unsigned long __start_us = micros();
-
   if (distance_sensor_.isObstacle())
   {
     drive_.acceptInput(0, 0, 0);
@@ -96,14 +93,10 @@ void StateMachine::handleStartState()
     currentState = STATES::AVOID_OBSTACLE_LEFT;
   }
 
-  unsigned long __elapsed_us = micros() - __start_us;
-  monitor_.print("handleStartState duration (us): ");
-  monitor_.println(__elapsed_us);
 }
 
 void StateMachine::handleAvoidObstacleLeftState()
 {
-  Serial.println("AVOID OBSTACLE LEFT STATE");
   monitor_.println("AVOID OBSTACLE LEFT STATE");
 
   // if the distance is greater than the max target distance, it means we've reached the edge of the pool with one sensor, so we should keep moving until both sensors dont see the pool
@@ -168,7 +161,6 @@ void StateMachine::handleAvoidObstacleRightState()
 
 void StateMachine::handleGoStraightState()
 {
-  Serial.println("GO_STRAIGHT STATE");
   monitor_.println("GO_STRAIGHT STATE");
 
   if (line_sensor_.isFrontLine())
@@ -201,7 +193,6 @@ void StateMachine::handleEndlineState()
 
 void StateMachine::handleRightmostState()
 {
-  Serial.println("RIGHTMOST STATE");
   monitor_.println("RIGHTMOST STATE");
 
   followLine(70);
@@ -216,14 +207,12 @@ void StateMachine::handleRightmostState()
 
 void StateMachine::handleReturnState()
 {
-  Serial.println("RETURN STATE");
   monitor_.println("RETURN STATE");
   drive_.acceptHeadingInput(Rotation2D::fromDegrees(180));
 }
 
 void StateMachine::handleAvoidObstacleLeftReturnState()
 {
-  Serial.println("AVOID OBSTACLE LEFT RETURN STATE");
   monitor_.println("AVOID OBSTACLE LEFT RETURN STATE");
   drive_.acceptInput(0, 0, 0);
 
@@ -253,7 +242,6 @@ void StateMachine::handleAvoidObstacleLeftReturnState()
 
 void StateMachine::handleAvoidObstacleRightReturnState()
 {
-  Serial.println("AVOID OBSTACLE RIGHT RETURN STATE");
   monitor_.println("AVOID OBSTACLE RIGHT RETURN STATE");
   drive_.acceptInput(0, 0, 0);
 
@@ -283,7 +271,6 @@ void StateMachine::handleAvoidObstacleRightReturnState()
 
 void StateMachine::handleGoBeginningState()
 {
-  Serial.println("GO BEGINNING STATE");
   monitor_.println("GO BEGINNING STATE");
   drive_.acceptInput(0, 0, 0);
 
@@ -300,7 +287,6 @@ void StateMachine::handleGoBeginningState()
 
 void StateMachine::handleStopState()
 {
-  Serial.println("STOP STATE");
   monitor_.println("STOP STATE");
   drive_.acceptInput(0, 0, 0);
   drive_.hardBrake();
