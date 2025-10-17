@@ -71,7 +71,7 @@ void StateMachine::handleStartState()
   Serial.println("START STATE");
   bluetooth.println("START STATE");
 
-  drive_.acceptInput(0, 120, 0);
+  drive_.acceptInput(0, 90, 0);
 
   if (state_start_time == 0)
   {
@@ -86,6 +86,8 @@ void StateMachine::handleStartState()
     currentState = STATES::GO_STRAIGHT;
   }
 
+  unsigned long __start_us = micros();
+
   if (distance_sensor_.isObstacle())
   {
     drive_.acceptInput(0, 0, 0);
@@ -93,6 +95,10 @@ void StateMachine::handleStartState()
     state_start_time = 0;
     currentState = STATES::AVOID_OBSTACLE_LEFT;
   }
+
+  unsigned long __elapsed_us = micros() - __start_us;
+  bluetooth.print("handleStartState duration (us): ");
+  bluetooth.println(__elapsed_us);
 }
 
 void StateMachine::handleAvoidObstacleLeftState()
@@ -101,16 +107,15 @@ void StateMachine::handleAvoidObstacleLeftState()
   bluetooth.println("AVOID OBSTACLE LEFT STATE");
 
   // if the distance is greater than the max target distance, it means we've reached the edge of the pool with one sensor, so we should keep moving until both sensors dont see the pool
-  // if (distance_sensor_.getDistance(0) > DistanceSensorConstants::kMaxTargetDistance || distance_sensor_.getDistance(1) > DistanceSensorConstants::kMaxTargetDistance)
-  // {
-  //   drive_.acceptInput(-75, 0, 0);
-  // }
-  // else
-  // {
-  // }
-  
-  maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -75);
-  
+  if (distance_sensor_.getDistance(0) > DistanceSensorConstants::kMaxTargetDistance || distance_sensor_.getDistance(1) > DistanceSensorConstants::kMaxTargetDistance)
+  {
+    drive_.acceptInput(-75, 0, 0);
+  }
+  else
+  {
+    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -100);
+  }
+
   if (line_sensor_.isLeftLine())
   {
     drive_.acceptInput(0, 0, 0);
@@ -138,7 +143,7 @@ void StateMachine::handleAvoidObstacleRightState()
   }
   else
   {
-    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 75);
+    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 110);
   }
 
   if (line_sensor_.isFrontRightLine())
@@ -176,17 +181,18 @@ void StateMachine::handleGoStraightState()
 
 void StateMachine::handleEndlineState()
 {
-  Serial.println("ENDLINE STATE");
-  bluetooth.println("ENDLINE STATE");
-  
-  followLine(-70);
-  
-  if(line_sensor_.isLeftLine())
-  {
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    currentState = STATES::RIGHTMOST;
-  }
+  currentState = STATES::STOP;
+  // Serial.println("ENDLINE STATE");
+  // bluetooth.println("ENDLINE STATE");
+
+  // followLine(-70);
+
+  // if (line_sensor_.isLeftLine())
+  // {
+  //   drive_.acceptInput(0, 0, 0);
+  //   drive_.hardBrake();
+  //   currentState = STATES::RIGHTMOST;
+  // }
 }
 
 void StateMachine::handleRightmostState()
@@ -196,7 +202,7 @@ void StateMachine::handleRightmostState()
 
   followLine(70);
 
-  if(line_sensor_.isRightLine())
+  if (line_sensor_.isRightLine())
   {
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
