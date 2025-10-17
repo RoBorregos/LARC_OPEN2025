@@ -19,6 +19,7 @@ class HeadingController {
         HeadingController();
         float update(Rotation2D current_heading);
         void setDesiredHeading(Rotation2D desired_heading);
+        Rotation2D getError(Rotation2D current_heading);
     private:
         Rotation2D desired_heading_;
         double input_;

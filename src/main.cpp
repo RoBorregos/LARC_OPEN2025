@@ -16,29 +16,27 @@
 using namespace Constants;
 
 // State machine instance
-StateMachine stateMachine(bluetooth);
+StateMachine stateMachine(monitor_);
 
 void setup()
 {
-  Serial.begin(9800);
-  bluetooth.begin(9800);
-  bluetooth.println("Starting...");
+  monitor_.begin();
   Wire.begin();
 
   // All systems must begin after initializing the serial and as the code starts running
-  bluetooth.println("Initializing systems...");
+  monitor_.println("Initializing systems...");
   drive_.begin();
   com_.begin();
   line_sensor_.begin();
   distance_sensor_.begin();
   stateMachine.begin();
-  bluetooth.println("All systems initialized...");
+  monitor_.println("All systems initialized...");
 
   drive_.setState(0);
   drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
 
   // Wait for "r" message from Bluetooth before continuing
-  bluetooth.println("Waiting for ready command (r)...");
+  monitor_.println("Waiting for ready command (r)...");
   
   String btInput = "";
   // while (true)
@@ -70,11 +68,6 @@ void loop()
 
   stateMachine.update();
 
-  // followLine(50);
-
-  // drive_.acceptInput(70,0,0);
-
-  // line_sensor_.printSensors();
-
-  delay(20);
+  // maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 110);
+  
 }

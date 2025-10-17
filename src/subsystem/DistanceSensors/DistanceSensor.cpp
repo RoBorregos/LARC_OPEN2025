@@ -16,6 +16,11 @@ void DistanceSensor::begin()
 void DistanceSensor::update() {}
 void DistanceSensor::setState(int state) {}
 
+static inline bool isValidDistance(float d)
+{
+    return std::isfinite(d) && d > 0.0f && !isnan(d) && d < DistanceSensorConstants::kMaxTargetDistance && d > 2.0f;
+}
+
 float DistanceSensor::readSensor(uint8_t trigPin, uint8_t echoPin) const
 {
     digitalWrite(trigPin, LOW);
@@ -24,19 +29,31 @@ float DistanceSensor::readSensor(uint8_t trigPin, uint8_t echoPin) const
     delayMicroseconds(10);
     digitalWrite(trigPin, LOW);
 
-    long duration = pulseIn(echoPin, HIGH, 30000);
+    long duration = pulseIn(echoPin, HIGH, 10000); //   timeout
+
+    if (duration == 0)
+    {
+        return std::numeric_limits<float>::infinity();
+    }
 
     float distance = duration * 0.0343 / 2.0;
 
     return distance;
 }
 
-float DistanceSensor::getDistance(int kSensor)
+std::pair<float, bool> DistanceSensor::getDistance(int kSensor)
 {
     if (kSensor == 0)
     {
         float measurement = readSensor(Pins::kDistanceSensors[0][0], Pins::kDistanceSensors[0][1]);
-        insertReadingLeft(measurement);
+        
+        // This will only insert valid measurements into the readings vector, if there is not a valid measurement it will keep the previous readings
+        bool isValid = isValidDistance(measurement); 
+        
+        if (isValid)
+        {
+            insertReadingLeft(measurement);
+        }
 
         float sum = 0;
         for (float reading : leftSensorReadings)
@@ -45,12 +62,19 @@ float DistanceSensor::getDistance(int kSensor)
         }
         float average = leftSensorReadings.size() > 0 ? sum / leftSensorReadings.size() : 0;
 
-        return average;
+        return {average, isValid};
     }
     else if (kSensor == 1)
     {
         float measurement = readSensor(Pins::kDistanceSensors[1][0], Pins::kDistanceSensors[1][1]);
-        insertReadingRight(measurement);
+
+        // This will only insert valid measurements into the readings vector, if there is not a valid measurement it will keep the previous readings
+        bool isValid = isValidDistance(measurement);
+        
+        if (isValidDistance(measurement))
+        {
+            insertReadingRight(measurement);
+        }
 
         float sum = 0;
         for (float reading : rightSensorReadings)
@@ -59,39 +83,29 @@ float DistanceSensor::getDistance(int kSensor)
         }
         float average = rightSensorReadings.size() > 0 ? sum / rightSensorReadings.size() : 0;
 
-        return average;
+        return {average, isValid};
     }
 
-    return -1.0f;
+    return {-1.0f, false};
 }
 
-bool DistanceSensor::isObstacle()
-{
-    float frontLeftDistance = getDistance(0);
-    float frontRightDistance = getDistance(1);
-    bool obstacle = (frontLeftDistance < DistanceSensorConstants::kObstacleDistance) || (frontRightDistance < DistanceSensorConstants::kObstacleDistance);
+std::pair<bool, bool> DistanceSensor::isObstacle()
+{   
+    std::pair<float, bool> frontLeftDistance = getDistance(0);
+    std::pair<float, bool> frontRightDistance = getDistance(1);
+    bool obstacle = (frontLeftDistance.first < DistanceSensorConstants::kObstacleDistance) || (frontRightDistance.first < DistanceSensorConstants::kObstacleDistance);
 
-    return obstacle;
+    return {obstacle, frontLeftDistance.second || frontRightDistance.second};
 }
 
-bool DistanceSensor::isTree()
+std::pair<bool, bool> DistanceSensor::isTree()
 {
-    float frontLeftDistance = getDistance(0);
-    float frontRightDistance = getDistance(1);
+    std::pair<float, bool> frontLeftDistance = getDistance(0);
+    std::pair<float, bool> frontRightDistance = getDistance(1);
 
-    bool tree = (frontLeftDistance < DistanceSensorConstants::kTreeDistance) || (frontRightDistance < DistanceSensorConstants::kTreeDistance);
+    bool tree = (frontLeftDistance.first < DistanceSensorConstants::kTreeDistance) || (frontRightDistance.first < DistanceSensorConstants::kTreeDistance);
 
-    return tree;
-}
-
-bool DistanceSensor::obstacleInThePath()
-{
-    int frontLeftDistance = getDistance(0);
-    int frontRightDistance = getDistance(1);
-
-    bool obstacle = (frontLeftDistance < DistanceSensorConstants::kMaxObstacleDistance) && (frontRightDistance < DistanceSensorConstants::kMaxObstacleDistance);
-
-    return obstacle;
+    return {tree, frontLeftDistance.second || frontRightDistance.second};
 }
 
 void DistanceSensor::insertReadingLeft(float measurement)

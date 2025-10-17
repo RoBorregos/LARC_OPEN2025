@@ -37,16 +37,16 @@ namespace Constants
 
     namespace DistanceSensorConstants
     {
-        constexpr int kObstacleDistance = 30;
+        constexpr int kObstacleDistance = 50;
         constexpr int kTreeDistance = 13;
 
-        constexpr float kPoolTargetDistance = 16.0; // in cm
+        constexpr float kPoolTargetDistance = 15.0; // in cm
         constexpr float kTreeTargetDistance = 25.0; // in cm
         constexpr float kMaxTargetDistance = 80.0; // in cm
         constexpr float kMaxObstacleDistance = 120.0; // in cm
-        constexpr float kDistanceTargetControllerKp = 8.0;
+        constexpr float kDistanceTargetControllerKp = 1.5;
         constexpr float kDistanceTargetControllerKi = 0.00;
-        constexpr float kDistanceTargetControllerKd = 0.1;
+        constexpr float kDistanceTargetControllerKd = 0.00; // ORIGINAL: 0.7
     }
 
     namespace LineSensorConstants
@@ -81,9 +81,9 @@ namespace Constants
         constexpr float kWheelRadius = kWheelDiameter / 2.0;           // in m
         constexpr float kWheelCircumference = 2 * M_PI * kWheelRadius; // in m
 
-        constexpr float kHeadingControllerKp = 270.0f; // ORIGINAL: 240.0f - WORKING GREAT RN 28/09/2025 12:02 PM
+        constexpr float kHeadingControllerKp = 200.0f; // ORIGINAL: 240.0f - WORKING GREAT RN 28/09/2025 12:02 PM
         constexpr float kHeadingControllerKi = 0.0f;
-        constexpr float kHeadingControllerKd = 0.0f;
+        constexpr float kHeadingControllerKd = 10.0f;
     }
 
     namespace VisionConstants
