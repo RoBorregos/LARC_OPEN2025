@@ -121,6 +121,7 @@ void StateMachine::handleAvoidObstacleLeftState()
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
     currentState = STATES::AVOID_OBSTACLE_RIGHT;
+    return;
   }
 
   if (!distance_sensor_.isObstacle())
@@ -129,6 +130,7 @@ void StateMachine::handleAvoidObstacleLeftState()
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
     currentState = STATES::GO_STRAIGHT;
+    return;
   }
 }
 
@@ -151,6 +153,7 @@ void StateMachine::handleAvoidObstacleRightState()
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
     currentState = STATES::AVOID_OBSTACLE_LEFT;
+    return;
   }
 
   if (!distance_sensor_.isObstacle())
@@ -159,6 +162,7 @@ void StateMachine::handleAvoidObstacleRightState()
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
     currentState = STATES::GO_STRAIGHT;
+    return;
   }
 }
 
