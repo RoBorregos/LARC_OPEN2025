@@ -11,4 +11,4 @@ LineSensor line_sensor_;
 DistanceSensor distance_sensor_;
 Communication com_;
 BNO bno_;
-Monitor monitor_;
+Monitor monitor_(0, 1);

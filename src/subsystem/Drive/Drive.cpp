@@ -81,10 +81,10 @@ void Drive::move(ChassisSpeed chassis_speed)
     int back_left_speed = -chassis_speed.getVx() + chassis_speed.getVy() + chassis_speed.getOmega();
     int back_right_speed = chassis_speed.getVx() + chassis_speed.getVy() - chassis_speed.getOmega();
 
-    bluetooth.println("Front Left Speed: " + String(front_left_speed));
-    bluetooth.println(" Front Right Speed: " + String(front_right_speed));
-    bluetooth.println(" Back Left Speed: " + String(back_left_speed));
-    bluetooth.println(" Back Right Speed: " + String(back_right_speed));
+    monitor_.println("Front Left Speed: " + String(front_left_speed));
+    monitor_.println(" Front Right Speed: " + String(front_right_speed));
+    monitor_.println(" Back Left Speed: " + String(back_left_speed));
+    monitor_.println(" Back Right Speed: " + String(back_right_speed));
 
     front_left_.move(front_left_speed);
     front_right_.move(front_right_speed);

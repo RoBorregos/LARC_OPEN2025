@@ -28,16 +28,16 @@ void maintainDistance(float distance, float lateralSpeed)
 
     drive_.acceptInput(lateralSpeed, forwardOutput, 0.0);
 
-    bluetooth.print("L: ");
-    bluetooth.print(leftDistance);
-    bluetooth.print("cm (");
-    bluetooth.print(leftOutput);
-    bluetooth.print(") R: ");
-    bluetooth.print(rightDistance);
-    bluetooth.print("cm (");
-    bluetooth.print(rightOutput);
-    bluetooth.print(") Fwd: ");
-    bluetooth.print(forwardOutput);
+    monitor_.print("L: ");
+    monitor_.print(leftDistance);
+    monitor_.print("cm (");
+    monitor_.print(leftOutput);
+    monitor_.print(") R: ");
+    monitor_.print(rightDistance);
+    monitor_.print("cm (");
+    monitor_.print(rightOutput);
+    monitor_.print(") Fwd: ");
+    monitor_.print(forwardOutput);
 }
 
 void followLine(float lateralSpeed)
@@ -102,14 +102,14 @@ void evadeLine(float lateralSpeed)
 
     drive_.acceptInput(backSpeed, vy_correction, 0.0);
 
-    bluetooth.print("Line detected | Error: ");
-    bluetooth.print(frontError);
-    bluetooth.print(" | vy_corr: ");
-    bluetooth.println(vy_correction);
+    monitor_.print("Line detected | Error: ");
+    monitor_.print(frontError);
+    monitor_.print(" | vy_corr: ");
+    monitor_.println(vy_correction);
   }
   else
   {
     drive_.acceptInput(lateralSpeed, 0.0, 0.0);
-    bluetooth.println("No line detected - moving lateral");
+    monitor_.println("No line detected - moving lateral");
   }
 }
