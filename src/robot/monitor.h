@@ -26,7 +26,7 @@ public:
         Serial.print(message);
     }
 
-    void println(const String &message)
+    void println(const String &message = "")
     {
         if (bluetooth)
         {
