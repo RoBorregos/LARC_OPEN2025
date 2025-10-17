@@ -20,7 +20,6 @@ public:
 
     bool isObstacle();
     bool isTree();
-    bool obstacleInThePath();
     float getDistance(int kSensor);
 
 private:
