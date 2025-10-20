@@ -114,7 +114,7 @@ void StateMachine::handleAvoidObstacleLeftState()
   // else
   // {
   // }
-  maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 100);
+  maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -100);
 
   // if (line_sensor_.isLeftLine())
   // {
