@@ -17,8 +17,6 @@
 using namespace Constants;
 
 // Declare external PID controllers (defined in StateUtils.cpp)
-extern PIDController leftDistancePID;
-extern PIDController rightDistancePID;
 extern PIDController followLinePID;
 extern PIDController lateralPID;
 
