@@ -37,7 +37,7 @@ void setup()
 
   // Wait for "r" message from Bluetooth before continuing
   monitor_.println("Waiting for ready command (r)...");
-  
+
   String btInput = "";
   // while (true)
   // {
@@ -68,6 +68,8 @@ void loop()
 
   stateMachine.update();
 
+  // maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 0);
   // maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 110);
-  
+
+  delay(20);
 }

@@ -77,20 +77,27 @@ void StateMachine::handleStartState()
     state_start_time = millis();
   }
 
-  if (millis() - state_start_time > 3000)
+  // if (millis() - state_start_time > 3000)
+  // {
+  //   drive_.acceptInput(0, 0, 0);
+  //   drive_.hardBrake();
+  //   state_start_time = 0;
+  //   currentState = STATES::GO_STRAIGHT;
+  //   return;
+  // }
+
+  auto [obstacle, valid] = distance_sensor_.isObstacle();
+  if (obstacle && valid)
   {
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
-    state_start_time = 0;
-    currentState = STATES::GO_STRAIGHT;
-  }
-
-  if (distance_sensor_.isObstacle())
-  {
+    drive_.acceptInput(0, -50, 0);
+    delay(250);
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
     state_start_time = 0;
     currentState = STATES::AVOID_OBSTACLE_LEFT;
+    return;
   }
 
 }
@@ -99,32 +106,32 @@ void StateMachine::handleAvoidObstacleLeftState()
 {
   monitor_.println("AVOID OBSTACLE LEFT STATE");
 
-  // if the distance is greater than the max target distance, it means we've reached the edge of the pool with one sensor, so we should keep moving until both sensors dont see the pool
-  if (distance_sensor_.getDistance(0) > DistanceSensorConstants::kMaxTargetDistance || distance_sensor_.getDistance(1) > DistanceSensorConstants::kMaxTargetDistance)
-  {
-    drive_.acceptInput(-75, 0, 0);
-  }
-  else
-  {
-    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -100);
-  }
+  // // if the distance is greater than the max target distance, it means we've reached the edge of the pool with one sensor, so we should keep moving until both sensors dont see the pool
+  // if (distance_sensor_.getDistance(0) > DistanceSensorConstants::kMaxTargetDistance || distance_sensor_.getDistance(1) > DistanceSensorConstants::kMaxTargetDistance)
+  // {
+  //   drive_.acceptInput(-75, 0, 0);
+  // }
+  // else
+  // {
+  // }
+  maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 100);
 
-  if (line_sensor_.isLeftLine())
-  {
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    currentState = STATES::AVOID_OBSTACLE_RIGHT;
-    return;
-  }
+  // if (line_sensor_.isLeftLine())
+  // {
+  //   drive_.acceptInput(0, 0, 0);
+  //   drive_.hardBrake();
+  //   currentState = STATES::AVOID_OBSTACLE_RIGHT;
+  //   return;
+  // }
 
-  if (!distance_sensor_.isObstacle())
-  {
-    delay(500);
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    currentState = STATES::GO_STRAIGHT;
-    return;
-  }
+  // if (!distance_sensor_.isObstacle())
+  // {
+  //   delay(500);
+  //   drive_.acceptInput(0, 0, 0);
+  //   drive_.hardBrake();
+  //   currentState = STATES::GO_STRAIGHT;
+  //   return;
+  // }
 }
 
 void StateMachine::handleAvoidObstacleRightState()
@@ -132,7 +139,8 @@ void StateMachine::handleAvoidObstacleRightState()
   Serial.println("AVOID OBSTACLE RIGHT STATE");
   monitor_.println("AVOID OBSTACLE RIGHT STATE");
 
-  if (distance_sensor_.getDistance(0) > DistanceSensorConstants::kMaxTargetDistance || distance_sensor_.getDistance(1) > DistanceSensorConstants::kMaxTargetDistance)
+  auto [distance, valid] = distance_sensor_.getDistance(1);
+  if (distance > DistanceSensorConstants::kMaxTargetDistance || distance > DistanceSensorConstants::kMaxTargetDistance && valid)
   {
     drive_.acceptInput(75, 0, 0);
   }
@@ -149,7 +157,8 @@ void StateMachine::handleAvoidObstacleRightState()
     return;
   }
 
-  if (!distance_sensor_.isObstacle())
+  auto [isObstacle, rightValid] = distance_sensor_.isObstacle();
+  if (!isObstacle && rightValid)
   {
     delay(500);
     drive_.acceptInput(0, 0, 0);
@@ -231,7 +240,8 @@ void StateMachine::handleAvoidObstacleLeftReturnState()
     state_start_time = millis();
   }
 
-  if (!distance_sensor_.isObstacle() || millis() - state_start_time > 12000)
+  auto [obstacle, valid] = distance_sensor_.isObstacle();
+  if (!obstacle || millis() - state_start_time > 12000)
   {
     state_start_time = 0;
     drive_.acceptInput(0, 0, 180);
@@ -260,7 +270,8 @@ void StateMachine::handleAvoidObstacleRightReturnState()
     state_start_time = millis();
   }
 
-  if (!distance_sensor_.isObstacle() || millis() - state_start_time > 12000)
+  auto [obstacle, valid] = distance_sensor_.isObstacle();
+  if (!obstacle || millis() - state_start_time > 12000)
   {
     state_start_time = 0;
     drive_.acceptInput(0, 0, 180);

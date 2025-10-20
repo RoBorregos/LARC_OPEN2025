@@ -9,8 +9,11 @@
 #include "StateUtils.h"
 
 // Define the PID controllers
-PIDController leftDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);
-PIDController rightDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);
+PIDController approachLeftDistancePID(DistanceSensorConstants::kApproachDistanceTargetControllerKp, DistanceSensorConstants::kApproachDistanceTargetControllerKi, DistanceSensorConstants::kApproachDistanceTargetControllerKd, -150.0, 150.0);
+PIDController approachRightDistancePID(DistanceSensorConstants::kApproachDistanceTargetControllerKp, DistanceSensorConstants::kApproachDistanceTargetControllerKi, DistanceSensorConstants::kApproachDistanceTargetControllerKd, -150.0, 150.0);
+
+PIDController retreatLeftDistancePID(DistanceSensorConstants::kRetreatDistanceTargetControllerKp, DistanceSensorConstants::kRetreatDistanceTargetControllerKi, DistanceSensorConstants::kRetreatDistanceTargetControllerKd, -150.0, 150.0);
+PIDController retreatRightDistancePID(DistanceSensorConstants::kRetreatDistanceTargetControllerKp, DistanceSensorConstants::kRetreatDistanceTargetControllerKi, DistanceSensorConstants::kRetreatDistanceTargetControllerKd, -150.0, 150.0);
 
 PIDController lateralPID(20.0, 1.0, 2.0, -100.0, 100.0);
 
@@ -18,26 +21,62 @@ PIDController followLinePID(20.0, 0.0, 1.0, -80.0, 80.0);
 
 void maintainDistance(float distance, float lateralSpeed)
 {
-    float leftDistance = distance_sensor_.getDistance(0);
-    float rightDistance = distance_sensor_.getDistance(1);
+  auto [leftDistance, leftValid] = distance_sensor_.getDistance(0);
+  auto [rightDistance, rightValid] = distance_sensor_.getDistance(1);
 
-    float leftOutput = leftDistancePID.update(leftDistance, distance);
-    float rightOutput = rightDistancePID.update(rightDistance, distance);
+  float currentDistance = (leftDistance + rightDistance) / 2.0;
 
-    float forwardOutput = (leftOutput + rightOutput) / 2.0 * -1;
+  float leftOutput;
+  float rightOutput;
 
-    drive_.acceptInput(lateralSpeed, forwardOutput, 0.0);
+  if (currentDistance < distance)
+  {
+    monitor_.print("Too close: ");
+    // If we are too close, we need to back up
+    leftOutput = retreatLeftDistancePID.update(leftDistance, distance) * -1;
+    rightOutput = retreatRightDistancePID.update(rightDistance, distance) * -1;
+  }
+  else
+  {
+    monitor_.print("Too far: ");
+    // If we are too far, we need to approach
+    leftOutput = approachLeftDistancePID.update(leftDistance, distance) * -1;
+    rightOutput = approachRightDistancePID.update(rightDistance, distance) * -1;
+  }
 
-    monitor_.print("L: ");
-    monitor_.print(leftDistance);
-    monitor_.print("cm (");
-    monitor_.print(leftOutput);
-    monitor_.print(") R: ");
-    monitor_.print(rightDistance);
-    monitor_.print("cm (");
-    monitor_.print(rightOutput);
-    monitor_.print(") Fwd: ");
-    monitor_.print(forwardOutput);
+  float forwardOutput = (leftOutput + rightOutput) / 2.0;
+
+  Rotation2D error = drive_.getHeadingError();
+
+  // Only correct if theading error is within 30 degrees
+  if (std::abs(error.getDegrees()) < 30)
+  {
+    // if the difference between both sensors is less than 10, and both their measurements are valid, then correct
+    if (std::abs(leftDistance - rightDistance) < 10 && leftValid && rightValid)
+    {
+      drive_.acceptInput(lateralSpeed, forwardOutput, 0.0);
+      // else, move backwards a little to allow for heading correction
+    }
+    else
+    {
+      drive_.acceptInput(0, -50, 0);
+    }
+  }
+
+  monitor_.print("L: ");
+  monitor_.print(leftDistance);
+  monitor_.print("cm (");
+  monitor_.print(leftOutput);
+  monitor_.print(") R: ");
+  monitor_.print(rightDistance);
+  monitor_.print("cm (");
+  monitor_.print(rightOutput);
+  monitor_.print(") Fwd: ");
+  monitor_.print(forwardOutput);
+  monitor_.print(" Error: ");
+  monitor_.print(error.getDegrees());
+
+  monitor_.println();
 }
 
 void followLine(float lateralSpeed)
@@ -80,7 +119,6 @@ void followLine(float lateralSpeed)
 
   drive_.acceptInput(lateralSpeed, vy_correction, 0.0);
 }
-
 
 void evadeLine(float lateralSpeed)
 {
