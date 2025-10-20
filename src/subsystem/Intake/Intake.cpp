@@ -1,9 +1,9 @@
 #include "Intake.hpp"
 
 Intake::Intake()
-    : servo1_pin_(Pins::kSorterServo1Pin),
-      servo2_pin_(Pins::kSorterServo2Pin),
-      servo3_pin_(Pins::kSorterServo3Pin),
+    : servo1_pin_(-1),
+      servo2_pin_(-1),
+      servo3_pin_(-1),
       servo1_position_(POSITION_0),
       servo2_position_(POSITION_0),
       servo3_position_(POSITION_0) {}
