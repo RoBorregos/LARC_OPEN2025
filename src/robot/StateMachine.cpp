@@ -116,13 +116,13 @@ void StateMachine::handleAvoidObstacleLeftState()
   // }
   maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -100);
 
-  // if (line_sensor_.isLeftLine())
-  // {
-  //   drive_.acceptInput(0, 0, 0);
-  //   drive_.hardBrake();
-  //   currentState = STATES::AVOID_OBSTACLE_RIGHT;
-  //   return;
-  // }
+  if (line_sensor_.isLeftLine())
+  {
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    currentState = STATES::STOP;
+    return;
+  }
 
   // if (!distance_sensor_.isObstacle())
   // {

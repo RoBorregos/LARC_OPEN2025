@@ -64,6 +64,17 @@ void setup()
 
 void loop()
 {
+  // bool detected = line_sensor_.isLeftLine();
+
+  // if (detected)
+  // {
+  //   monitor_.println("Line detected on the left side!");
+  // }
+  // else
+  // {
+  //   monitor_.println("No line detected on the left side.");
+  // }
+
   drive_.update();
 
   stateMachine.update();
