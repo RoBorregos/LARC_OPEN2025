@@ -64,7 +64,7 @@ bool LineSensor::isLeftLine()
 bool LineSensor::isRightLine()
 {
     auto v = readSensors();
-    return v[1] && v[3];
+    return v[1] || v[3];
 }
 
 bool LineSensor::isFrontLeftLine() const
