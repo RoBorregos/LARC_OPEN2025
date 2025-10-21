@@ -43,8 +43,8 @@ namespace Pins {
     // NOT READY
     constexpr uint8_t kDistanceSensors[4][2] = {
         // trig, echo
-        {33, 35},
         {36, 34}, // WORKING
+        {35, 33},
     };
  
 
@@ -57,10 +57,10 @@ namespace Pins {
     constexpr uint8_t kIntakeLower = 37;
 
     // READY
-    static constexpr uint8_t kLineSensorFL = 21;
+    static constexpr uint8_t kLineSensorFL = 28;
     static constexpr uint8_t kLineSensorFR = 27;
-    static constexpr uint8_t kLineSensorBL = 22;
-    static constexpr uint8_t kLineSensorBR = 28;
+    static constexpr uint8_t kLineSensorBL = 21;
+    static constexpr uint8_t kLineSensorBR = 20;
 }
 
 #endif
