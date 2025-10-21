@@ -8,6 +8,7 @@
 #include "../subsystem/Sorter/Sorter.hpp"
 #include "../../lib/sensors/bno.hpp"
 #include "./monitor.h"
+#include "../subsystem/Intake/Intake.hpp"
 
 extern Drive drive_;
 extern DistanceSensor distance_sensor_;
@@ -17,3 +18,4 @@ extern Sorter sorter_;
 // extern Elevator elevator_;
 extern BNO bno_;
 extern Monitor monitor_;
+extern Intake intake_;

@@ -11,22 +11,17 @@ using namespace Constants;
 
 class Intake : public System {
 private:
-    Servo servo1_;
-    Servo servo2_;
-    Servo servo3_;
     
-    const int servo1_pin_;
-    const int servo2_pin_;
-    const int servo3_pin_;
-    
-    static constexpr int POSITION_0 = 0;
-    static constexpr int POSITION_180 = 180;
-    
-    int servo1_position_;
-    int servo2_position_;
-    int servo3_position_;
-    
+    static constexpr int kGrabBallServoPosition = 0;
+    static constexpr int kAvoidBallServoPosition = 180;
+    static constexpr int kIntakeRampPositioned = 90;
+    static constexpr int kIntakeRampStored = 0;
+
 public:
+    Servo UpperIntakeServo;
+    Servo LowerIntakeServo;
+    Servo IntakeRampServo;
+
     Intake();
 
     void begin() override;
@@ -37,28 +32,22 @@ public:
     void setServo2Position(int position);
     void setServo3Position(int position);
     
-    void setServo1To0();
-    void setServo1To180();
-    void setServo2To0();
-    void setServo2To180();
-    void setServo3To0();
-    void setServo3To180();
-    
     int getServo1Position() const;
     int getServo2Position() const;
     int getServo3Position() const;
-    
-    void setAllServosTo0();
-    void setAllServosTo180();
-    void setAllServosToPosition(int position);
 
+    void setServoPosition(Servo &servo, int position);
+    
     enum class IntakeState {
-        ALL_0 = 0,
-        ALL_180 = 1,
-        CUSTOM = 2
+        ALL_SERVOS_STORED = 0,
+        ALL_SERVOS_POSITIONED = 1,
+        UPPER_SERVO_POSITIONED = 2,
+        UPPER_SERVO_AWAY = 3,
+        LOWER_SERVO_POSITIONED = 4,
+        LOWER_SERVO_AWAY = 5
     };
 
-    IntakeState intake_state_ = IntakeState::ALL_0;
+    IntakeState intake_state_ = IntakeState::ALL_SERVOS_STORED;
 };
 
 #endif // INTAKE_H

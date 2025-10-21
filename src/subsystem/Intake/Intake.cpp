@@ -1,114 +1,109 @@
 #include "Intake.hpp"
 
 Intake::Intake()
-    : servo1_pin_(-1),
-      servo2_pin_(-1),
-      servo3_pin_(-1),
-      servo1_position_(POSITION_0),
-      servo2_position_(POSITION_0),
-      servo3_position_(POSITION_0) {}
+    : UpperIntakeServo(),
+      LowerIntakeServo(),
+      IntakeRampServo()
+     {}
 
 void Intake::begin() {
-    servo1_.attach(servo1_pin_);
-    servo2_.attach(servo2_pin_);
-    servo3_.attach(servo3_pin_);
-    
-    setAllServosTo0();    
+    UpperIntakeServo.attach(Pins::kUpperIntakeServo);
+    LowerIntakeServo.attach(Pins::kLowerIntakeServo);
+    IntakeRampServo.attach(Pins::kIntakeRamp);
 }
 
 void Intake::update() {
+switch (intake_state_) {
+        case IntakeState::ALL_SERVOS_STORED:
+            setServoPosition(UpperIntakeServo, kAvoidBallServoPosition);
+            setServoPosition(LowerIntakeServo, kAvoidBallServoPosition);
+            setServoPosition(IntakeRampServo, kIntakeRampStored);
+            break;
+        case IntakeState::ALL_SERVOS_POSITIONED:
+            setServoPosition(UpperIntakeServo, kGrabBallServoPosition);
+            setServoPosition(LowerIntakeServo, kGrabBallServoPosition);
+            setServoPosition(IntakeRampServo, kIntakeRampPositioned);
+            break;
+        case IntakeState::UPPER_SERVO_POSITIONED:
+            setServoPosition(UpperIntakeServo, kGrabBallServoPosition);
+            break;
+        case IntakeState::UPPER_SERVO_AWAY:
+            setServoPosition(UpperIntakeServo, kAvoidBallServoPosition);
+            break;
+        case IntakeState::LOWER_SERVO_POSITIONED:
+            setServoPosition(UpperIntakeServo, kAvoidBallServoPosition);
+            setServoPosition(LowerIntakeServo, kGrabBallServoPosition);
+            break;
+        case IntakeState::LOWER_SERVO_AWAY:
+            setServoPosition(LowerIntakeServo, kAvoidBallServoPosition);
+            break;
+    }
 }
 
 void Intake::setState(int state) {
     switch (state) {
         case 0:
-            setAllServosTo0();
-            intake_state_ = IntakeState::ALL_0;
+            intake_state_ = IntakeState::ALL_SERVOS_STORED;
             break;
         case 1:
-            setAllServosTo180();
-            intake_state_ = IntakeState::ALL_180;
+            intake_state_ = IntakeState::ALL_SERVOS_POSITIONED;
+            break;
+        case 2:
+            intake_state_ = IntakeState::UPPER_SERVO_POSITIONED;
+            break;
+        case 3:
+            intake_state_ = IntakeState::UPPER_SERVO_AWAY;
+            break;
+        case 4:
+            intake_state_ = IntakeState::LOWER_SERVO_POSITIONED;
+            break;
+        case 5:
+            intake_state_ = IntakeState::LOWER_SERVO_AWAY;
             break;
         default:
-            intake_state_ = IntakeState::CUSTOM;
+            intake_state_ = IntakeState::ALL_SERVOS_STORED;
             break;
     }
 }
 
-void Intake::setServo1Position(int position) {
-    position = constrain(position, POSITION_0, POSITION_180);
-    servo1_.write(position);
-    servo1_position_ = position;
-    delay(15); 
+void Intake::setServoPosition(Servo &servo, int position) {
+    servo.write(position);
 }
 
-void Intake::setServo2Position(int position) {
-    position = constrain(position, POSITION_0, POSITION_180);
-    servo2_.write(position);
-    servo2_position_ = position;
-    delay(15); 
-}
+// void Intake::setServo1Position(int position) {
+//     position = constrain(position, POSITION_0, POSITION_180);
+//     servo1_.write(position);
+//     servo1_position_ = position;
+//     delay(15); 
+// }
 
-void Intake::setServo3Position(int position) {
-    position = constrain(position, POSITION_0, POSITION_180);
-    servo3_.write(position);
-    servo3_position_ = position;
-    delay(15); 
-}
+// void Intake::setServo2Position(int position) {
+//     position = constrain(position, POSITION_0, POSITION_180);
+//     servo2_.write(position);
+//     servo2_position_ = position;
+//     delay(15); 
+// }
 
-void Intake::setServo1To0() {
-    setServo1Position(POSITION_0);
-}
+// void Intake::setServo3Position(int position) {
+//     position = constrain(position, POSITION_0, POSITION_180);
+//     servo3_.write(position);
+//     servo3_position_ = position;
+//     delay(15); 
+// }
 
-void Intake::setServo1To180() {
-    setServo1Position(POSITION_180);
-}
+// int Intake::getServo1Position() const {
+//     return servo1_position_;
+// }
 
-void Intake::setServo2To0() {
-    setServo2Position(POSITION_0);
-}
+// int Intake::getServo2Position() const {
+//     return servo2_position_;
+// }
 
-void Intake::setServo2To180() {
-    setServo2Position(POSITION_180);
-}
+// int Intake::getServo3Position() const {
+//     return servo3_position_;
+// }
 
-void Intake::setServo3To0() {
-    setServo3Position(POSITION_0);
-}
+// void Intake::setServoPosition(Servo &servo, int position) {
+//     servo.write(position);
+// }
 
-void Intake::setServo3To180() {
-    setServo3Position(POSITION_180);
-}
-
-int Intake::getServo1Position() const {
-    return servo1_position_;
-}
-
-int Intake::getServo2Position() const {
-    return servo2_position_;
-}
-
-int Intake::getServo3Position() const {
-    return servo3_position_;
-}
-
-void Intake::setAllServosTo0() {
-    setServo1To0();
-    setServo2To0();
-    setServo3To0();
-    intake_state_ = IntakeState::ALL_0;
-}
-
-void Intake::setAllServosTo180() {
-    setServo1To180();
-    setServo2To180();
-    setServo3To180();
-    intake_state_ = IntakeState::ALL_180;
-}
-
-void Intake::setAllServosToPosition(int position) {
-    setServo1Position(position);
-    setServo2Position(position);
-    setServo3Position(position);
-    intake_state_ = IntakeState::CUSTOM;
-}
