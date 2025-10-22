@@ -12,8 +12,9 @@ using namespace Constants;
 class Intake : public System {
 private:
     
-    static constexpr int kGrabBallServoPosition = 0;
-    static constexpr int kAvoidBallServoPosition = 180;
+    static constexpr int kGrabBallServoPosition = 180;
+    static constexpr int kAvoidBallServoPosition = 30;
+    static constexpr int kStoredBallServoPosition = 150;
     static constexpr int kIntakeRampPositioned = 90;
     static constexpr int kIntakeRampStored = 0;
 
