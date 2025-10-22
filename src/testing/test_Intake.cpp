@@ -10,9 +10,9 @@ void setup(){
 
 void loop(){
     // intake_.update();
-    intake_.setServoPosition(intake_.LowerIntakeServo, 180);
+    intake_.setIntakeServoPosition(intake_.LowerIntakeServo, 180);
     delay(2000);
-    intake_.setServoPosition(intake_.LowerIntakeServo, 0);
+    intake_.setIntakeServoPosition(intake_.LowerIntakeServo, 0);
     delay(2000);
 }
 

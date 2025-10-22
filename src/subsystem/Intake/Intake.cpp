@@ -15,27 +15,27 @@ void Intake::begin() {
 void Intake::update() {
 switch (intake_state_) {
         case IntakeState::ALL_SERVOS_STORED:
-            setServoPosition(UpperIntakeServo, kAvoidBallServoPosition);
-            setServoPosition(LowerIntakeServo, kAvoidBallServoPosition);
-            setServoPosition(IntakeRampServo, kIntakeRampStored);
+            setIntakeServoPosition(UpperIntakeServo, kAvoidBallServoPosition);
+            setIntakeServoPosition(LowerIntakeServo, kAvoidBallServoPosition);
+            setIntakeServoPosition(IntakeRampServo, kIntakeRampStored);
             break;
         case IntakeState::ALL_SERVOS_POSITIONED:
-            setServoPosition(UpperIntakeServo, kGrabBallServoPosition);
-            setServoPosition(LowerIntakeServo, kGrabBallServoPosition);
-            setServoPosition(IntakeRampServo, kIntakeRampPositioned);
+            setIntakeServoPosition(UpperIntakeServo, kGrabBallServoPosition);
+            setIntakeServoPosition(LowerIntakeServo, kGrabBallServoPosition);
+            setIntakeServoPosition(IntakeRampServo, kIntakeRampPositioned);
             break;
         case IntakeState::UPPER_SERVO_POSITIONED:
-            setServoPosition(UpperIntakeServo, kGrabBallServoPosition);
+            setIntakeServoPosition(UpperIntakeServo, kGrabBallServoPosition);
             break;
         case IntakeState::UPPER_SERVO_AWAY:
-            setServoPosition(UpperIntakeServo, kAvoidBallServoPosition);
+            setIntakeServoPosition(UpperIntakeServo, kAvoidBallServoPosition);
             break;
         case IntakeState::LOWER_SERVO_POSITIONED:
-            setServoPosition(UpperIntakeServo, kAvoidBallServoPosition);
-            setServoPosition(LowerIntakeServo, kGrabBallServoPosition);
+            setIntakeServoPosition(UpperIntakeServo, kAvoidBallServoPosition);
+            setIntakeServoPosition(LowerIntakeServo, kGrabBallServoPosition);
             break;
         case IntakeState::LOWER_SERVO_AWAY:
-            setServoPosition(LowerIntakeServo, kAvoidBallServoPosition);
+            setIntakeServoPosition(LowerIntakeServo, kAvoidBallServoPosition);
             break;
     }
 }
@@ -66,44 +66,10 @@ void Intake::setState(int state) {
     }
 }
 
-void Intake::setServoPosition(Servo &servo, int position) {
+void Intake::setIntakeServoPosition(Servo &servo, int position) {
     servo.write(position);
 }
 
-// void Intake::setServo1Position(int position) {
-//     position = constrain(position, POSITION_0, POSITION_180);
-//     servo1_.write(position);
-//     servo1_position_ = position;
-//     delay(15); 
-// }
-
-// void Intake::setServo2Position(int position) {
-//     position = constrain(position, POSITION_0, POSITION_180);
-//     servo2_.write(position);
-//     servo2_position_ = position;
-//     delay(15); 
-// }
-
-// void Intake::setServo3Position(int position) {
-//     position = constrain(position, POSITION_0, POSITION_180);
-//     servo3_.write(position);
-//     servo3_position_ = position;
-//     delay(15); 
-// }
-
-// int Intake::getServo1Position() const {
-//     return servo1_position_;
-// }
-
-// int Intake::getServo2Position() const {
-//     return servo2_position_;
-// }
-
-// int Intake::getServo3Position() const {
-//     return servo3_position_;
-// }
-
-// void Intake::setServoPosition(Servo &servo, int position) {
-//     servo.write(position);
-// }
-
+int Intake::getIntakeServoPosition(Servo &servo) {
+    return servo.read();
+}

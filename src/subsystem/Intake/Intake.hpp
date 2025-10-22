@@ -28,16 +28,8 @@ public:
     void begin() override;
     void update() override;
     void setState(int state) override;
-
-    void setServo1Position(int position);
-    void setServo2Position(int position);
-    void setServo3Position(int position);
-    
-    int getServo1Position() const;
-    int getServo2Position() const;
-    int getServo3Position() const;
-
-    void setServoPosition(Servo &servo, int position);
+    int getIntakeServoPosition(Servo &servo);
+    void setIntakeServoPosition(Servo &servo, int position);
     
     enum class IntakeState {
         ALL_SERVOS_STORED = 0,
