@@ -10,7 +10,7 @@
 #define DRIVE_CONTROLLER_HPP
 
 #include "../lib/math/rotation2d.hpp"
-#include "../lib/math/chassis_speed.hpp"
+#include "../lib/math/chassis_speed.h"
 class DriveController {
     public:
         DriveController();
