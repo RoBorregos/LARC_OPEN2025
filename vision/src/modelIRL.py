@@ -1,4 +1,5 @@
 import math
+import time
 from ultralytics import YOLO
 import cv2
 
@@ -24,8 +25,12 @@ try:
         if not ret:
             break
 
-        # Run inference
+        # Run inference with timing
+        start_time = time.time()
         results = model(frame, verbose=False)
+        inference_time = time.time() - start_time
+        
+        print(f"Inference time: {inference_time*1000:.2f} ms")
         
         # Display results if you are using a laptop
         # annotated_img = results[0].plot()
