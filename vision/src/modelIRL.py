@@ -3,11 +3,11 @@ from ultralytics import YOLO
 import cv2
 
 # Load model once
-model = YOLO("model/nanoModel.pt")
+model = YOLO("model/nanoModel.onnx")
 IGNORE_CLASS = "green bean" 
 class_names = model.names  
 
-cap = cv2.VideoCapture(2)
+cap = cv2.VideoCapture(0)
 if not cap.isOpened():
     print("Can't open camera.")
     exit()
@@ -28,8 +28,8 @@ try:
         results = model(frame, verbose=False)
         
         # Display results if you are using a laptop
-        annotated_img = results[0].plot()
-        cv2.imshow('Detection', annotated_img)
+        # annotated_img = results[0].plot()
+        # cv2.imshow('Detection', annotated_img)
         
         # Exit on ESC key
         if cv2.waitKey(1) & 0xFF == 27:  # ESC key
