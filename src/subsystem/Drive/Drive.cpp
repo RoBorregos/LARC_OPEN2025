@@ -9,11 +9,11 @@
 #include "Drive.hpp"
 #include "../../robot/robot_instances.h"
 
-Drive::Drive() : front_left_(Pins::kUpperMotors[0], Pins::kUpperMotors[1], Pins::kPwmPin[0], true, Pins::kEncoders[0], Pins::kEncoders[1], false, 2.0, 0.275, 0.01, 360),
-                 front_right_(Pins::kUpperMotors[2], Pins::kUpperMotors[3], Pins::kPwmPin[1], false, Pins::kEncoders[2], Pins::kEncoders[3], false, 2.0, 0.425, 0.01, 360),
-                 back_left_(Pins::kLowerMotors[0], Pins::kLowerMotors[1], Pins::kPwmPin[2], true, Pins::kEncoders[4], Pins::kEncoders[5], false, 2.5, 0.0, 0.1, 360),
-                 back_right_(Pins::kLowerMotors[2], Pins::kLowerMotors[3], Pins::kPwmPin[3], false, Pins::kEncoders[6], Pins::kEncoders[7], true, 1.0, 0.0, 0, 360),
-                 
+Drive::Drive() : front_left_(Pins::kUpperMotors[0], Pins::kUpperMotors[1], Pins::kPwmPin[0], true, Pins::kEncoders[0], Pins::kEncoders[1], false, 2.0, 0.35, 0.0025, 0.708333333 * 1.5, 360),
+                 front_right_(Pins::kUpperMotors[2], Pins::kUpperMotors[3], Pins::kPwmPin[1], false, Pins::kEncoders[2], Pins::kEncoders[3], false, 2.0,0.35, 0.0025, 0.708333333 * 1.5, 360),
+                 back_left_(Pins::kLowerMotors[0], Pins::kLowerMotors[1], Pins::kPwmPin[2], true, Pins::kEncoders[4], Pins::kEncoders[5], false, 2.0, 0.35, 0.0025, 0.708333333 * 1.5, 360),
+                 back_right_(Pins::kLowerMotors[2], Pins::kLowerMotors[3], Pins::kPwmPin[3], false, Pins::kEncoders[6], Pins::kEncoders[7], true, 0.2, 0.1, 0.0, 0.708333333 * 0.7, 360),
+
                  bno_(),
                  drive_controller_(),
                  heading_controller_()
@@ -34,10 +34,10 @@ void Drive::update()
 
     bno_.update();
 
-    // ChassisSpeed drive_speed{0, 1, 0};
+    ChassisSpeed drive_speed;
 
     // move(drive_speed);
-    ChassisSpeed drive_speed;
+    // ChassisSpeed drive_speed;
     //     switch (drive_state_)
     //     {
     //     case DriveState::HEADING_LOCK:
@@ -91,38 +91,54 @@ void Drive::move(ChassisSpeed chassis_speed)
     double bl_rpm = bl * 60.0 / DriveConstants::kWheelCircumference;
     double br_rpm = br * 60.0 / DriveConstants::kWheelCircumference;
 
+    monitor_.print("FL Calculated speed: ");
+    monitor_.println(fl);
     monitor_.print("FL Desired RPM: ");
     monitor_.println(fl_rpm);
     monitor_.print("FL Current Speed RPM: ");
     monitor_.println(front_left_.getCurrentSpeed());
     monitor_.print("FL PID Output: ");
     monitor_.println(front_left_.pidOutput);
+    monitor_.print("FL KF Output: ");
+    monitor_.println(front_left_.kfOutput);
 
+    monitor_.print("FR Calculated speed: ");
+    monitor_.println(fr);
     monitor_.print("FR Desired RPM: ");
     monitor_.println(fr_rpm);
     monitor_.print("FR Current Speed RPM: ");
     monitor_.println(front_right_.getCurrentSpeed());
     monitor_.print("FR PID Output: ");
     monitor_.println(front_right_.pidOutput);
+    monitor_.print("FR KF Output: ");
+    monitor_.println(front_right_.kfOutput);
 
+    monitor_.print("BL Calculated speed: ");
+    monitor_.println(bl);
     monitor_.print("BL Desired RPM: ");
     monitor_.println(bl_rpm);
     monitor_.print("BL Current Speed RPM: ");
     monitor_.println(back_left_.getCurrentSpeed());
     monitor_.print("BL PID Output: ");
     monitor_.println(back_left_.pidOutput);
+    monitor_.print("BL KF Output: ");
+    monitor_.println(back_left_.kfOutput);
 
+    monitor_.print("BR Calculated speed: ");
+    monitor_.println(br);
     monitor_.print("BR Desired RPM: ");
     monitor_.println(br_rpm);
     monitor_.print("BR Current Speed RPM: ");
     monitor_.println(back_right_.getCurrentSpeed());
     monitor_.print("BR PID Output: ");
     monitor_.println(back_right_.pidOutput);
+    monitor_.print("BR KF Output: ");
+    monitor_.println(back_right_.kfOutput);
 
-    front_left_.moveStableRPM(0);
-    front_right_.moveStableRPM(0);
+    front_left_.moveStableRPM(fl_rpm);
+    front_right_.moveStableRPM(fr_rpm);
     back_left_.moveStableRPM(bl_rpm);
-    back_right_.moveStableRPM(0);
+    back_right_.moveStableRPM(br_rpm);
 }
 
 /* Basic Movement Functions */
