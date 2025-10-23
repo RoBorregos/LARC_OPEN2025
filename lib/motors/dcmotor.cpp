@@ -10,8 +10,7 @@
 #include <math.h>
 
 DCMotor::DCMotor(int in1, int in2, int pwm, bool inverted,
-                 int encoder_pin1, int encoder_pin2, float diameter)
-    : diameter_(diameter)
+                 int encoder_pin1, int encoder_pin2)
 {
     in1_pin_ = in1;
     in2_pin_ = in2;
@@ -23,7 +22,7 @@ DCMotor::DCMotor(int in1, int in2, int pwm, bool inverted,
 }
 
 DCMotor::DCMotor(int in1, int in2, int pwm, bool inverted,
-                 int encoder_pin1, int encoder_pin2)
+                 int encoder_pin1, int encoder_pin2, bool encoder_inverted, float kP, float kI, float kD, float kMaxRpm)
 {
     in1_pin_ = in1;
     in2_pin_ = in2;
@@ -32,6 +31,10 @@ DCMotor::DCMotor(int in1, int in2, int pwm, bool inverted,
     encoder_pin2_ = encoder_pin2;
 
     inverted_ = inverted;
+    encoder_inverted_ = encoder_inverted;
+
+    max_rpm_ = kMaxRpm;
+    velocity_controller_ = new PIDController(kP, kI, kD, -255.0f, 255.0f);
 }
 
 DCMotor::~DCMotor()
@@ -51,6 +54,11 @@ void DCMotor::begin()
     pinMode(encoder_pin1_, INPUT_PULLUP);
     pinMode(encoder_pin2_, INPUT_PULLUP);
     encoder_ = new Encoder(encoder_pin1_, encoder_pin2_);
+
+    if (velocity_controller_ != nullptr)
+    {
+        velocity_controller_->setEnabled(true);
+    }
 }
 
 void DCMotor::move(int speed, Direction direction)
@@ -93,6 +101,51 @@ void DCMotor::move(int speed)
     }
 }
 
+void DCMotor::moveStableRPM(double target_rpm)
+{
+    if (velocity_controller_ == nullptr)
+    {
+        return;
+    }
+    auto tmp_pwm = -velocity_controller_->update(target_rpm, getCurrentSpeed());
+
+    pidOutput = (int)tmp_pwm;
+
+    double pwm = rpm2pwm(tmp_pwm);
+
+    move((int)pwm);
+}
+
+double DCMotor::getCurrentSpeed()
+{
+    unsigned long currentMillis = millis();
+
+    if ((currentMillis - prevMillis) >= 100)
+    {
+        long newCount = encoder_->read();
+        long deltaCount = newCount - prevCount;
+
+        float deltaTime = (currentMillis - prevMillis) / 60000.0;
+
+        current_speed_ = (deltaCount / 1920.0) / deltaTime;
+
+        prevCount = newCount;
+        prevMillis = currentMillis;
+    }
+
+    if (encoder_inverted_)
+    {
+        current_speed_ = -current_speed_;
+    }
+
+    return current_speed_;
+}
+
+double DCMotor::rpm2pwm(const double rpm)
+{
+    return rpm * (255.0 / max_rpm_);
+}
+
 void DCMotor::stop()
 {
     digitalWrite(in1_pin_, LOW);
@@ -110,14 +163,4 @@ void DCMotor::brakeStop()
 int DCMotor::getEncoderCount()
 {
     return encoder_ != nullptr ? encoder_->read() : 0;
-}
-
-double DCMotor::getPositionRotations()
-{
-    return encoder_ != nullptr ? (double)encoder_->read() / rotation_factor_ : 0.0;
-}
-
-float DCMotor::getPositionMeters()
-{
-    return encoder_ != nullptr ? encoder_->read() * diameter_ * M_PI / rotation_factor_ : 0.0f;
 }

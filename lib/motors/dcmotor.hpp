@@ -11,7 +11,7 @@
 
 #include <Arduino.h>
 #include <Encoder.h>
-
+#include "../controllers/PIDController.hpp"
 class DCMotor
 {
 public:
@@ -22,22 +22,23 @@ public:
     };
 
     DCMotor(int in1, int in2, int pwm, bool inverted,
-            int encoder_pin1, int encoder_pin2, float diameter);
+            int encoder_pin1, int encoder_pin2);
 
     DCMotor(int in1, int in2, int pwm, bool inverted,
-            int encoder_pin1, int encoder_pin2);
+            int encoder_pin1, int encoder_pin2, bool encoder_inverted, float kP, float kI, float kD, float kMaxRpm);
 
     ~DCMotor();
 
     void begin();
     void move(int speed, Direction direction);
+    void moveStableRPM(double target_rpm);
     void move(int speed);
     void stop();
     void brakeStop();
     int getEncoderCount();
-    double getPositionRotations();
-    float getPositionMeters();
-
+    double getCurrentSpeed();
+    
+    double pidOutput = 0;
 private:
     int in1_pin_;
     int in2_pin_;
@@ -46,12 +47,20 @@ private:
     int encoder_pin2_;
     bool inverted_;
 
-    Encoder* encoder_;
+    Encoder *encoder_;
+    bool encoder_inverted_;
 
     Direction current_direction_;
 
-    int rotation_factor_ = 473;
-    float diameter_;
+    float max_rpm_;
+    PIDController* velocity_controller_;
+
+    double rpm2pwm(const double rpm);
+
+    double currentMillis = 0;
+    double prevMillis = 0;
+    double prevCount = 0;
+    double current_speed_ = 0;
 };
 
 #endif
