@@ -33,12 +33,11 @@ public:
     void brake();
     void hardBrake();
 
-    void moveForwardCm(float distance_cm, int speed = 100);
-    void moveBackwardCm(float distance_cm, int speed = 100);
-    void moveLeftCm(float distance_cm, int speed = 100);
-    void moveRightCm(float distance_cm, int speed = 100);
+    // void moveForwardCm(float distance_cm, int speed = 100);
+    // void moveBackwardCm(float distance_cm, int speed = 100);
+    // void moveLeftCm(float distance_cm, int speed = 100);
+    // void moveRightCm(float distance_cm, int speed = 100);
     void resetEncoders();
-    float getAverageDistanceTraveled();
 
     void followFrontLine(int movement);
     void avoidFrontLine();
