@@ -25,7 +25,7 @@ public:
             int encoder_pin1, int encoder_pin2);
 
     DCMotor(int in1, int in2, int pwm, bool inverted,
-            int encoder_pin1, int encoder_pin2, bool encoder_inverted, float kP, float kI, float kD, float kMaxRpm);
+            int encoder_pin1, int encoder_pin2, bool encoder_inverted, float kP, float kI, float kD, float kf, float kMaxRpm);
 
     ~DCMotor();
 
@@ -39,6 +39,7 @@ public:
     double getCurrentSpeed();
     
     double pidOutput = 0;
+    float kfOutput = 0;
 private:
     int in1_pin_;
     int in2_pin_;
@@ -54,6 +55,7 @@ private:
 
     float max_rpm_;
     PIDController* velocity_controller_;
+    float kf_;
 
     double rpm2pwm(const double rpm);
 

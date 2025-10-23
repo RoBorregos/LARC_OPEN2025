@@ -22,7 +22,7 @@ DCMotor::DCMotor(int in1, int in2, int pwm, bool inverted,
 }
 
 DCMotor::DCMotor(int in1, int in2, int pwm, bool inverted,
-                 int encoder_pin1, int encoder_pin2, bool encoder_inverted, float kP, float kI, float kD, float kMaxRpm)
+                 int encoder_pin1, int encoder_pin2, bool encoder_inverted, float kP, float kI, float kD, float kf, float kMaxRpm)
 {
     in1_pin_ = in1;
     in2_pin_ = in2;
@@ -35,6 +35,7 @@ DCMotor::DCMotor(int in1, int in2, int pwm, bool inverted,
 
     max_rpm_ = kMaxRpm;
     velocity_controller_ = new PIDController(kP, kI, kD, -255.0f, 255.0f);
+    kf_ = kf;
 }
 
 DCMotor::~DCMotor()
@@ -58,6 +59,7 @@ void DCMotor::begin()
     if (velocity_controller_ != nullptr)
     {
         velocity_controller_->setEnabled(true);
+        velocity_controller_->reset();
     }
 }
 
@@ -107,11 +109,18 @@ void DCMotor::moveStableRPM(double target_rpm)
     {
         return;
     }
-    auto tmp_pwm = -velocity_controller_->update(target_rpm, getCurrentSpeed());
+    double current_speed = getCurrentSpeed();
 
-    pidOutput = (int)tmp_pwm;
+    if (abs(current_speed) < 10e-5 && abs(target_rpm) < 10e-5){
+        velocity_controller_->reset();
+    }
 
-    double pwm = rpm2pwm(tmp_pwm);
+    auto tmp_pwm = -velocity_controller_->update(target_rpm, current_speed);
+
+    kfOutput = kf_ * target_rpm;
+    pidOutput = (int)tmp_pwm + kfOutput;
+
+    double pwm = rpm2pwm(pidOutput);
 
     move((int)pwm);
 }
