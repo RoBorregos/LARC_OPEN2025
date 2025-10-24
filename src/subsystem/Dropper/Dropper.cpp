@@ -1,7 +1,7 @@
 #include "Dropper.hpp"
 
 Dropper::Dropper()
-    : servo_pin_(Pins::kDropperServoPin),
+    : servo_pin_(1),
       current_position_(POSITION_0) {}
 
 void Dropper::begin() {

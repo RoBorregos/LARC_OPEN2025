@@ -14,7 +14,6 @@ Drive::Drive() : front_left_(Pins::kUpperMotors[0], Pins::kUpperMotors[1], Pins:
                  back_left_(Pins::kLowerMotors[0], Pins::kLowerMotors[1], Pins::kPwmPin[2], true, Pins::kEncoders[4], Pins::kEncoders[5], DriveConstants::kWheelDiameter),
                  back_right_(Pins::kLowerMotors[2], Pins::kLowerMotors[3], Pins::kPwmPin[3], false, Pins::kEncoders[6], Pins::kEncoders[7], DriveConstants::kWheelDiameter),
                  bno_(),
-                 robot_constants_(0.3, 0.3),
                  drive_controller_(),
                  heading_controller_()
 {
@@ -39,24 +38,22 @@ void Drive::update()
     case DriveState::HEADING_LOCK:
     {
         drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), false);
-        drive_speed.setOmega(heading_controller_.update(Rotation2D::fromDegrees(bno_.getYaw())));
-        desired_chassis_speed_ = drive_speed;
+        drive_speed.omega = heading_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()));
     }
     break;
     case DriveState::FIELD_ORIENTED:
     {
-        desired_chassis_speed_ = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), true);
+        drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), true);
     }
     break;
     case DriveState::ROBOT_ORIENTED:
     {
         drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), false);
-        desired_chassis_speed_ = drive_speed;
     }
     break;
     }
 
-    move(desired_chassis_speed_);
+    move(drive_speed);
 }
 
 void Drive::setState(int state)
@@ -76,15 +73,10 @@ void Drive::acceptHeadingInput(Rotation2D heading)
 
 void Drive::move(ChassisSpeed chassis_speed)
 {
-    int front_left_speed = chassis_speed.getVx() + chassis_speed.getVy() + chassis_speed.getOmega();
-    int front_right_speed = -chassis_speed.getVx() + chassis_speed.getVy() - chassis_speed.getOmega();
-    int back_left_speed = -chassis_speed.getVx() + chassis_speed.getVy() + chassis_speed.getOmega();
-    int back_right_speed = chassis_speed.getVx() + chassis_speed.getVy() - chassis_speed.getOmega();
-
-    bluetooth.println("Front Left Speed: " + String(front_left_speed));
-    bluetooth.println(" Front Right Speed: " + String(front_right_speed));
-    bluetooth.println(" Back Left Speed: " + String(back_left_speed));
-    bluetooth.println(" Back Right Speed: " + String(back_right_speed));
+    int front_left_speed = chassis_speed.vx + chassis_speed.vy + chassis_speed.omega;
+    int front_right_speed = -chassis_speed.vx + chassis_speed.vy - chassis_speed.omega;
+    int back_left_speed = -chassis_speed.vx + chassis_speed.vy + chassis_speed.omega;
+    int back_right_speed = chassis_speed.vx + chassis_speed.vy - chassis_speed.omega;
 
     front_left_.move(front_left_speed);
     front_right_.move(front_right_speed);
@@ -140,6 +132,16 @@ void Drive::hardBrake()
     front_right_.brakeStop();
     back_left_.brakeStop();
     back_right_.brakeStop();
+}
+
+float Drive::getYaw()
+{
+    return bno_.getYaw();
+}
+
+Rotation2D Drive::getHeadingError()
+{
+    return heading_controller_.getError(Rotation2D::fromDegrees(bno_.getYaw()));
 }
 
 void Drive::motorTest()

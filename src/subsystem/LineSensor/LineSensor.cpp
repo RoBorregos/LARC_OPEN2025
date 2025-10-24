@@ -4,31 +4,33 @@
 #include <vector>
 using namespace std;
 
-LineSensor::LineSensor() : System(){
+LineSensor::LineSensor() : System()
+{
 }
 
-void LineSensor::begin() {
+void LineSensor::begin()
+{
     pinMode(Pins::kLineSensorFL, INPUT);
     pinMode(Pins::kLineSensorFR, INPUT);
     pinMode(Pins::kLineSensorBL, INPUT);
     pinMode(Pins::kLineSensorBR, INPUT);
 }
 
-void LineSensor::update() { }
+void LineSensor::update() {}
 
-void LineSensor::setState(int state) { }
+void LineSensor::setState(int state) {}
 
-
-std::vector<int> LineSensor::readSensors() const {
+std::vector<int> LineSensor::readSensors() const
+{
     return {
         digitalRead(Pins::kLineSensorFL),
         digitalRead(Pins::kLineSensorFR),
         digitalRead(Pins::kLineSensorBL),
-        digitalRead(Pins::kLineSensorBR)
-    };
+        digitalRead(Pins::kLineSensorBR)};
 }
 
-void LineSensor::printSensors() const {
+void LineSensor::printSensors() const
+{
     auto sensors = readSensors();
     Serial.print("FL: ");
     Serial.print(sensors[0]);
@@ -40,47 +42,57 @@ void LineSensor::printSensors() const {
     Serial.println(sensors[3]);
 }
 
-bool LineSensor::isFrontLine() const {
+bool LineSensor::isFrontLine()
+{
     auto v = readSensors();
-    return v[0] || v[1];
+    return v[0] && v[1];
 }
 
-bool LineSensor::isBackLine() const {
+bool LineSensor::isBackLine()
+{
     auto v = readSensors();
     return v[2] && v[3];
 }
 
-bool LineSensor::isLeftLine() const {
+bool LineSensor::isLeftLine()
+{
     auto v = readSensors();
-    return v[0] && v[2];
+    return v[0] || v[2];
+    // return leftLineChecker.update();
 }
 
-bool LineSensor::isRightLine() const {
+bool LineSensor::isRightLine()
+{
     auto v = readSensors();
-    return v[1] && v[3];
+    return v[1] || v[3];
 }
 
-bool LineSensor::isFrontLeftLine() const {
+bool LineSensor::isFrontLeftLine() const
+{
     auto v = readSensors();
     return v[0];
 }
 
-bool LineSensor::isFrontRightLine() const {
+bool LineSensor::isFrontRightLine() const
+{
     auto v = readSensors();
     return v[1];
 }
 
-bool LineSensor::isBackLeftLine() const {
+bool LineSensor::isBackLeftLine() const
+{
     auto v = readSensors();
     return v[2];
 }
 
-bool LineSensor::isBackRightLine() const {
+bool LineSensor::isBackRightLine() const
+{
     auto v = readSensors();
     return v[3];
 }
 
-int LineSensor::readSensor(int kSensor){
+int LineSensor::readSensor(int kSensor)
+{
     int value = digitalRead(kSensor);
-    return value; 
+    return value;
 }

@@ -11,11 +11,20 @@ void setup()
 void loop()
 {
   distance_sensor_.update();
+  auto [distanceLeft, validLeft] = distance_sensor_.getDistance(0);
+  auto [distanceRight, validRight] = distance_sensor_.getDistance(1);
   Serial.print("Left distance: ");
-  Serial.print(distance_sensor_.getDistance(0));
+
+  Serial.print(distanceLeft);
+  Serial.print(" cm  Valid: ");
+  Serial.print(validLeft ? "Yes " : "No ");
   Serial.print(" cm  Right distance: ");
-  Serial.print(distance_sensor_.getDistance(1));
-  Serial.println(" cm");
-  Serial.print(distance_sensor_.isObstacle() ? "Obstacle yes" : "Obstacle no");
+  Serial.print(distanceRight);
+  Serial.print(" cm  Valid: ");
+  Serial.print(validRight ? "Yes " : "No ");
+
+  auto [isObstacle, obstacleValid] = distance_sensor_.isObstacle();
+  Serial.print(isObstacle ? "Obstacle yes" : "Obstacle no");
+  Serial.println();
   delay(100);
 }

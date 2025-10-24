@@ -18,10 +18,10 @@ public:
     void update() override;
     void setState(int state) override;
 
-    bool isObstacle();
-    bool isTree();
-    bool obstacleInThePath();
-    float getDistance(int kSensor);
+    // The first element of the pair is the distance in cm, the second is whether the reading is valid
+    std::pair<bool, bool> isObstacle();
+    std::pair<bool, bool> isTree();
+    std::pair<float, bool> getDistance(int kSensor);
 
 private:
     void insertReadingLeft(float measurement);
