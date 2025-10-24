@@ -9,35 +9,25 @@
 
 using namespace Constants;
 
-class Intake : public System {
+class Intake : public System
+{
 private:
-    
-    static constexpr int kGrabBallServoPosition = 180;
-    static constexpr int kAvoidBallServoPosition = 30;
-    static constexpr int kStoredBallServoPosition = 150;
-    static constexpr int kIntakeRampPositioned = 90;
-    static constexpr int kIntakeRampStored = 0;
-
-public:
     Servo UpperIntakeServo;
     Servo LowerIntakeServo;
-    Servo IntakeRampServo;
+    Servo IntakeUpperRampServo;
 
+    void setIntakeServoPosition(Servo &servo, int position);
+public:
     Intake();
 
     void begin() override;
     void update() override;
     void setState(int state) override;
-    int getIntakeServoPosition(Servo &servo);
-    void setIntakeServoPosition(Servo &servo, int position);
     
-    enum class IntakeState {
+    enum class IntakeState
+    {
         ALL_SERVOS_STORED = 0,
         ALL_SERVOS_POSITIONED = 1,
-        UPPER_SERVO_POSITIONED = 2,
-        UPPER_SERVO_AWAY = 3,
-        LOWER_SERVO_POSITIONED = 4,
-        LOWER_SERVO_AWAY = 5
     };
 
     IntakeState intake_state_ = IntakeState::ALL_SERVOS_STORED;
