@@ -20,22 +20,23 @@ public:
 
     void print(const String &message)
     {
-        // if (bluetooth)
-        // {
-        //     bluetooth.print(message);
-        // }
+        if (bluetoothEnabled)
+        {
+            bluetooth.print(message);
+        }
         Serial.print(message);
     }
 
     void println(const String &message = "")
     {
-        // if (bluetooth)
-        // {
-        //     bluetooth.println(message);
-        // }
+        if (bluetoothEnabled)
+        {
+            bluetooth.println(message);
+        }
         Serial.println(message);
     }
 
 private:
     SoftwareSerial bluetooth;
+    bool bluetoothEnabled = true;
 };
