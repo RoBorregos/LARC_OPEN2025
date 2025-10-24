@@ -70,19 +70,19 @@ void StateMachine::handleStartState()
 {
   monitor_.println("START STATE");
 
-  drive_.acceptInput(0, 90, 0);
+  drive_.acceptInput(0, 0.5, 0);
 
   if (state_start_time == 0)
   {
     state_start_time = millis();
   }
 
-  // if (millis() - state_start_time > 3000)
+  // if (millis() - state_start_time > 2000)
   // {
   //   drive_.acceptInput(0, 0, 0);
   //   drive_.hardBrake();
   //   state_start_time = 0;
-  //   currentState = STATES::GO_STRAIGHT;
+  //   currentState = STATES::STOP;
   //   return;
   // }
 
@@ -96,7 +96,7 @@ void StateMachine::handleStartState()
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
     state_start_time = 0;
-    currentState = STATES::AVOID_OBSTACLE_LEFT;
+    currentState = STATES::STOP;
     return;
   }
 }
@@ -303,6 +303,6 @@ void StateMachine::handleGoBeginningState()
 void StateMachine::handleStopState()
 {
   monitor_.println("STOP STATE");
-  drive_.acceptInput(0, 0, 0);
+  // drive_.acceptInput(0, 0, 0);
   drive_.hardBrake();
 }

@@ -111,7 +111,7 @@ void DCMotor::moveStableRPM(double target_rpm)
     }
     double current_speed = getCurrentSpeed();
 
-    if (abs(current_speed) < 10e-5 && abs(target_rpm) < 10e-5){
+    if (abs(current_speed) < 10 && abs(target_rpm) < 10){
         velocity_controller_->reset();
     }
 

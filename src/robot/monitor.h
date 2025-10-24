@@ -38,5 +38,5 @@ public:
 
 private:
     SoftwareSerial bluetooth;
-    bool bluetoothEnabled = true;
+    bool bluetoothEnabled = false;
 };

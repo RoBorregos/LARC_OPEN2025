@@ -75,11 +75,42 @@ void loop()
   //   monitor_.println("No line detected on the left side.");
   // }
 
-  
-
-  drive_.acceptInput(0.0f, 0.5f, 0.0f);
   drive_.update();
 
+  // monitor_.print("Left distance: ");
+
+  // monitor_.print(distanceLeft);
+  // monitor_.print(" cm  Valid: ");
+  // monitor_.print(validLeft ? "Yes " : "No ");
+  // monitor_.print(" cm  Right distance: ");
+  // monitor_.print(distanceRight);
+  // monitor_.print(" cm  Valid: ");
+  // monitor_.print(validRight ? "Yes " : "No ");
+
+  // auto [isObstacle, obstacleValid] = distance_sensor_.isObstacle();
+  // monitor_.print(isObstacle ? "Obstacle yes" : "Obstacle no");
+  // monitor_.println();
+  // drive_.acceptInput(0, 0.8, 0);
+  distance_sensor_.update();
+  stateMachine.update();
+
+  // auto [distanceLeft, validLeft] = distance_sensor_.getDistance(0);
+  // auto [distanceRight, validRight] = distance_sensor_.getDistance(1);
+  // Serial.print("Left distance: ");
+
+  // Serial.print(distanceLeft);
+  // Serial.print(" cm  Valid: ");
+  // Serial.print(validLeft ? "Yes " : "No ");
+  // Serial.print(" cm  Right distance: ");
+  // Serial.print(distanceRight);
+  // Serial.print(" cm  Valid: ");
+  // Serial.print(validRight ? "Yes " : "No ");
+
+  // auto [isObstacle, obstacleValid] = distance_sensor_.isObstacle();
+  // Serial.print(isObstacle ? "Obstacle yes" : "Obstacle no");
+  // Serial.println();
+
+  // drive_.acceptInput(0.5, 0, 0);
   // followLine(0);
 
   // sensors_event_t linearAccelData;
@@ -96,5 +127,5 @@ void loop()
   // maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 0);
   // maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 110);
 
-  // delay(20);
+  delay(20);
 }
