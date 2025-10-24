@@ -65,7 +65,8 @@ namespace Pins {
     // INTAKE
     const uint8_t kUpperIntakeServo = 3;
     const uint8_t kLowerIntakeServo = 6;
-    const uint8_t kIntakeRamp = 32;
+    const uint8_t kIntakeUpperRamp = 4;
+    const uint8_t kIntakeLowerRamp = -1;
     const uint8_t kDropperServo = 37;
 }
 
