@@ -100,16 +100,6 @@ std::pair<bool, bool> DistanceSensor::isObstacle()
     return {obstacle, frontLeftDistance.second || frontRightDistance.second};
 }
 
-std::pair<bool, bool> DistanceSensor::isTree()
-{
-    std::pair<float, bool> frontLeftDistance = getDistance(0);
-    std::pair<float, bool> frontRightDistance = getDistance(1);
-
-    bool tree = (frontLeftDistance.first < DistanceSensorConstants::kTreeDistance) || (frontRightDistance.first < DistanceSensorConstants::kTreeDistance);
-
-    return {tree, frontLeftDistance.second || frontRightDistance.second};
-}
-
 void DistanceSensor::insertReadingLeft(float measurement)
 {
     leftSensorReadings.push_back(measurement);
