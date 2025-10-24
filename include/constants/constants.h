@@ -85,7 +85,7 @@ namespace Constants
         constexpr float kWheelCircumference = 2 * M_PI * kWheelRadius; // in m
         constexpr float kMaxWheelRPM = 150.0;                         // Max RPM of the wheel motors
 
-        constexpr float kHeadingControllerKp = 0.0; //2.5f;//160.0f; // ORIGINAL: 240.0f - WORKING GREAT RN 28/09/2025 12:02 PM
+        constexpr float kHeadingControllerKp = 1.7; //2.5f;//160.0f; // ORIGINAL: 240.0f - WORKING GREAT RN 28/09/2025 12:02 PM
         constexpr float kHeadingControllerKi = 0.0; // 0.003f;
         constexpr float kHeadingControllerKd = 0.0; // 0.3;//10.0f;
     }
