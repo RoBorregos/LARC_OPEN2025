@@ -35,28 +35,25 @@ void Drive::update()
     bno_.update();
 
     ChassisSpeed drive_speed;
-
-    // move(drive_speed);
-    // ChassisSpeed drive_speed;
-    //     switch (drive_state_)
-    //     {
-    //     case DriveState::HEADING_LOCK:
-    //     {
-    //         drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), false);
-    //         drive_speed.omega = heading_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()));
-    //     }
-    //     break;
-    //     case DriveState::FIELD_ORIENTED:
-    //     {
-    //     }
-    //     break;
-    //     case DriveState::ROBOT_ORIENTED:
-    //     {
-    //         drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), false);
-    //     }
-    //     break;
-    // }
-    drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), true);
+        switch (drive_state_)
+        {
+        case DriveState::HEADING_LOCK:
+        {
+            drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), false);
+            drive_speed.omega = heading_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()));
+        }
+        break;
+        case DriveState::FIELD_ORIENTED:
+        {
+        }
+        break;
+        case DriveState::ROBOT_ORIENTED:
+        {
+            drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), false);
+        }
+        break;
+    }
+    // drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), true);
 
     move(drive_speed);
 }
@@ -91,49 +88,49 @@ void Drive::move(ChassisSpeed chassis_speed)
     double bl_rpm = bl * 60.0 / DriveConstants::kWheelCircumference;
     double br_rpm = br * 60.0 / DriveConstants::kWheelCircumference;
 
-    monitor_.print("FL Calculated speed: ");
-    monitor_.println(fl);
-    monitor_.print("FL Desired RPM: ");
-    monitor_.println(fl_rpm);
-    monitor_.print("FL Current Speed RPM: ");
-    monitor_.println(front_left_.getCurrentSpeed());
-    monitor_.print("FL PID Output: ");
-    monitor_.println(front_left_.pidOutput);
-    monitor_.print("FL KF Output: ");
-    monitor_.println(front_left_.kfOutput);
+    // monitor_.print("FL Calculated speed: ");
+    // monitor_.println(fl);
+    // monitor_.print("FL Desired RPM: ");
+    // monitor_.println(fl_rpm);
+    // monitor_.print("FL Current Speed RPM: ");
+    // monitor_.println(front_left_.getCurrentSpeed());
+    // monitor_.print("FL PID Output: ");
+    // monitor_.println(front_left_.pidOutput);
+    // monitor_.print("FL KF Output: ");
+    // monitor_.println(front_left_.kfOutput);
 
-    monitor_.print("FR Calculated speed: ");
-    monitor_.println(fr);
-    monitor_.print("FR Desired RPM: ");
-    monitor_.println(fr_rpm);
-    monitor_.print("FR Current Speed RPM: ");
-    monitor_.println(front_right_.getCurrentSpeed());
-    monitor_.print("FR PID Output: ");
-    monitor_.println(front_right_.pidOutput);
-    monitor_.print("FR KF Output: ");
-    monitor_.println(front_right_.kfOutput);
+    // monitor_.print("FR Calculated speed: ");
+    // monitor_.println(fr);
+    // monitor_.print("FR Desired RPM: ");
+    // monitor_.println(fr_rpm);
+    // monitor_.print("FR Current Speed RPM: ");
+    // monitor_.println(front_right_.getCurrentSpeed());
+    // monitor_.print("FR PID Output: ");
+    // monitor_.println(front_right_.pidOutput);
+    // monitor_.print("FR KF Output: ");
+    // monitor_.println(front_right_.kfOutput);
 
-    monitor_.print("BL Calculated speed: ");
-    monitor_.println(bl);
-    monitor_.print("BL Desired RPM: ");
-    monitor_.println(bl_rpm);
-    monitor_.print("BL Current Speed RPM: ");
-    monitor_.println(back_left_.getCurrentSpeed());
-    monitor_.print("BL PID Output: ");
-    monitor_.println(back_left_.pidOutput);
-    monitor_.print("BL KF Output: ");
-    monitor_.println(back_left_.kfOutput);
+    // monitor_.print("BL Calculated speed: ");
+    // monitor_.println(bl);
+    // monitor_.print("BL Desired RPM: ");
+    // monitor_.println(bl_rpm);
+    // monitor_.print("BL Current Speed RPM: ");
+    // monitor_.println(back_left_.getCurrentSpeed());
+    // monitor_.print("BL PID Output: ");
+    // monitor_.println(back_left_.pidOutput);
+    // monitor_.print("BL KF Output: ");
+    // monitor_.println(back_left_.kfOutput);
 
-    monitor_.print("BR Calculated speed: ");
-    monitor_.println(br);
-    monitor_.print("BR Desired RPM: ");
-    monitor_.println(br_rpm);
-    monitor_.print("BR Current Speed RPM: ");
-    monitor_.println(back_right_.getCurrentSpeed());
-    monitor_.print("BR PID Output: ");
-    monitor_.println(back_right_.pidOutput);
-    monitor_.print("BR KF Output: ");
-    monitor_.println(back_right_.kfOutput);
+    // monitor_.print("BR Calculated speed: ");
+    // monitor_.println(br);
+    // monitor_.print("BR Desired RPM: ");
+    // monitor_.println(br_rpm);
+    // monitor_.print("BR Current Speed RPM: ");
+    // monitor_.println(back_right_.getCurrentSpeed());
+    // monitor_.print("BR PID Output: ");
+    // monitor_.println(back_right_.pidOutput);
+    // monitor_.print("BR KF Output: ");
+    // monitor_.println(back_right_.kfOutput);
 
     front_left_.moveStableRPM(fl_rpm);
     front_right_.moveStableRPM(fr_rpm);
