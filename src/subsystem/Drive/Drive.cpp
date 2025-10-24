@@ -38,7 +38,7 @@ void Drive::update()
     case DriveState::HEADING_LOCK:
     {
         drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), false);
-        drive_speed.setOmega(heading_controller_.update(Rotation2D::fromDegrees(bno_.getYaw())));
+        drive_speed.omega = heading_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()));
     }
     break;
     case DriveState::FIELD_ORIENTED:
@@ -73,16 +73,10 @@ void Drive::acceptHeadingInput(Rotation2D heading)
 
 void Drive::move(ChassisSpeed chassis_speed)
 {
-    int front_left_speed = chassis_speed.getVx() + chassis_speed.getVy() + chassis_speed.getOmega();
-    int front_right_speed = -chassis_speed.getVx() + chassis_speed.getVy() - chassis_speed.getOmega();
-    int back_left_speed = -chassis_speed.getVx() + chassis_speed.getVy() + chassis_speed.getOmega();
-    int back_right_speed = chassis_speed.getVx() + chassis_speed.getVy() - chassis_speed.getOmega();
-
-    monitor_.println("Front Left Speed: " + String(front_left_speed));
-    monitor_.println(" Front Right Speed: " + String(front_right_speed));
-    monitor_.println(" Back Left Speed: " + String(back_left_speed));
-    monitor_.println(" Back Right Speed: " + String(back_right_speed));
-    monitor_.println("Omega: " + String(chassis_speed.getOmega()));
+    int front_left_speed = chassis_speed.vx + chassis_speed.vy + chassis_speed.omega;
+    int front_right_speed = -chassis_speed.vx + chassis_speed.vy - chassis_speed.omega;
+    int back_left_speed = -chassis_speed.vx + chassis_speed.vy + chassis_speed.omega;
+    int back_right_speed = chassis_speed.vx + chassis_speed.vy - chassis_speed.omega;
 
     front_left_.move(front_left_speed);
     front_right_.move(front_right_speed);

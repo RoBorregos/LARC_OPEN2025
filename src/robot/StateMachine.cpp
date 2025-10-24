@@ -99,7 +99,6 @@ void StateMachine::handleStartState()
     currentState = STATES::AVOID_OBSTACLE_LEFT;
     return;
   }
-
 }
 
 void StateMachine::handleAvoidObstacleLeftState()
@@ -114,15 +113,15 @@ void StateMachine::handleAvoidObstacleLeftState()
   // else
   // {
   // }
-  maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -100);
+  maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -80);
 
-  // if (line_sensor_.isLeftLine())
-  // {
-  //   drive_.acceptInput(0, 0, 0);
-  //   drive_.hardBrake();
-  //   currentState = STATES::AVOID_OBSTACLE_RIGHT;
-  //   return;
-  // }
+  if (line_sensor_.isLeftLine())
+  {
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    currentState = STATES::AVOID_OBSTACLE_RIGHT;
+    return;
+  }
 
   // if (!distance_sensor_.isObstacle())
   // {
@@ -136,31 +135,36 @@ void StateMachine::handleAvoidObstacleLeftState()
 
 void StateMachine::handleAvoidObstacleRightState()
 {
-  Serial.println("AVOID OBSTACLE RIGHT STATE");
   monitor_.println("AVOID OBSTACLE RIGHT STATE");
 
+  // the problem here is that the get distance function validates the distance with kMaxTargetDistance, so
+  // the distance will never be greater than that value unless the reading is invalid
   auto [distance, valid] = distance_sensor_.getDistance(1);
-  if (distance > DistanceSensorConstants::kMaxTargetDistance || distance > DistanceSensorConstants::kMaxTargetDistance && valid)
+  if (distance > DistanceSensorConstants::kObstacleDistance && valid)
   {
-    drive_.acceptInput(75, 0, 0);
+    drive_.acceptInput(80, 0, 0);
   }
   else
   {
-    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 110);
+    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 80);
   }
 
-  if (line_sensor_.isFrontRightLine())
-  {
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    currentState = STATES::AVOID_OBSTACLE_LEFT;
-    return;
-  }
+  // if (line_sensor_.isRightLine())
+  // {
+  //   drive_.acceptInput(0, 0, 0);
+  //   drive_.hardBrake();
+  //   currentState = STATES::AVOID_OBSTACLE_LEFT;
+  //   return;
+  // }
 
   auto [isObstacle, rightValid] = distance_sensor_.isObstacle();
   if (!isObstacle && rightValid)
   {
-    delay(500);
+    delay(700);
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    drive_.acceptInput(0, -50, 0);
+    delay(250);
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
     currentState = STATES::GO_STRAIGHT;
@@ -176,11 +180,11 @@ void StateMachine::handleGoStraightState()
   {
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
-    currentState = STATES::ENDLINE;
+    currentState = STATES::STOP;
   }
   else
   {
-    drive_.acceptInput(0, 40, 0);
+    drive_.acceptInput(0, 80, 0);
   }
 }
 

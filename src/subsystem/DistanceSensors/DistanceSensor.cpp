@@ -18,7 +18,9 @@ void DistanceSensor::setState(int state) {}
 
 static inline bool isValidDistance(float d)
 {
-    return std::isfinite(d) && d > 0.0f && !isnan(d) && d < DistanceSensorConstants::kMaxTargetDistance && d > 2.0f;
+    // Im gonna remove the d < DistanceSensorConstants::kMaxTargetDistance check to allow for farther readings to be considered valid
+    // Add it again if it causes issues
+    return std::isfinite(d) && d > 0.0f && !isnan(d) && d > 2.0f;
 }
 
 float DistanceSensor::readSensor(uint8_t trigPin, uint8_t echoPin) const
