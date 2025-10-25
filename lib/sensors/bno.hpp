@@ -25,6 +25,7 @@ class BNO
         float getYaw() const;
         void runCalibration();
         void getAngular();
+        bool getEvent(sensors_event_t* event, Adafruit_BNO055::adafruit_vector_type_t vec_type);
 
     private:
         Adafruit_BNO055 bno;
