@@ -26,7 +26,6 @@ class StateMachine
 private:
   STATES currentState;
   unsigned long state_start_time;
-  uint8_t after_obstacle_offset;
   Monitor &monitor;
 
 public:
@@ -35,7 +34,6 @@ public:
   void begin();
   void update();
 
-  STATES getCurrentState() const;
   void setState(STATES newState);
 
 private:
@@ -50,6 +48,8 @@ private:
   void handleAvoidObstacleRightReturnState();
   void handleGoBeginningState();
   void handleStopState();
+
+  void startStateTime();
 };
 
 #endif // STATEMACHINE_HPP
