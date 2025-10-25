@@ -53,31 +53,7 @@ void Intake::update()
 
 void Intake::setState(int state)
 {
-    switch (state)
-    {
-    case 0:
-        intake_state_ = IntakeState::ALL_SERVOS_STORED;
-        break;
-    case 1:
-        intake_state_ = IntakeState::ALL_SERVOS_POSITIONED;
-        break;
-    case 2:
-        intake_state_ = IntakeState::UPPER_SERVO_ONLY_STORED;
-        break;
-    case 3:
-
-        intake_state_ = IntakeState::LOWER_SERVO_ONLY_STORED;
-        break;
-    case 4:
-        intake_state_ = IntakeState::UPPER_SERVO_ONLY_POSITIONED;
-        break;
-    case 5:
-        intake_state_ = IntakeState::LOWER_SERVO_ONLY_POSITIONED;
-        break;
-    default:
-        intake_state_ = IntakeState::ALL_SERVOS_STORED;
-        break;
-    }
+    intake_state_ = static_cast<IntakeState>(state);
 }
 
 void Intake::setIntakeServoPosition(Servo &servo, int position)
