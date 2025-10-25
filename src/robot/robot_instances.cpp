@@ -3,9 +3,7 @@
 
 using namespace Constants;
 
-// Define global instances of robot subsystems
 Drive drive_;
-// Elevator elevator_;
 Sorter sorter_;
 LineSensor line_sensor_;
 DistanceSensor distance_sensor_;

@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 #include "StateUtils.h"
-#include "./monitor.h"
+#include "robot/robot_instances.h"
 
 enum class STATES
 {
@@ -23,13 +23,8 @@ enum class STATES
 
 class StateMachine
 {
-private:
-  STATES currentState;
-  unsigned long state_start_time;
-  Monitor &monitor;
-
 public:
-  StateMachine(Monitor &monitorRef);
+  StateMachine();
 
   void begin();
   void update();
@@ -37,6 +32,9 @@ public:
   void setState(STATES newState);
 
 private:
+  STATES currentState = STATES::START;
+  unsigned long state_start_time = 0;
+
   void handleStartState();
   void handleAvoidObstacleLeftState();
   void handleAvoidObstacleRightState();

@@ -1,8 +1,6 @@
 #include "StateMachine.h"
-#include "robot/robot_instances.h"
 
-StateMachine::StateMachine(Monitor &monitorRef)
-    : monitor(monitorRef), state_start_time(0), currentState(STATES::START)
+StateMachine::StateMachine()
 {
 }
 

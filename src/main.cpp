@@ -9,14 +9,11 @@
 
 #include "robot/robot_instances.h"
 #include "robot/StateMachine.h"
-#include <SoftwareSerial.h>
-#include "../../lib/controllers/PIDController.hpp"
 #include "constants/constants.h"
 
 using namespace Constants;
 
-// State machine instance
-StateMachine stateMachine(monitor_);
+StateMachine stateMachine;
 
 void setup()
 {
