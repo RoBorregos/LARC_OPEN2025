@@ -3,8 +3,10 @@ import cv2
 from collections import Counter
 import torch
 
-# Load TensorRT model
-model = YOLO("model/nanoModel.engine")
+model = YOLO("model/nanoModel.engine")  # TensorRT engine
+
+# Warmup al tamaño correcto
+model.warmup(imgsz=(1,3,480,480))
 
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 480)
@@ -17,8 +19,7 @@ while True:
     if not ret:
         continue
 
-    # Fast inference
-    results = model(frame, conf=0.5, verbose=False)
+    results = model(frame, conf=0.5, imgsz=480, verbose=False)  # <-- imgsz correcto
 
     counts = Counter()
     for r in results:
@@ -26,8 +27,7 @@ while True:
             cls = model.names[int(box.cls)]
             counts[cls] += 1
 
-    print(dict(counts)) 
-
+    print(dict(counts))
     torch.cuda.empty_cache()
 
     if cv2.waitKey(1) == 27:
