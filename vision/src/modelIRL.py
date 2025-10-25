@@ -2,11 +2,11 @@ import math
 import time
 from ultralytics import YOLO
 import cv2
+from collections import Counter
 
 # Load model
 model = YOLO("model/nanoModel.pt")  # Usa YOLO n
 model.fuse()  # Acelera inferencia
-IGNORE_CLASS = "green bean"
 class_names = model.names
 
 cap = cv2.VideoCapture(0)
@@ -25,9 +25,8 @@ while True:
 
     # Run YOLO inference (small resolution faster on Jetson)
     results = model.predict(frame, imgsz=640, conf=0.4, verbose=False)
-
-    # EXTRAER DETECCIONES
     detections = []
+    counts = Counter()
     for r in results:
         for box in r.boxes:
             class_id = int(box.cls[0])
@@ -35,14 +34,15 @@ while True:
             conf = float(box.conf[0])
             x1, y1, x2, y2 = box.xyxy[0].tolist()
 
-            if cls_name != IGNORE_CLASS:
-                detections.append({
-                    "class": cls_name,
-                    "confidence": conf,
-                    "bbox": [x1, y1, x2, y2]
-                })
+            detections.append({
+                "class": cls_name,
+                "conf": conf,
+                "bbox": (x1, y1, x2, y2)
+            })
+            counts[cls_name] += 1
 
-    print("Detections:", detections)  # <- AQUÍ YA RECIBES DETECCIONES
+    print("Detections:", detections)        # lista de detecciones
+    print("Counts:", dict(counts))         # cantidad por clase
 
     if cv2.waitKey(1) & 0xFF == 27:  # ESC
         break
