@@ -61,6 +61,12 @@ namespace Pins {
     static constexpr uint8_t kLineSensorFR = 27;
     static constexpr uint8_t kLineSensorBL = 21;
     static constexpr uint8_t kLineSensorBR = 20;
+  
+    const uint8_t kUpperIntakeServo = 3;
+    const uint8_t kLowerIntakeServo = 6;
+    const uint8_t kIntakeUpperRamp = 4;
+    const uint8_t kIntakeLowerRamp = -1;
+    const uint8_t kDropperServo = 37;
 }
 
 #endif

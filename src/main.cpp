@@ -29,6 +29,7 @@ void setup()
   com_.begin();
   line_sensor_.begin();
   distance_sensor_.begin();
+  intake_.begin();
   stateMachine.begin();
   monitor_.println("All systems initialized...");
 
@@ -127,5 +128,5 @@ void loop()
   // maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 0);
   // maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 110);
 
-  delay(20);
+  delay(SystemConstants::kUpdateInterval);
 }

@@ -1,64 +1,44 @@
 #include "Dropper.hpp"
 
 Dropper::Dropper()
-    : servo_pin_(1),
-      current_position_(POSITION_0) {}
+    : dropper_servo_(),
+      current_position_(CLOSED_POSITION) {}
 
 void Dropper::begin() {
-    servo_.attach(servo_pin_);
-    
-    setTo0();
-    
+    dropper_servo_.attach(Pins::kDropperServo);   
 }
 
 void Dropper::update() {
+    switch (dropper_state_) {
+        case DropperState::DROPPER_CLOSED:
+            setDropperPosition(CLOSED_POSITION);
+            break;
+        case DropperState::DROPPER_OPEN:
+            setDropperPosition(OPEN_POSITION);
+            break;
+    }
 }
 
 void Dropper::setState(int state) {
     switch (state) {
         case 0:
-            setTo0();
+            dropper_state_ = DropperState::DROPPER_CLOSED;
             break;
         case 1:
-            setTo180();
+            dropper_state_ = DropperState::DROPPER_OPEN;
             break;
         default:
             break;
     }
 }
 
-void Dropper::setPosition(int position) {
-    position = constrain(position, POSITION_0, POSITION_180);
-    servo_.write(position);
+void Dropper::setDropperPosition(int position) {
+    dropper_servo_.write(position);
     current_position_ = position;
-    
-    if (position == POSITION_0) {
-        dropper_state_ = DropperState::POSITION_0;
-    } else if (position == POSITION_180) {
-        dropper_state_ = DropperState::POSITION_180;
-    }
-    
-    delay(15); 
 }
 
-void Dropper::setTo0() {
-    setPosition(POSITION_0);
-    dropper_state_ = DropperState::POSITION_0;
-}
-
-void Dropper::setTo180() {
-    setPosition(POSITION_180);
-    dropper_state_ = DropperState::POSITION_180;
-}
-
-int Dropper::getCurrentPosition() const {
+int Dropper::getDropperPosition() {
     return current_position_;
 }
 
-bool Dropper::isAt0() const {
-    return current_position_ == POSITION_0;
-}
 
-bool Dropper::isAt180() const {
-    return current_position_ == POSITION_180;
-}
