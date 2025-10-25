@@ -19,30 +19,32 @@ namespace Constants
         constexpr float kUpdateInterval = 20.0;
     }
 
+    // Units: centimeters
     namespace DistanceSensorConstants
     {
+        // Distance threshold to consider an obstacle detected
         constexpr int kObstacleDistance = 40;
 
-        constexpr float kPoolTargetDistance = 20.0; // in cm
-        constexpr float kTreeTargetDistance = 25.0; // in cm
-        constexpr float kMaxTargetDistance = 50.0; // in cm
-        
+        // Target distance from the pool from which to move horizontally
+        constexpr float kPoolTargetDistance = 20.0;
+
         constexpr float kApproachDistanceTargetControllerKp = 2.5;
         constexpr float kApproachDistanceTargetControllerKi = 0.00;
-        constexpr float kApproachDistanceTargetControllerKd = 0.00; // ORIGINAL: 1.0
+        constexpr float kApproachDistanceTargetControllerKd = 0.00;
 
         constexpr float kRetreatDistanceTargetControllerKp = 2.0;
         constexpr float kRetreatDistanceTargetControllerKi = 0.00;
         constexpr float kRetreatDistanceTargetControllerKd = 0.00;
     }
 
+    // Units: meters, seconds, radians
     namespace DriveConstants
     {
-        constexpr float kWheelDiameter = 0.1;                          // in m
-        constexpr float kWheelRadius = kWheelDiameter / 2.0;           // in m
-        constexpr float kWheelCircumference = 2 * M_PI * kWheelRadius; // in m
+        constexpr float kWheelDiameter = 0.1;
+        constexpr float kWheelRadius = kWheelDiameter / 2.0;
+        constexpr float kWheelCircumference = 2 * M_PI * kWheelRadius;
 
-        constexpr float kHeadingControllerKp = 165.0f; // ORIGINAL: 240.0f - WORKING GREAT RN 28/09/2025 12:02 PM
+        constexpr float kHeadingControllerKp = 165.0f;
         constexpr float kHeadingControllerKi = 0.0f;
         constexpr float kHeadingControllerKd = 10.0f;
     }
