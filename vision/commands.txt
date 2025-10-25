@@ -1,7 +1,0 @@
-sudo docker run --rm -it \
-  --runtime nvidia \
-  --network host \
-  --device=/dev/video0:/dev/video0 \
-  -v /home/jetson/.local/lib/python3.8/site-packages/tensorrt:/usr/local/lib/python3.11/site-packages/tensorrt \
-  -v /home/jetson/.local/lib/python3.8/site-packages/pycuda:/usr/local/lib/python3.11/site-packages/pycuda \
-  larc-vision
