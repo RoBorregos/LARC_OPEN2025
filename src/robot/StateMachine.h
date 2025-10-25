@@ -14,6 +14,9 @@ void StateMachine::begin()
 
 void StateMachine::update()
 {
+
+  startStateTime();
+
   switch (currentState)
   {
   case STATES::START:
@@ -73,7 +76,6 @@ void StateMachine::startStateTime()
 void StateMachine::handleStartState()
 {
   monitor_.println("START STATE");
-  startStateTime();
 
   drive_.acceptInput(0, 90, 0);
 
@@ -103,7 +105,6 @@ void StateMachine::handleStartState()
 void StateMachine::handleAvoidObstacleLeftState()
 {
   monitor_.println("AVOID OBSTACLE LEFT STATE");
-  startStateTime();
 
   // if the distance is greater than the max target distance, it means we've reached the edge of the pool with one sensor, so we should keep moving until both sensors dont see the pool
   auto [distance, valid] = distance_sensor_.getDistance(0);
@@ -143,7 +144,6 @@ void StateMachine::handleAvoidObstacleLeftState()
 void StateMachine::handleAvoidObstacleRightState()
 {
   monitor_.println("AVOID OBSTACLE RIGHT STATE");
-  startStateTime();
 
   auto [distance, valid] = distance_sensor_.getDistance(1);
   if (distance > DistanceSensorConstants::kObstacleDistance && valid)
@@ -183,7 +183,6 @@ void StateMachine::handleAvoidObstacleRightState()
 void StateMachine::handleGoStraightState()
 {
   monitor_.println("GO_STRAIGHT STATE");
-  startStateTime();
 
   if (line_sensor_.isFrontLine())
   {
@@ -200,7 +199,6 @@ void StateMachine::handleGoStraightState()
 void StateMachine::handleEndlineState()
 {
   monitor_.println("ENDLINE STATE");
-  startStateTime();
 
   setState(STATES::STOP);
   // Serial.println("ENDLINE STATE");
@@ -218,7 +216,6 @@ void StateMachine::handleEndlineState()
 void StateMachine::handleRightmostState()
 {
   monitor_.println("RIGHTMOST STATE");
-  startStateTime();
 
   followLine(70);
 
@@ -233,20 +230,19 @@ void StateMachine::handleRightmostState()
 void StateMachine::handleReturnState()
 {
   monitor_.println("RETURN STATE");
-  startStateTime();
-
+  
   drive_.acceptInput(0, -40, 0);
   drive_.acceptHeadingInput(Rotation2D::fromDegrees(180));
   drive_.acceptInput(0, -40, 180);
   drive_.hardBrake();
+
   setState(STATES::STOP);
 }
 
 void StateMachine::handleAvoidObstacleLeftReturnState()
 {
   monitor_.println("AVOID OBSTACLE LEFT RETURN STATE");
-  startStateTime();
-
+  
   drive_.acceptInput(0, 0, 0);
 
   if (line_sensor_.isLeftLine())
@@ -270,7 +266,6 @@ void StateMachine::handleAvoidObstacleLeftReturnState()
 void StateMachine::handleAvoidObstacleRightReturnState()
 {
   monitor_.println("AVOID OBSTACLE RIGHT RETURN STATE");
-  startStateTime();
 
   drive_.acceptInput(0, 0, 0);
 
@@ -295,7 +290,6 @@ void StateMachine::handleAvoidObstacleRightReturnState()
 void StateMachine::handleGoBeginningState()
 {
   monitor_.println("GO BEGINNING STATE");
-  startStateTime();
   
   drive_.acceptInput(0, 0, 0);
 
@@ -313,7 +307,6 @@ void StateMachine::handleGoBeginningState()
 void StateMachine::handleStopState()
 {
   monitor_.println("STOP STATE");
-  startStateTime();
 
   drive_.acceptInput(0, 0, 0);
   drive_.hardBrake();
