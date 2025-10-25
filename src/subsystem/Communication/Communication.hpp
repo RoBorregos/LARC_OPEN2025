@@ -19,8 +19,17 @@ class Communication : public System {
         // Command processing
         string getCommand();
 
+        // Vision control
         void startDetection();
         void stopDetection();
+        
+        // Bean detection getters
+        string getTopBean();
+        string getBottomBean();
+        bool isVisionActive();
+        
+        // Send data to MQTT via vision system
+        void sendDataToMQTT(const string& data);
         
     private:
 
@@ -31,5 +40,13 @@ class Communication : public System {
         };
 
         VisionState vision_state_ = VisionState::GET_BEANS;
+        
+        // Bean detection data
+        string top_bean_;
+        string bottom_bean_;
+        bool vision_active_;
+        
+        // Private methods
         string readCommunication();
+        void readVisionData();
 };
