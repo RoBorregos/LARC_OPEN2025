@@ -5,9 +5,6 @@ import torch
 
 model = YOLO("model/nanoModel.engine")  # TensorRT engine
 
-# Warmup al tamaño correcto
-model.warmup(imgsz=(1,3,480,480))
-
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 480)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
