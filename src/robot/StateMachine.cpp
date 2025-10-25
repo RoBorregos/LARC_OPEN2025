@@ -1,4 +1,4 @@
-#include "StateMachine.hpp"
+#include "StateMachine.h"
 #include "robot/robot_instances.h"
 
 StateMachine::StateMachine(Monitor &monitorRef)
@@ -8,7 +8,7 @@ StateMachine::StateMachine(Monitor &monitorRef)
 
 void StateMachine::begin()
 {
-  currentState = STATES::RETURN;
+  currentState = STATES::START;
   state_start_time = 0;
 }
 
@@ -97,7 +97,7 @@ void StateMachine::handleStartState()
     delay(250);
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
-    setState(STATES::STOP);
+    setState(STATES::AVOID_OBSTACLE_LEFT);
     return;
   }
 }
@@ -188,6 +188,10 @@ void StateMachine::handleGoStraightState()
   {
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
+    drive_.acceptInput(0, -100, 0);
+    delay(250);
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
     setState(STATES::STOP);
   }
   else
@@ -230,7 +234,7 @@ void StateMachine::handleRightmostState()
 void StateMachine::handleReturnState()
 {
   monitor_.println("RETURN STATE");
-  
+
   drive_.acceptInput(0, -40, 0);
   drive_.acceptHeadingInput(Rotation2D::fromDegrees(180));
   drive_.acceptInput(0, -40, 180);
@@ -242,7 +246,7 @@ void StateMachine::handleReturnState()
 void StateMachine::handleAvoidObstacleLeftReturnState()
 {
   monitor_.println("AVOID OBSTACLE LEFT RETURN STATE");
-  
+
   drive_.acceptInput(0, 0, 0);
 
   if (line_sensor_.isLeftLine())
@@ -290,7 +294,7 @@ void StateMachine::handleAvoidObstacleRightReturnState()
 void StateMachine::handleGoBeginningState()
 {
   monitor_.println("GO BEGINNING STATE");
-  
+
   drive_.acceptInput(0, 0, 0);
 
   if (line_sensor_.isFrontLine())

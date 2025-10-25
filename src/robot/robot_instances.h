@@ -7,7 +7,7 @@
 #include "../subsystem/Sorter/Sorter.hpp"
 #include "../../lib/sensors/bno.hpp"
 #include "./monitor.h"
-#include "../subsystem/Intake/Intake.hpp"
+#include "../subsystem/Intake/Intake.h"
 
 extern Drive drive_;
 extern DistanceSensor distance_sensor_;

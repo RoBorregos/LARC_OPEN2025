@@ -8,7 +8,7 @@
 #include <Wire.h>
 
 #include "robot/robot_instances.h"
-#include "robot/StateMachine.hpp"
+#include "robot/StateMachine.h"
 #include <SoftwareSerial.h>
 #include "../../lib/controllers/PIDController.hpp"
 #include "constants/constants.h"
@@ -29,7 +29,7 @@ void setup()
   com_.begin();
   line_sensor_.begin();
   distance_sensor_.begin();
-  intake_.begin();
+  // intake_.begin();
   stateMachine.begin();
   monitor_.println("All systems initialized...");
 
@@ -61,15 +61,14 @@ void setup()
   //     }
   //   }
   // }
+  delay(1000); // Small delay before starting
 }
 
 void loop()
 {
   drive_.update();
 
-  // stateMachine.update();
-  
-  followLineJp(80.0);
+  stateMachine.update();
 
   delay(SystemConstants::kUpdateInterval);
 }
