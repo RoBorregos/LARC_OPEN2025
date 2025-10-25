@@ -1,51 +1,36 @@
-import math
-import time
 from ultralytics import YOLO
 import cv2
 from collections import Counter
+import torch
 
-# Load model
-model = YOLO("model/nanoModel.pt")  # Usa YOLO n
-model.fuse()  # Acelera inferencia
-class_names = model.names
+# Load TensorRT model
+model = YOLO("model/nanoModel.engine")
 
 cap = cv2.VideoCapture(0)
-cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-cap.set(cv2.CAP_PROP_FPS, 20)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 480)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-
-print("ESC to exit...")
+cap.set(cv2.CAP_PROP_FPS, 30)
+cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
 while True:
     ret, frame = cap.read()
     if not ret:
-        print("No frame from camera")
-        break
+        continue
 
-    # Run YOLO inference (small resolution faster on Jetson)
-    results = model.predict(frame, imgsz=640, conf=0.4, verbose=False)
-    detections = []
+    # Fast inference
+    results = model(frame, conf=0.5, verbose=False)
+
     counts = Counter()
     for r in results:
         for box in r.boxes:
-            class_id = int(box.cls[0])
-            cls_name = class_names[class_id]
-            conf = float(box.conf[0])
-            x1, y1, x2, y2 = box.xyxy[0].tolist()
+            cls = model.names[int(box.cls)]
+            counts[cls] += 1
 
-            detections.append({
-                "class": cls_name,
-                "conf": conf,
-                "bbox": (x1, y1, x2, y2)
-            })
-            counts[cls_name] += 1
+    print(dict(counts)) 
 
-    print("Detections:", detections)        # lista de detecciones
-    print("Counts:", dict(counts))         # cantidad por clase
+    torch.cuda.empty_cache()
 
-    if cv2.waitKey(1) & 0xFF == 27:  # ESC
+    if cv2.waitKey(1) == 27:
         break
 
 cap.release()
-cv2.destroyAllWindows()
