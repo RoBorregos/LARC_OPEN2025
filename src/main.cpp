@@ -65,23 +65,11 @@ void setup()
 
 void loop()
 {
-  // bool detected = line_sensor_.isLeftLine();
-
-  // if (detected)
-  // {
-  //   monitor_.println("Line detected on the left side!");
-  // }
-  // else
-  // {
-  //   monitor_.println("No line detected on the left side.");
-  // }
-
   drive_.update();
 
-  stateMachine.update();
-
-  // maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 0);
-  // maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 110);
+  // stateMachine.update();
+  
+  followLineJp(80.0);
 
   delay(SystemConstants::kUpdateInterval);
 }

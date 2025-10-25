@@ -79,6 +79,64 @@ void maintainDistance(float distance, float lateralSpeed)
   monitor_.println();
 }
 
+void followLineJp(float lateralSpeed)
+{
+  static int lastSeen = 0;        // -1 = behind, 1 = ahead, 0 = unknown
+  static float frontOutput = 0.0; // smoothed command
+  static int lostCounter = 0;     // how many cycles since last line detection
+
+  auto lineValues = line_sensor_.readSensors();
+  bool frontLeft = lineValues[0];
+  bool frontRight = lineValues[1];
+
+  float targetFrontOutput = 0.0;
+
+  if (frontLeft && !frontRight)
+  {
+    targetFrontOutput = -30.0;
+    lastSeen = -1;
+    lostCounter = 0;
+  }
+  else if (!frontLeft && frontRight)
+  {
+    targetFrontOutput = 50.0;
+    lastSeen = 1;
+    lostCounter = 0;
+  }
+  else if (frontLeft && frontRight)
+  {
+    targetFrontOutput = 0.0; // centered
+    lostCounter = 0;
+  }
+  else
+  {
+    // No detection
+    lostCounter++;
+    if (lostCounter < 25)
+    { // < 500 ms at delay(20)
+      // try to recover based on last seen
+      if (lastSeen == -1)
+        targetFrontOutput = -15.0;
+      else if (lastSeen == 1)
+        targetFrontOutput = 25.0;
+      else
+        targetFrontOutput = 0.0;
+    }
+    else
+    {
+      // Lost for too long → stop and reset
+      targetFrontOutput = 0.0;
+      lastSeen = 0;
+    }
+  }
+
+  // Smooth transitions
+  const float alpha = 0.2;
+  frontOutput += alpha * (targetFrontOutput - frontOutput);
+
+  drive_.acceptInput(lateralSpeed, frontOutput, 0.0);
+}
+
 void followLine(float lateralSpeed)
 {
   auto lineValues = line_sensor_.readSensors();

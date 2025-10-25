@@ -25,5 +25,5 @@ extern const float LATERAL_SPEED;
 
 // Function declarations
 void maintainDistance(float distance, float lateralSpeed);
+void followLineJp(float lateralSpeed);
 void followLine(float lateralSpeed);
-void evadeLine(float lateralSpeed);
