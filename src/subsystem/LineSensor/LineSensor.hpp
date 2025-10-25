@@ -6,7 +6,6 @@
 #include "../systems/system.hpp"
 #include "constants/constants.h"
 #include "constants/pins.h"
-#include "../../lib/sensors/LineSensorChecker.h"
 
 using namespace Constants;
 
@@ -32,13 +31,6 @@ public:
 
 private:
     int readSensor(int kSensor);
-
-    LineSensorChecker leftLineChecker{
-        [this]()
-        { return this->isFrontLeftLine(); },
-        [this]()
-        { return this->isBackLeftLine(); },
-        1};
 };
 
 #endif
