@@ -12,3 +12,4 @@ DistanceSensor distance_sensor_;
 Communication com_;
 BNO bno_;
 Monitor monitor_(25, 24);
+Intake intake_;

@@ -32,6 +32,7 @@ public:
     void acceptHeadingInput(Rotation2D heading);
     void brake();
     void hardBrake();
+    void setStopped(bool stopped);
 
     // void moveForwardCm(float distance_cm, int speed = 100);
     // void moveBackwardCm(float distance_cm, int speed = 100);
@@ -73,6 +74,7 @@ private:
     };
 
     DriveState drive_state_ = DriveState::FIELD_ORIENTED;
+    bool is_stopped_ = false;
 
     /* Drive controllers */
     DriveController drive_controller_;

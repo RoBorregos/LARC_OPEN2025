@@ -27,3 +27,4 @@ extern const float LATERAL_SPEED;
 void maintainDistance(float distance, float lateralSpeed);
 void followLine(float lateralSpeed);
 void evadeLine(float lateralSpeed);
+void followLineJp(float lateralSpeed);

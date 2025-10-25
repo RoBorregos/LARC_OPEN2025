@@ -8,7 +8,7 @@ StateMachine::StateMachine(Monitor &monitorRef)
 
 void StateMachine::begin()
 {
-  currentState = STATES::START;
+  currentState = STATES::AVOID_OBSTACLE_RIGHT;
   state_start_time = 0;
 }
 
@@ -91,12 +91,9 @@ void StateMachine::handleStartState()
   {
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
-    drive_.acceptInput(0, -50, 0);
-    delay(250);
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
     state_start_time = 0;
-    currentState = STATES::STOP;
+    delay(250);
+    currentState = STATES::AVOID_OBSTACLE_LEFT;
     return;
   }
 }
@@ -113,7 +110,8 @@ void StateMachine::handleAvoidObstacleLeftState()
   // else
   // {
   // }
-  maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -80);
+  // drive_.acceptInput(-0.5, 0, 0);
+  maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -0.5);
 
   if (line_sensor_.isLeftLine())
   {
@@ -139,15 +137,15 @@ void StateMachine::handleAvoidObstacleRightState()
 
   // the problem here is that the get distance function validates the distance with kMaxTargetDistance, so
   // the distance will never be greater than that value unless the reading is invalid
-  auto [distance, valid] = distance_sensor_.getDistance(1);
-  if (distance > DistanceSensorConstants::kObstacleDistance && valid)
-  {
-    drive_.acceptInput(80, 0, 0);
-  }
-  else
-  {
-    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 80);
-  }
+  // auto [distance, valid] = distance_sensor_.getDistance(1);
+  // if (distance > DistanceSensorConstants::kObstacleDistance && valid)
+  // {
+  //   drive_.acceptInput(80, 0, 0);
+  // }
+  // else
+  // {
+  //   maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 80);
+  // }
 
   // if (line_sensor_.isRightLine())
   // {
@@ -157,17 +155,24 @@ void StateMachine::handleAvoidObstacleRightState()
   //   return;
   // }
 
-  auto [isObstacle, rightValid] = distance_sensor_.isObstacle();
-  if (!isObstacle && rightValid)
+  auto [distance, valid] = distance_sensor_.getDistance(1);
+  if (distance > DistanceSensorConstants::kObstacleDistance && valid)
   {
-    delay(700);
+    drive_.acceptInput(0.5, 0, 0);
+  }
+  else
+  {
+    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 0.5);
+  }
+
+  auto [isObstacle, isValid] = distance_sensor_.isObstacle();
+  if (!isObstacle && isValid)
+  {
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
-    drive_.acceptInput(0, -50, 0);
+    state_start_time = 0;
     delay(250);
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    currentState = STATES::GO_STRAIGHT;
+    currentState = STATES::STOP;
     return;
   }
 }
@@ -184,7 +189,7 @@ void StateMachine::handleGoStraightState()
   }
   else
   {
-    drive_.acceptInput(0, 80, 0);
+    drive_.acceptInput(0, 0.5, 0);
   }
 }
 

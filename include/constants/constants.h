@@ -21,16 +21,16 @@ namespace Constants
 
     namespace DistanceSensorConstants
     {
-        constexpr int kObstacleDistance = 40;
+        constexpr int kObstacleDistance = 30;
 
         constexpr float kPoolTargetDistance = 20.0; // in cm
         constexpr float kTreeTargetDistance = 25.0; // in cm
         constexpr float kMaxTargetDistance = 50.0; // in cm
-        constexpr float kApproachDistanceTargetControllerKp = 2.5;
+        constexpr float kApproachDistanceTargetControllerKp = 0.07;
         constexpr float kApproachDistanceTargetControllerKi = 0.00;
         constexpr float kApproachDistanceTargetControllerKd = 0.00; // ORIGINAL: 1.0
 
-        constexpr float kRetreatDistanceTargetControllerKp = 2.0;
+        constexpr float kRetreatDistanceTargetControllerKp = 0.07;
         constexpr float kRetreatDistanceTargetControllerKi = 0.00;
         constexpr float kRetreatDistanceTargetControllerKd = 0.00;
     }

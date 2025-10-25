@@ -10,7 +10,7 @@
 #include "../../robot/robot_instances.h"
 
 Drive::Drive() : front_left_(Pins::kUpperMotors[0], Pins::kUpperMotors[1], Pins::kPwmPin[0], true, Pins::kEncoders[0], Pins::kEncoders[1], false, 2.0, 0.35, 0.0025, 0.708333333 * 1.5, 360),
-                 front_right_(Pins::kUpperMotors[2], Pins::kUpperMotors[3], Pins::kPwmPin[1], false, Pins::kEncoders[2], Pins::kEncoders[3], false, 2.0,0.35, 0.0025, 0.708333333 * 1.5, 360),
+                 front_right_(Pins::kUpperMotors[2], Pins::kUpperMotors[3], Pins::kPwmPin[1], false, Pins::kEncoders[2], Pins::kEncoders[3], false, 2.0, 0.35, 0.0025, 0.708333333 * 1.5, 360),
                  back_left_(Pins::kLowerMotors[0], Pins::kLowerMotors[1], Pins::kPwmPin[2], true, Pins::kEncoders[4], Pins::kEncoders[5], false, 2.0, 0.35, 0.0025, 0.708333333 * 1.5, 360),
                  back_right_(Pins::kLowerMotors[2], Pins::kLowerMotors[3], Pins::kPwmPin[3], false, Pins::kEncoders[6], Pins::kEncoders[7], true, 0.2, 0.1, 0.0, 0.708333333 * 0.7, 360),
 
@@ -35,24 +35,24 @@ void Drive::update()
     bno_.update();
 
     ChassisSpeed drive_speed;
-        switch (drive_state_)
-        {
-        case DriveState::HEADING_LOCK:
-        {
-            drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), false);
-            drive_speed.omega = heading_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()));
-        }
-        break;
-        case DriveState::FIELD_ORIENTED:
-        {
-            drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), true);
-        }
-        break;
-        case DriveState::ROBOT_ORIENTED:
-        {
-            drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), false);
-        }
-        break;
+    switch (drive_state_)
+    {
+    case DriveState::HEADING_LOCK:
+    {
+        drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), false);
+        drive_speed.omega = heading_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()));
+    }
+    break;
+    case DriveState::FIELD_ORIENTED:
+    {
+        drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), true);
+    }
+    break;
+    case DriveState::ROBOT_ORIENTED:
+    {
+        drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), false);
+    }
+    break;
     }
 
     move(drive_speed);
@@ -66,6 +66,11 @@ void Drive::setState(int state)
 void Drive::acceptInput(float vx, float vy, float omega)
 {
     drive_controller_.acceptInput(vx, vy, omega);
+    // Reset stopped state when new input is received
+    if (is_stopped_ && (vx != 0 || vy != 0 || omega != 0))
+    {
+        is_stopped_ = false;
+    }
 }
 
 void Drive::acceptHeadingInput(Rotation2D heading)
@@ -75,6 +80,12 @@ void Drive::acceptHeadingInput(Rotation2D heading)
 
 void Drive::move(ChassisSpeed chassis_speed)
 {
+    // If robot is stopped, don't use PID controllers to avoid jitter
+    if (is_stopped_)
+    {
+        return;
+    }
+
     double trackWidth = 0.382;
     double wheelBase = 0.415;
 
@@ -132,10 +143,42 @@ void Drive::move(ChassisSpeed chassis_speed)
     // monitor_.print("BR KF Output: ");
     // monitor_.println(back_right_.kfOutput);
 
-    front_left_.moveStableRPM(fl_rpm);
-    front_right_.moveStableRPM(fr_rpm);
-    back_left_.moveStableRPM(bl_rpm);
-    back_right_.moveStableRPM(br_rpm);
+    if (fabs(fl_rpm) < 1.0)
+    {
+        front_left_.move(0.0);
+    }
+    else
+    {
+
+        front_left_.moveStableRPM(fl_rpm);
+    }
+
+    if (fabs(fr_rpm) < 1.0)
+    {
+        front_right_.move(0.0);
+    }
+    else
+    {
+        front_right_.moveStableRPM(fr_rpm);
+    }
+
+    if (fabs(bl_rpm) < 1.0)
+    {
+        back_left_.move(0.0);
+    }
+    else
+    {
+        back_left_.moveStableRPM(bl_rpm);
+    }
+    
+    if (fabs(br_rpm) < 1.0)
+    {
+        back_right_.move(0.0);
+    }
+    else
+    {
+        back_right_.moveStableRPM(br_rpm);
+    }
 }
 
 /* Basic Movement Functions */
@@ -186,6 +229,12 @@ void Drive::hardBrake()
     front_right_.brakeStop();
     back_left_.brakeStop();
     back_right_.brakeStop();
+    is_stopped_ = true;
+}
+
+void Drive::setStopped(bool stopped)
+{
+    is_stopped_ = stopped;
 }
 
 float Drive::getYaw()

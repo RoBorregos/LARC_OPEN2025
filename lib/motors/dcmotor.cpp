@@ -111,7 +111,8 @@ void DCMotor::moveStableRPM(double target_rpm)
     }
     double current_speed = getCurrentSpeed();
 
-    if (abs(current_speed) < 10 && abs(target_rpm) < 10){
+    if (abs(current_speed) < 10 && abs(target_rpm) < 10)
+    {
         velocity_controller_->reset();
     }
 
@@ -164,6 +165,10 @@ void DCMotor::stop()
 
 void DCMotor::brakeStop()
 {
+    if (velocity_controller_ != nullptr)
+    {
+        velocity_controller_->reset();
+    }
     digitalWrite(in1_pin_, HIGH);
     digitalWrite(in2_pin_, HIGH);
     analogWrite(pwm_pin_, 0);

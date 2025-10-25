@@ -49,7 +49,7 @@ void maintainDistance(float distance, float lateralSpeed)
   Rotation2D error = drive_.getHeadingError();
 
   // Only correct if theading error is within 30 degrees
-  if (std::abs(error.getDegrees()) < 30)
+  if (std::abs(error.getDegrees()) < 20)
   {
     // if the difference between both sensors is less than 10, and both their measurements are valid, then correct
     if (std::abs(leftDistance - rightDistance) < 10 && leftValid && rightValid)
@@ -59,8 +59,12 @@ void maintainDistance(float distance, float lateralSpeed)
     }
     else
     {
-      drive_.acceptInput(0, -50, 0);
+      drive_.acceptInput(lateralSpeed, 0, 0.0);
     }
+    // else
+    // {
+    //   drive_.acceptInput(0, -0.1, 0);
+    // }
   }
 
   monitor_.print("L: ");
@@ -150,4 +154,47 @@ void evadeLine(float lateralSpeed)
     drive_.acceptInput(lateralSpeed, 0.0, 0.0);
     monitor_.println("No line detected - moving lateral");
   }
+}
+
+void followLineJp(float lateralSpeed)
+{
+  static int last_error = 0;      // -1 = behind (frontLeft), 1 = ahead (frontRight)
+  static float frontOutput = 0.0; // smoothed command
+  static unsigned long lastSeenTime = 0;
+  static unsigned long last_update = 0;
+  static float correction = 0.0;
+
+  auto lineValues = line_sensor_.readSensors();
+  bool frontLeft = lineValues[0];
+  bool frontRight = lineValues[1];
+
+  float error = 0;
+
+  if (frontLeft && !frontRight)
+  {
+    // Perfect position
+    error = 0;
+  }
+  else if (!frontLeft && frontRight)
+  {
+    // Too far right → steer left
+    error = -1;
+  }
+  else if (!frontLeft && !frontRight)
+  {
+    // Lost line → decay previous correction
+    error = last_error * 0.9;
+  }
+  else
+  {
+    // Both on line → centered
+    error = 0;
+  }
+
+  float Kp = 0.4;
+  correction = Kp * error;
+
+  drive_.acceptInput(lateralSpeed, correction, 0.0);
+
+  last_error = error;
 }
