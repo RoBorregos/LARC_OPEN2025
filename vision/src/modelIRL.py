@@ -4,11 +4,11 @@ from ultralytics import YOLO
 import cv2
 
 # Load model once
-model = YOLO("model/nanoModel.onnx")
+model = YOLO("model/nanoModel.pt")
 IGNORE_CLASS = "green bean" 
 class_names = model.names  
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(2)
 if not cap.isOpened():
     print("Can't open camera.")
     exit()
@@ -26,15 +26,12 @@ try:
             break
 
         # Run inference with timing
-        start_time = time.time()
         results = model(frame, verbose=False)
-        inference_time = time.time() - start_time
-        
-        print(f"Inference time: {inference_time*1000:.2f} ms")
+        # print(results)
         
         # Display results if you are using a laptop
-        # annotated_img = results[0].plot()
-        # cv2.imshow('Detection', annotated_img)
+        annotated_img = results[0].plot()
+        cv2.imshow('Detection', annotated_img)
         
         # Exit on ESC key
         if cv2.waitKey(1) & 0xFF == 27:  # ESC key
