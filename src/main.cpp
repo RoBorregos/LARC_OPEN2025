@@ -29,7 +29,7 @@ void setup()
   com_.begin();
   line_sensor_.begin();
   distance_sensor_.begin();
-  // intake_.begin();
+  intake_.begin();
   stateMachine.begin();
   monitor_.println("All systems initialized...");
 
@@ -67,6 +67,7 @@ void setup()
 void loop()
 {
   drive_.update();
+  intake_.update();
 
   stateMachine.update();
 

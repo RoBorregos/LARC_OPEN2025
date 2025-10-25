@@ -12,6 +12,8 @@ void Intake::begin()
     UpperIntakeServo.attach(Pins::kUpperIntakeServo);
     LowerIntakeServo.attach(Pins::kLowerIntakeServo);
     IntakeRampEnableServo.attach(Pins::kIntakeRampEnable);
+
+    setState(0);
 }
 
 void Intake::update()
