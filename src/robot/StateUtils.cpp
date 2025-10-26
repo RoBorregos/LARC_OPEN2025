@@ -57,10 +57,6 @@ void maintainDistance(float distance, float lateralSpeed)
       drive_.acceptInput(lateralSpeed, forwardOutput, 0.0);
       // else, move backwards a little to allow for heading correction
     }
-    else
-    {
-      drive_.acceptInput(0, -50, 0);
-    }
   }
 
   monitor_.print("L: ");

@@ -28,10 +28,13 @@ void setup()
   distance_sensor_.begin();
   intake_.begin();
   stateMachine.begin();
+  elevator_.begin();
   monitor_.println("All systems initialized...");
 
   drive_.setState(0);
-  drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
+
+  delay(1000);
+  // drive_.acceptHeadingInput(Rotation2D::fromDegrees(180.0f));
 
   // Wait for "r" message from Bluetooth before continuing
   monitor_.println("Waiting for ready command (r)...");
@@ -58,13 +61,14 @@ void setup()
   //     }
   //   }
   // }
-  delay(1000); // Small delay before starting
 }
 
 void loop()
 {
   drive_.update();
-  intake_.update();
+
+  // intake_.update();
+  // elevator_.update();
 
   stateMachine.update();
 

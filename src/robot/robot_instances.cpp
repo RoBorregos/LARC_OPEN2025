@@ -3,11 +3,13 @@
 
 using namespace Constants;
 
+Monitor monitor_(0, 1);
+
 Drive drive_;
 Sorter sorter_;
 LineSensor line_sensor_;
 DistanceSensor distance_sensor_;
+Elevator elevator_;
 Communication com_;
-BNO bno_;
-Monitor monitor_(0, 1);
 Intake intake_;
+BNO bno_;

@@ -13,7 +13,6 @@ enum class STATES
   AVOID_OBSTACLE_RIGHT,
   GO_STRAIGHT,
   ENDLINE,
-  RIGHTMOST,
   AVOID_OBSTACLE_LEFT_RETURN,
   AVOID_OBSTACLE_RIGHT_RETURN,
   RETURN,
@@ -33,14 +32,19 @@ public:
 
 private:
   STATES currentState = STATES::START;
+
+  // Used for general timing within states (i.e after 3 seconds from state start, do X)
   unsigned long state_start_time = 0;
+
+  // Used for multi-stage actions within states (i.e start an action triggered by a sensor within a state, and then after some time do another action)
+  unsigned long action_start_time = 0;
+  int action_stage = 0;
 
   void handleStartState();
   void handleAvoidObstacleLeftState();
   void handleAvoidObstacleRightState();
   void handleGoStraightState();
   void handleEndlineState();
-  void handleRightmostState();
   void handleReturnState();
   void handleAvoidObstacleLeftReturnState();
   void handleAvoidObstacleRightReturnState();
