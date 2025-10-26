@@ -28,7 +28,8 @@ public:
     bool isFrontRightLine() const;
     bool isBackLeftLine() const;
     bool isBackRightLine() const;
-
+    bool isCenterLine() const;
+    
 private:
     int readSensor(int kSensor);
 };

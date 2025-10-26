@@ -26,7 +26,8 @@ std::vector<int> LineSensor::readSensors() const
         digitalRead(Pins::kLineSensorFL),
         digitalRead(Pins::kLineSensorFR),
         digitalRead(Pins::kLineSensorBL),
-        digitalRead(Pins::kLineSensorBR)};
+        digitalRead(Pins::kLineSensorBR),
+        digitalRead(Pins::kLineSensorFC)};
 }
 
 void LineSensor::printSensors() const
@@ -40,12 +41,14 @@ void LineSensor::printSensors() const
     Serial.print(sensors[2]);
     Serial.print(" BR: ");
     Serial.println(sensors[3]);
+    Serial.print(" FC: ");
+    Serial.println(sensors[4]);
 }
 
 bool LineSensor::isFrontLine()
 {
     auto v = readSensors();
-    return v[0] || v[1];
+    return v[0] || v[1] || v[4];
 }
 
 bool LineSensor::isBackLine()
@@ -58,7 +61,6 @@ bool LineSensor::isLeftLine()
 {
     auto v = readSensors();
     return v[0] || v[2];
-    // return leftLineChecker.update();
 }
 
 bool LineSensor::isRightLine()
@@ -89,6 +91,12 @@ bool LineSensor::isBackRightLine() const
 {
     auto v = readSensors();
     return v[3];
+}
+
+bool LineSensor::isCenterLine() const
+{
+    auto v = readSensors();
+    return v[4];
 }
 
 int LineSensor::readSensor(int kSensor)
