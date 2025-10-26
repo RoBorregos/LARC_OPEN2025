@@ -22,4 +22,3 @@ void loop()
 
   Serial.print(line_sensor_.isCenterLine() ? "center yes" : "center no");
   delay(100);
-}

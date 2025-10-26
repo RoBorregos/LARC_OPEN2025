@@ -26,7 +26,7 @@ void setup()
   com_.begin();
   line_sensor_.begin();
   distance_sensor_.begin();
-  intake_.begin();
+  // intake_.begin();
   stateMachine.begin();
   elevator_.begin();
   monitor_.println("All systems initialized...");
@@ -61,6 +61,8 @@ void setup()
   //     }
   //   }
   // }
+
+  drive_.acceptInput(-90, 0, 0);
 }
 
 void loop()
@@ -70,7 +72,24 @@ void loop()
   // intake_.update();
   // elevator_.update();
 
-  stateMachine.update();
+  // stateMachine.update();
+  followLineHybrid(70, 0.2f);
 
   delay(SystemConstants::kUpdateInterval);
+}
+
+void approach1()
+{
+  auto [isObstacle, rightValid] = distance_sensor_.isObstacle();
+  if (!isObstacle && rightValid)
+  {
+    Serial.println("RIGHT SENSOR CLEAR");
+    followLineJp(80, true);
+  }
+  else
+  {
+    Serial.println("RIGHT SENSOR BLOCKED");
+    maintainDistance(DistanceSensorConstants::kTreeTargetDistance, 79);
+    followLineJp(80, false);
+  }
 }

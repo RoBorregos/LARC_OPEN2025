@@ -75,69 +75,136 @@ void maintainDistance(float distance, float lateralSpeed)
   monitor_.println();
 }
 
-void followLineJp(float lateralSpeed)
+struct LowPassFilter
 {
-  static int lastSeen = 0;        // -1 = behind, 1 = ahead, 0 = unknown
-  static float frontOutput = 0.0; // smoothed command
-  static int lostCounter = 0;     // how many cycles since last line detection
+  float alpha;
+  float value;
+
+  LowPassFilter(float alpha = 0.2f) : alpha(alpha), value(0.0f) {}
+
+  float update(float input)
+  {
+    value += alpha * (input - value);
+    return value;
+  }
+};
+
+LowPassFilter accelFilterX(0.15f); // 0.05–0.2 typical range
+LowPassFilter accelFilterY(0.15f); // 0.05–0.2 typical range
+
+void followLineHybrid(float lateralSpeed, float dt)
+{
+  static float estimatedError = 0.0f;
 
   auto lineValues = line_sensor_.readSensors();
-  bool frontLeft = lineValues[0];
-  bool frontRight = lineValues[1];
+  bool left = lineValues[0];
+  bool center = lineValues[4];
+  bool right = lineValues[1];
 
-  float targetFrontOutput = 0.0;
+  // IMU data
+  auto accel = drive_.getLinearAcceleration(); // (ax, ay, az)
+  float aY_filtered = accelFilterY.update(std::get<1>(accel));
 
-  if (frontLeft && !frontRight)
+  float targetFrontOutput = 0.0f;
+
+  if (center || left || right)
   {
-    targetFrontOutput = -30.0;
-    lastSeen = -1;
-    lostCounter = 0;
-  }
-  else if (!frontLeft && frontRight)
-  {
-    targetFrontOutput = 50.0;
-    lastSeen = 1;
-    lostCounter = 0;
-  }
-  else if (frontLeft && frontRight)
-  {
-    targetFrontOutput = 0.0; // centered
-    lostCounter = 0;
+    if (center)
+      estimatedError = 0.0f;
+    else
+      estimatedError *= 0.3f; // keep a bit of residual for smooth transition
+
+    if (center)
+      targetFrontOutput = 0.0f;
+    else if (left && !right)
+      targetFrontOutput = -30.0f;
+    else if (right && !left)
+      targetFrontOutput = 30.0f;
+    else
+      targetFrontOutput = 0.0f;
+
+    monitor_.println(targetFrontOutput);
   }
   else
   {
-    // No detection
-    lostCounter++;
-    if (lostCounter < 25)
-    { // < 500 ms at delay(20)
-      // try to recover based on last seen
-      if (lastSeen == -1)
-        targetFrontOutput = -15.0;
-      else if (lastSeen == 1)
-        targetFrontOutput = 25.0;
-      else
-        targetFrontOutput = 0.0;
-    }
-    else
-    {
-      // Lost for too long → stop and reset
-      targetFrontOutput = 0.0;
-      lastSeen = 0;
-    }
+    // integrate approximate vertical velocity
+    estimatedError += aY_filtered * dt;
+
+    // decay slowly to avoid runaway drift
+    estimatedError *= 0.995f;
+
+    targetFrontOutput = estimatedError * 110.0f;
   }
 
-  // Smooth transitions
-  const float alpha = 0.2;
-  frontOutput += alpha * (targetFrontOutput - frontOutput);
-
-  drive_.acceptInput(lateralSpeed, frontOutput, 0.0);
+  targetFrontOutput = std::clamp(targetFrontOutput, -80.0f, 80.0f);
+  drive_.acceptInput(lateralSpeed, targetFrontOutput, 0.0f);
 }
+
+// void followLineHybrid(float lateralSpeed, float dt)
+// {
+//   static float estimatedError = 0.0;
+//   static float lastAngle = 0.0;
+
+//   auto lineValues = line_sensor_.readSensors();
+//   bool left = lineValues[0];
+//   bool center = lineValues[4];
+//   bool right = lineValues[1];
+
+//   // IMU data
+//   float angle = drive_.getYaw();                                          // degrees
+//   std::tuple<float, float, float> accel = drive_.getLinearAcceleration(); // m/s^2
+//   float aY_filtered = accelFilterY.update(std::get<1>(accel));
+//   float aX_filtered = accelFilterX.update(std::get<0>(accel));
+
+//   float targetFrontOutput = 0.0;
+
+//   if (center || left || right)
+//   {
+//     estimatedError = 0.0;
+//     lastAngle = angle;
+
+//     if (center)
+//       targetFrontOutput = 0.0;
+//     else if (left && !right)
+//       targetFrontOutput = -35.0;
+//     else if (right && !left)
+//       targetFrontOutput = 35.0;
+
+//     monitor_.print("Line detected | ");
+//     monitor_.print(targetFrontOutput);
+//     monitor_.println();
+//   }
+//   else
+//   {
+//     // --- Inertial recovery ---
+//     float headingRad = angle * M_PI / 180.0f;
+//     float lateralAccel = aX_filtered * cosf(headingRad) - aY_filtered * sinf(headingRad);
+//     estimatedError += lateralAccel * dt * 2.5f; // integrate lateral velocity
+
+//     targetFrontOutput = estimatedError * 100.0f; // big enough gain to feel it
+//     monitor_.print("No line | EstErr: ");
+//     monitor_.print(estimatedError);
+//     monitor_.print(" | aX: ");
+//     monitor_.print(aX_filtered);
+//     monitor_.print(" | aY: ");
+//     monitor_.print(aY_filtered);
+//     monitor_.print(" | Target: ");
+//     monitor_.print(targetFrontOutput);
+//     monitor_.println();
+//   }
+
+//   // Clamp to avoid excessive command
+//   targetFrontOutput = std::clamp(targetFrontOutput, -80.0f, 80.0f);
+
+//   drive_.acceptInput(lateralSpeed, targetFrontOutput, 0.0);
+// }
 
 void followLine(float lateralSpeed)
 {
   auto lineValues = line_sensor_.readSensors();
   bool frontLeft = lineValues[0];
   bool frontRight = lineValues[1];
+  bool frontCenter = lineValues[4];
 
   float frontError = 0.0;
   if (frontLeft && !frontRight)
