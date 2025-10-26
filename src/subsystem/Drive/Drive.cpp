@@ -83,6 +83,13 @@ void Drive::move(ChassisSpeed chassis_speed)
     back_right_.move(back_right_speed);
 }
 
+bool Drive::isAtHeadingTarget()
+{
+    Rotation2D error = getHeadingError();
+    float error_degrees = fabs(error.getDegrees());
+    return error_degrees < DriveConstants::kHeadingToleranceDegrees;
+}
+
 /* Basic Movement Functions */
 
 void Drive::moveForward(int speed)
