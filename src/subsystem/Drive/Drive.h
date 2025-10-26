@@ -33,6 +33,10 @@ public:
     void hardBrake();
 
     float getYaw();
+    std::tuple<float, float, float> getLinearAcceleration()
+    {
+        return bno_.getLinealAcceleration();
+    }
     Rotation2D getHeadingError();
     bool isAtHeadingTarget();
 
