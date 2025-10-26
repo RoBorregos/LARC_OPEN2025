@@ -34,6 +34,7 @@ public:
 
     float getYaw();
     Rotation2D getHeadingError();
+    bool isAtHeadingTarget();
 
     /* Debugging functions */
     void moveForward(int speed);
