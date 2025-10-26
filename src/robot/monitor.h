@@ -10,7 +10,7 @@ public:
 
     void begin()
     {
-        Serial.begin(9800);
+        Serial.begin(9600);
         bluetooth.begin(9800);
 
         Serial.println("Beginning serial");
@@ -19,7 +19,7 @@ public:
 
     void print(const String &message)
     {
-        if (bluetooth)
+        if (bluetoothEnabled)
         {
             bluetooth.print(message);
         }
@@ -28,7 +28,7 @@ public:
 
     void println(const String &message = "")
     {
-        if (bluetooth)
+        if (bluetoothEnabled)
         {
             bluetooth.println(message);
         }
@@ -37,4 +37,5 @@ public:
 
 private:
     SoftwareSerial bluetooth;
+    bool bluetoothEnabled = false;
 };
