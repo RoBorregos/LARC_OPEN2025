@@ -75,8 +75,6 @@ namespace Pins
     // NOT READY
     const uint8_t kDropperServo = 37;
 
-    const uint8_t kSorterDirPin = 23;
-    const uint8_t kSorterStepPin = 7;
 }
 
 #endif

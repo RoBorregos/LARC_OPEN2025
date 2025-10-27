@@ -22,7 +22,7 @@ void Sorter::moveToState(Sorter::SorterState target_state) {
     int target_index = static_cast<int>(target_state);
     long target_steps = static_cast<long>(target_index) * static_cast<long>(Sorter::kStepsPerPosition);
     // schedule movement
-    stepper.move(target_steps);
+    stepper.moveTo(target_steps);
     // store desired logical state (note: this is the requested state; the physical position will be reached asynchronously)
     sorter_state_ = target_state;
 }
@@ -31,18 +31,18 @@ bool Sorter::isRunning() {
     return stepper.distanceToGo() != 0;
 } 
 
-void Sorter::setMaxSpeed(uint16_t speed) {
-    stepper.setMaxSpeed(speed);
-}
+// void Sorter::setMaxSpeed(uint16_t speed) {
+//     stepper.setMaxSpeed(speed);
+// }
 
-void Sorter::setAcceleration(uint16_t acceleration) {
-    stepper.setAcceleration(acceleration);
-}
+// void Sorter::setAcceleration(uint16_t acceleration) {
+//     stepper.setAcceleration(acceleration);
+// }
 
-void Sorter::setSpeed(uint16_t speed) {
-    // setSpeed sets the current speed (steps/s) for runSpeed/runSpeedToPosition usage
-    stepper.setSpeed(speed);
-}
+// void Sorter::setSpeed(uint16_t speed) {
+//     // setSpeed sets the current speed (steps/s) for runSpeed/runSpeedToPosition usage
+//     stepper.setSpeed(speed);
+// }
 
 // void Sorter::update() {
 //     if (is_running_) {
