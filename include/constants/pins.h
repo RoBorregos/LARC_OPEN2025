@@ -67,6 +67,9 @@ namespace Pins {
     const uint8_t kIntakeUpperRamp = 4;
     const uint8_t kIntakeLowerRamp = -1;
     const uint8_t kDropperServo = 37;
+
+    const uint8_t kSorterDirPin = 23;
+    const uint8_t kSorterStepPin = 7;
 }
 
 #endif
