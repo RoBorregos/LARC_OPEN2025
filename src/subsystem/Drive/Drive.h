@@ -6,8 +6,8 @@
  * @brief Header file for the Drive class, which controls the robot's drive system.
  */
 
-#ifndef DRIVE_HPP
-#define DRIVE_HPP
+#pragma once
+
 #include <Arduino.h>
 #include <dcmotor.hpp>
 #include "constants/pins.h"
@@ -17,8 +17,7 @@
 #include "controllers/heading_controller.hpp"
 #include "controllers/drive_controller.hpp"
 #include "constants/constants.h"
-#include "../DistanceSensors/DistanceSensor.hpp"
-#include "../LineSensor/LineSensor.hpp"
+
 using namespace Constants;
 
 class Drive : public System
@@ -33,23 +32,13 @@ public:
     void brake();
     void hardBrake();
 
-    void moveForwardCm(float distance_cm, int speed = 100);
-    void moveBackwardCm(float distance_cm, int speed = 100);
-    void moveLeftCm(float distance_cm, int speed = 100);
-    void moveRightCm(float distance_cm, int speed = 100);
-    void resetEncoders();
-    float getAverageDistanceTraveled();
-
-    void followFrontLine(int movement);
-    void avoidFrontLine();
-    void keepObstacleDistance(int movement);
-
-    void setLinePIDConstants(float kp, float ki, float kd);
-    float calculateLineError(const std::vector<int> &sensors);
-    float calculateLinePID();
-
     float getYaw();
+    std::tuple<float, float, float> getLinearAcceleration()
+    {
+        return bno_.getLinealAcceleration();
+    }
     Rotation2D getHeadingError();
+    bool isAtHeadingTarget();
 
     /* Debugging functions */
     void moveForward(int speed);
@@ -78,8 +67,4 @@ private:
     /* Drive controllers */
     DriveController drive_controller_;
     HeadingController heading_controller_;
-
-
 };
-
-#endif

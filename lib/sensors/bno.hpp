@@ -2,7 +2,7 @@
  * @file bno.hpp
  * @date 22/04/2025
  * @author Juan Pablo Gutiérrez & Dana E. Torres Estrada
- *  
+ *
  * @brief Header file for the BNO class, which is the class for the BNO sensor.
  */
 
@@ -16,22 +16,23 @@
 
 class BNO
 {
-    public:
-        BNO();
-        bool begin();
-        void update();
-        float getRoll() const;
-        float getPitch() const;
-        float getYaw() const;
-        void runCalibration();
-        void getAngular();
+public:
+    BNO();
+    bool begin();
+    void update();
+    float getRoll() const;
+    float getPitch() const;
+    float getYaw() const;
+    void runCalibration();
+    void getAngular();
+    std::tuple<float, float, float> getLinealAcceleration();
 
-    private:
-        Adafruit_BNO055 bno;
-        sensors_event_t event;
-        bool initialized;
+private:
+    Adafruit_BNO055 bno;
+    sensors_event_t event;
+    bool initialized;
 
-        float wrapAngle(float angle) const;
+    float wrapAngle(float angle) const;
 };
 
 #endif

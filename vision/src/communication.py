@@ -41,3 +41,59 @@ def process_command(command: str) -> Function:
         return Function.DETECT_OBJECT
     else:
         return Function.NONE
+
+
+def start_model_once(camera):
+    """A small helper to run one pass of the model/detection when START is received.
+    This calls camera.detect_bean() as an example and prints results. In a
+    production setup you would start the continuous loop or the model server.
+    """
+    try:
+        bean_detected, bean_type, bx, by = camera.detect_bean()
+        print(f"[VISION] Bean: {bean_detected}, Type: {bean_type}, Offsets: X:{bx:.2f}, Y:{by:.2f}")
+        # Example: send a small matrix or data back to the Teensy as a debug reply
+        # Here we will send a tiny textual matrix-like structure in brackets
+        matrix_str = "[1,0,0;0,1,0;0,0,1]"
+        send_message(f"MATRIX:{matrix_str}")
+    except Exception as e:
+        print(f"Error running model: {e}")
+
+
+def listen_and_serve(camera, poll_interval: float = 0.2):
+    """Poll the Arduino/Teensy device for messages and react.
+    - If we receive 'START' => run the model (or start the model loop).
+    - If we receive 'DATA:' prefixed payload => parse and optionally respond.
+    This function is intentionally simple and uses the existing I2C read path.
+    """
+    print("[VISION] Starting listen loop. Polling for messages...")
+    try:
+        while True:
+            cmd = receive_response()
+            if not cmd:
+                time.sleep(poll_interval)
+                continue
+
+            cmd = cmd.strip()
+            print(f"[VISION] Received: '{cmd}'")
+
+            if cmd == "START":
+                print("[VISION] START command received. Running model once.")
+                start_model_once(camera)
+            elif cmd.startswith("DATA:"):
+                payload = cmd[len("DATA:"):]
+                print(f"[VISION] Received DATA payload: {payload}")
+                # For debug, reply acknowledging and optionally send matrix/data
+                send_message("ACK_DATA")
+            elif cmd.startswith("MATRIX:"):
+                # if the microcontroller sends matrix data to Vision
+                matrix_payload = cmd[len("MATRIX:"):]
+                print(f"[VISION] Received MATRIX payload: {matrix_payload}")
+            else:
+                # Map simple commands into Function enum if needed
+                func = process_command(cmd)
+                if func != Function.NONE:
+                    print(f"[VISION] Mapped command to function: {func}")
+
+            time.sleep(poll_interval)
+    except KeyboardInterrupt:
+        print("[VISION] Listener interrupted by user")

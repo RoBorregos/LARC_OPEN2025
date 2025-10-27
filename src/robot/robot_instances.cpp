@@ -3,13 +3,13 @@
 
 using namespace Constants;
 
-// Define global instances of robot subsystems
+Monitor monitor_(0, 1);
+
 Drive drive_;
-// Elevator elevator_;
 Sorter sorter_;
 LineSensor line_sensor_;
 DistanceSensor distance_sensor_;
+Elevator elevator_;
 Communication com_;
-BNO bno_;
-Monitor monitor_(0, 1);
 Intake intake_;
+BNO bno_;
