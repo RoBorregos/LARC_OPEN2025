@@ -76,6 +76,8 @@ void StateMachine::handleStartState()
 {
   monitor_.println("START STATE");
 
+  elevator_.setState(1); // Move elevator to starting position
+
   if (action_stage == 1)
   {
     if (millis() - action_start_time > 250)
@@ -378,6 +380,7 @@ void StateMachine::handleGoBeginningState()
       drive_.acceptInput(0, 0, 0);
       drive_.hardBrake();
       action_stage = 0;
+      elevator_.setState(2); // Lower elevator
       setState(STATES::STOP);
     }
     return;
