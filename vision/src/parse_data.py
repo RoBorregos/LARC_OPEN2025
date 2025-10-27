@@ -1,11 +1,12 @@
 import time
 import cv2
 from ultralytics import YOLO
+import serial
 
 # ------------ Configuration ------------
 MODEL_PATH   = "model/nanoModel.engine"
 IGNORE_CLASS = {"blue_benefit", "red_benefit"}
-SOURCE       = 2
+SOURCE       = 0 # Use 0 for xavier
 NONE_TEXT    = "none"
 TIMEOUT_SEC  = 0.5  # reset to none if > TIMEOUT_SEC since last detection
 
@@ -109,6 +110,33 @@ def annotate_and_show(r, frame, matrix, mid_x, best_for):
     cv2.imshow("Detections (with matrix)", annotated)
 
 
+def send_matrix_to_esp32(matrix, port='/dev/ttyUSB0', baudrate=9600):
+    """
+    Sends the matrix data to the ESP32 via serial communication.
+
+    Args:
+        matrix (list): The matrix data to send.
+        port (str): The serial port to use for communication.
+        baudrate (int): The baud rate for the serial communication.
+    """
+    try:
+        ser = serial.Serial(port, baudrate, timeout=1)
+        print("Serial connection established with ESP32.")
+
+        # Convert matrix to a string and send it
+        matrix_str = ','.join(matrix) + '\n'
+        ser.write(matrix_str.encode('utf-8'))
+        print(f"Matrix sent to ESP32: {matrix_str.strip()}")
+
+    except serial.SerialException as e:
+        print(f"Error in serial communication: {e}")
+
+    finally:
+        if 'ser' in locals() and ser.is_open:
+            ser.close()
+            print("Serial connection closed.")
+
+
 # ------------ Main loop ------------
 def run(verbose: bool):
     last_label   = {"bottom": None, "top": None} #init in None, None
@@ -153,4 +181,4 @@ def run(verbose: bool):
 
 if __name__ == "__main__":
     run(verbose=False)
-    
+
