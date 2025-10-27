@@ -4,7 +4,7 @@ from ultralytics import YOLO
 import serial
 
 # ------------ Configuration ------------
-MODEL_PATH   = "model/nanoModel.engine"
+MODEL_PATH   = "model/nanoModel.pt"
 IGNORE_CLASS = {"blue_benefit", "red_benefit"}
 SOURCE       = 0 # Use 0 for xavier
 NONE_TEXT    = "none"
@@ -55,9 +55,30 @@ def update_last_state(best_for, last_label, last_seen_ts, now, timeout_sec):
 
 def build_matrix(last_label, none_text):
     # Order: [top (left), bottom (right)]
+    # Map textual labels to numeric codes:
+    # inmature -> 0, mature -> 1, overmature -> 2, none/unknown -> -1
+    mapping = {
+        "inmature": 0,
+        "mature": 1,
+        "overmature": 2,
+        none_text: -1,
+    }
+
+    def label_to_code(label):
+        if label is None:
+            return -1
+        if isinstance(label, str):
+            key = label.strip().lower()
+            return mapping.get(key, -1)
+        try:
+            # If it's already numeric-like, coerce to int
+            return int(label)
+        except Exception:
+            return -1
+
     return [
-        last_label["top"] if last_label["top"] is not None else none_text,
-        last_label["bottom"] if last_label["bottom"] is not None else none_text,
+        label_to_code(last_label["top"]),
+        label_to_code(last_label["bottom"]),
     ]
 
 def print_status(matrix, last_seen_ts, now, infer_ms):
@@ -113,35 +134,20 @@ def annotate_and_show(r, frame, matrix, mid_x, best_for):
 def send_matrix_to_esp32(matrix, port='/dev/ttyUSB0', baudrate=115200):
     """
     Sends the matrix data to the ESP32 via serial communication.
+
+    Args:
+        matrix (list): The matrix data to send.
+        port (str): The serial port to use for communication.
+        baudrate (int): The baud rate for the serial communication.
     """
     try:
         ser = serial.Serial(port, baudrate, timeout=1)
+        print("Serial connection established with ESP32.")
 
-        # inmature -> 0, mature -> 1, overmature -> 2
-        mapping = {
-            "inmature": "0",
-            "mature": "1",
-            "overmature": "2",
-            NONE_TEXT: "-1",
-        }
-
-        numeric_items = []
-        for item in matrix:
-            if isinstance(item, str):
-                key = item.strip().lower()
-                numeric = mapping.get(key)
-                if numeric is None:
-                    try:
-                        int(key)
-                        numeric = key
-                    except ValueError:
-                        numeric = "-1"
-                numeric_items.append(numeric)
-            else:
-                numeric_items.append(str(item))
-
-        matrix_str = ','.join(numeric_items) + '\n'
+        # Convert matrix to a string and send it
+        matrix_str = ','.join(matrix) + '\n'
         ser.write(matrix_str.encode('utf-8'))
+        print(f"Matrix sent to ESP32: {matrix_str.strip()}")
 
     except serial.SerialException as e:
         print(f"Error in serial communication: {e}")
