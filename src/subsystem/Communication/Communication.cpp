@@ -27,11 +27,8 @@ string Communication::getCommand() {
 string Communication::readCommunication() {
     String msg;
 
-    if (Serial6.available()) {
-        msg = Serial6.readStringUntil('\n');
-        Serial6.print("Teensy receive: ");
-        Serial6.println(msg);
-        Serial.print("Debug USB: ");
+    if (Serial.available()) {
+        msg = Serial.readStringUntil('\n');
         Serial.println(msg);
         return msg.c_str();
     }
@@ -54,8 +51,8 @@ void Communication::sendData(const string &payload){
     }
 }
 
-vector<int> Communication::getMatrix(const string &msg) {
-    string s = msg;
+vector<int> Communication::getMatrix() {
+    string s = getCommand();
 
     if (!s.empty() && s.front() == '[') s.erase(0,1);
     if (!s.empty() && s.back() == ']') s.pop_back();
