@@ -165,6 +165,7 @@ def run(verbose: bool):
 
             # Always print to terminal
             print_status(matrix, last_seen_ts, now, infer_ms)
+            send_matrix_to_esp32(matrix)
 
             # Only show annotated window if verbose
             if verbose:
