@@ -50,27 +50,50 @@ void setup()
 
 void loop()
 {
-  sorter_.moveToState(Sorter::SorterState::MATURE_POS_1);
+  sorter_.setState(0);
   sorter_.update();
   delay(3000);
+
+  sorter_.setState(1);
+  sorter_.update();
+  delay(3000);
+
+  sorter_.setState(2);
+  sorter_.update();
+  delay(3000);
+
+  sorter_.setState(3);
+  sorter_.update();
+  delay(3000);
+
+  sorter_.setState(4);
+  sorter_.update();
+  delay(3000);
+
+  sorter_.setState(5);
+  sorter_.update();
+  delay(3000);
+  // sorter_.moveToState(Sorter::SorterState::MATURE_POS_1);
+  // sorter_.update();
+  // delay(3000);
   
-  sorter_.moveToState(Sorter::SorterState::MATURE_POS_2);
-  sorter_.update();
-  delay(3000);
+  // sorter_.moveToState(Sorter::SorterState::MATURE_POS_2);
+  // sorter_.update();
+  // delay(3000);
 
-  sorter_.moveToState(Sorter::SorterState::MATURE_POS_3);
-  sorter_.update();
-  delay(3000);
+  // sorter_.moveToState(Sorter::SorterState::MATURE_POS_3);
+  // sorter_.update();
+  // delay(3000);
 
-  sorter_.moveToState(Sorter::SorterState::OVERMATURE_POS_1); 
-  sorter_.update();
-  delay(3000);
+  // sorter_.moveToState(Sorter::SorterState::OVERMATURE_POS_1); 
+  // sorter_.update();
+  // delay(3000);
 
-  sorter_.moveToState(Sorter::SorterState::OVERMATURE_POS_2);
-  sorter_.update();
-  delay(3000);
+  // sorter_.moveToState(Sorter::SorterState::OVERMATURE_POS_2);
+  // sorter_.update();
+  // delay(3000);
 
-  sorter_.moveToState(Sorter::SorterState::OVERMATURE_POS_3);
-  sorter_.update();
-  delay(3000);
+  // sorter_.moveToState(Sorter::SorterState::OVERMATURE_POS_3);
+  // sorter_.update();
+  // delay(3000);
 }
