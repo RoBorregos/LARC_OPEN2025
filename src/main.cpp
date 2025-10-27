@@ -68,11 +68,16 @@ void setup()
 void loop()
 {
   drive_.update();
-
+  com_.update();
   intake_.update();
   elevator_.update();
 
-  stateMachine.update();
+  auto values = com_.getMatrix();
+  int top = values[0];
+  int bottom = values[1];
+
+  Serial.println("Top:" + String(top) + " Bottom:" + String(bottom));
+  // stateMachine.update();
 
   delay(SystemConstants::kUpdateInterval);
 }
