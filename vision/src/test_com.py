@@ -1,22 +1,13 @@
 import serial
 import time
 
-ser = serial.Serial('/dev/ttyTHS1', 9600, timeout=1)
+ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
+print("Jetson lista comunicando por USB con ESP32...")
 
-time.sleep(2)
+while True:
+    if ser.in_waiting > 0:
+        msg = ser.readline().decode('utf-8', errors='ignore').strip()
+        print("📩 ESP32 dijo:", msg)
 
-try:
-    while True:
-        # Envía un mensaje
-        ser.write(b'Hola desde Jetson Nano\n')
-        print("Mensaje enviado.")
-        
-        response = ser.readline().decode().strip()
-        if response:
-            print("Respuesta de Teensy:", response)
-        
-        time.sleep(1)
-
-except KeyboardInterrupt:
-    print("Terminando comunicación.")
-    ser.close()
+    ser.write(b"Mensaje desde Jetson\n")
+    time.sleep(1)
