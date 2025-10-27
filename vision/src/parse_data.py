@@ -131,7 +131,7 @@ def annotate_and_show(r, frame, matrix, mid_x, best_for):
     cv2.imshow("Detections (with matrix)", annotated)
 
 
-def send_matrix_to_esp32(matrix, port='/dev/ttyUSB0', baudrate=115200):
+def send_matrix_to_esp32(matrix, port='/dev/ttyACM0', baudrate=115200):
     try:
         ser = serial.Serial(port, baudrate, timeout=1)
         message = f"{matrix[0]},{matrix[1]}\n"
