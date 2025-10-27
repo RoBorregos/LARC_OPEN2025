@@ -7,7 +7,6 @@
  */
 
 #include "StateUtils.h"
-
 // Define the PID controllers
 PIDController approachLeftDistancePID(DistanceSensorConstants::kApproachDistanceTargetControllerKp, DistanceSensorConstants::kApproachDistanceTargetControllerKi, DistanceSensorConstants::kApproachDistanceTargetControllerKd, -150.0, 150.0);
 PIDController approachRightDistancePID(DistanceSensorConstants::kApproachDistanceTargetControllerKp, DistanceSensorConstants::kApproachDistanceTargetControllerKi, DistanceSensorConstants::kApproachDistanceTargetControllerKd, -150.0, 150.0);
@@ -94,55 +93,51 @@ LowPassFilter accelFilterY(0.15f); // 0.05–0.2 typical range
 
 void followLineHybrid(float lateralSpeed, float dt)
 {
-  static float estimatedError = 0.0f;
+  static float estimatedPositionError = 0.0f; // IMU-based lateral offset estimate (meters)
+  static float accelBiasY = 0.0f;             // Slow bias tracker for sideways acceleration drift
+  static bool lastLineOnRight = false;        // Remember which edge saw the line last
+
+  dt = std::max(0.0f, dt);  // Reject negative sampling intervals
+  dt = std::min(dt, 0.05f); // Cap dt to avoid huge integration jumps
 
   auto lineValues = line_sensor_.readSensors();
   bool left = lineValues[0];
-  bool center = lineValues[4];
   bool right = lineValues[1];
+  bool center = lineValues[4];
 
-  // IMU data
-  auto accel = drive_.getLinearAcceleration(); // (ax, ay, az)
-  float aY_filtered = accelFilterY.update(std::get<1>(accel));
+  auto accel = drive_.getLinearAcceleration();              // Raw acceleration in robot body frame (m/s²)
+  float yawRad = drive_.getYaw() * M_PI / 180.0f;           // Robot heading in radians
+  float a_body_y = accelFilterY.update(std::get<1>(accel)); // Filtered forward-axis accel (robot frame)
+  float a_world_sideways = cosf(yawRad) * a_body_y;         // Rotate to field sideways axis
 
-  float targetFrontOutput = 0.0f;
+  float targetFrontOutput = 0.0f; // Command along robot front/back (controls recentering)
 
   if (center || left || right)
   {
-    if (center)
-      estimatedError = 0.0f;
-    else
-      estimatedError *= 0.3f; // keep a bit of residual for smooth transition
-
-    if (center)
-      targetFrontOutput = 0.0f;
-    else if (left && !right)
-      targetFrontOutput = -30.0f;
-    else if (right && !left)
-      targetFrontOutput = 30.0f;
-    else
-      targetFrontOutput = 0.0f;
-
-    monitor_.println(targetFrontOutput);
+    accelBiasY += 0.05f * (a_world_sideways - accelBiasY);       // Update bias while sensors are trusted
+    estimatedPositionError = 0.0f;                               // Reset IMU integral when line is visible
+    lastLineOnRight = right && !left;                            // Record which side had the line
+    targetFrontOutput = center ? 0.0f : (left ? -30.0f : 30.0f); // Sensor-based correction
   }
   else
   {
-    // integrate approximate vertical velocity
-    estimatedError += aY_filtered * dt;
+    float correctedAccel = a_world_sideways - accelBiasY;                     // Remove bias to reduce drift
+    estimatedPositionError += correctedAccel * dt;                            // Integrate sideways motion
+    estimatedPositionError = std::clamp(estimatedPositionError, -0.6f, 0.6f); // Limit estimate
 
-    // decay slowly to avoid runaway drift
-    estimatedError *= 0.995f;
+    float gain = 130.0f;                                   // Convert position error to command
+    if (estimatedPositionError == 0.0f && lastLineOnRight) // If ambiguous, bias toward last seen edge
+      estimatedPositionError = 0.05f;
 
-    targetFrontOutput = estimatedError * 110.0f;
+    targetFrontOutput = std::clamp(estimatedPositionError * gain, -80.0f, 80.0f); // Clamp output
   }
 
-  targetFrontOutput = std::clamp(targetFrontOutput, -80.0f, 80.0f);
-  drive_.acceptInput(lateralSpeed, targetFrontOutput, 0.0f);
+  drive_.acceptInput(lateralSpeed, targetFrontOutput, 0.0f); // Apply lateral speed + correction
 }
 
 // void followLineHybrid(float lateralSpeed, float dt)
 // {
-//   static float estimatedError = 0.0;
+//   static float estimatedPositionError = 0.0;
 //   static float lastAngle = 0.0;
 
 //   auto lineValues = line_sensor_.readSensors();
@@ -160,7 +155,7 @@ void followLineHybrid(float lateralSpeed, float dt)
 
 //   if (center || left || right)
 //   {
-//     estimatedError = 0.0;
+//     estimatedPositionError = 0.0;
 //     lastAngle = angle;
 
 //     if (center)
@@ -179,7 +174,7 @@ void followLineHybrid(float lateralSpeed, float dt)
 //     // --- Inertial recovery ---
 //     float headingRad = angle * M_PI / 180.0f;
 //     float lateralAccel = aX_filtered * cosf(headingRad) - aY_filtered * sinf(headingRad);
-//     estimatedError += lateralAccel * dt * 2.5f; // integrate lateral velocity
+//     estimatedPositionError += lateralAccel * dt * 2.5f; // integrate lateral velocity
 
 //     targetFrontOutput = estimatedError * 100.0f; // big enough gain to feel it
 //     monitor_.print("No line | EstErr: ");

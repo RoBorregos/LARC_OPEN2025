@@ -14,6 +14,7 @@ void LineSensor::begin()
     pinMode(Pins::kLineSensorFR, INPUT);
     pinMode(Pins::kLineSensorBL, INPUT);
     pinMode(Pins::kLineSensorBR, INPUT);
+    pinMode(Pins::kLineSensorFC, INPUT);
 }
 
 void LineSensor::update() {}
