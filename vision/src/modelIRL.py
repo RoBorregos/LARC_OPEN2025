@@ -26,9 +26,20 @@ try:
         # Run inference
         results = model(frame, verbose=False)
         
+        # Count classes
+        boxes = results[0].boxes
+        labels = [class_names[int(b.cls[0])] for b in boxes]
+        inmature = sum(1 for l in labels if l == "inmature")
+        mature = sum(1 for l in labels if l == "mature")
+        overmature = sum(1 for l in labels if l == "overmature")
+
+        print(f"Inmature beans: {inmature}")
+        print(f"Mature beans: {mature}")
+        print(f"Overmature beans: {overmature}")
+
         # Display results
-        annotated_img = results[0].plot()
-        cv2.imshow('Detection', annotated_img)
+        # annotated_img = results[0].plot()
+        # cv2.imshow('Detection', annotated_img)
         
         # Exit on ESC key
         if cv2.waitKey(1) & 0xFF == 27:  # ESC key
