@@ -13,7 +13,7 @@ if not cap.isOpened():
 
 # Set camera properties for better performance
 cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-cap.set(cv2.CAP_PROP_FPS, 60)
+cap.set(cv2.CAP_PROP_FPS, 30)
 
 print("ESC to exit.")
 
@@ -38,8 +38,8 @@ try:
         print(f"Overmature beans: {overmature}")
 
         # Display results
-        # annotated_img = results[0].plot()
-        # cv2.imshow('Detection', annotated_img)
+        annotated_img = results[0].plot()
+        cv2.imshow('Detection', annotated_img)
         
         # Exit on ESC key
         if cv2.waitKey(1) & 0xFF == 27:  # ESC key

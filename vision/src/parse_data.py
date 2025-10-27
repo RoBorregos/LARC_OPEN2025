@@ -4,7 +4,7 @@ from ultralytics import YOLO
 import serial
 
 # ------------ Configuration ------------
-MODEL_PATH   = "model/nanoModel.pt"
+MODEL_PATH   = "model/nanoModel.engine"
 IGNORE_CLASS = {"blue_benefit", "red_benefit"}
 SOURCE       = 0 # Use 0 for xavier
 NONE_TEXT    = "none"
@@ -160,7 +160,7 @@ def run(verbose: bool):
 
             # Always print to terminal
             print_status(matrix, last_seen_ts, now, infer_ms)
-            send_matrix_to_esp32(matrix)
+            #send_matrix_to_esp32(matrix)
 
             # Only show annotated window if verbose
             if verbose:
