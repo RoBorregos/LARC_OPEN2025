@@ -8,15 +8,12 @@
 #include <Wire.h>
 
 #include "robot/robot_instances.h"
-#include "robot/StateMachine.hpp"
-#include <SoftwareSerial.h>
-#include "../../lib/controllers/PIDController.hpp"
+#include "robot/StateMachine.h"
 #include "constants/constants.h"
 
 using namespace Constants;
 
-// State machine instance
-StateMachine stateMachine(monitor_);
+StateMachine stateMachine;
 
 void setup()
 {
@@ -31,10 +28,13 @@ void setup()
   distance_sensor_.begin();
   intake_.begin();
   stateMachine.begin();
+  elevator_.begin();
   monitor_.println("All systems initialized...");
 
   drive_.setState(0);
-  drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
+
+  delay(1000);
+  // drive_.acceptHeadingInput(Rotation2D::fromDegrees(180.0f));
 
   // Wait for "r" message from Bluetooth before continuing
   monitor_.println("Waiting for ready command (r)...");
@@ -61,27 +61,18 @@ void setup()
   //     }
   //   }
   // }
+
+  drive_.acceptInput(-90, 0, 0);
 }
 
 void loop()
 {
-  // bool detected = line_sensor_.isLeftLine();
-
-  // if (detected)
-  // {
-  //   monitor_.println("Line detected on the left side!");
-  // }
-  // else
-  // {
-  //   monitor_.println("No line detected on the left side.");
-  // }
-
   drive_.update();
 
-  stateMachine.update();
+  intake_.update();
+  elevator_.update();
 
-  // maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 0);
-  // maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 110);
+  stateMachine.update();
 
   delay(SystemConstants::kUpdateInterval);
 }

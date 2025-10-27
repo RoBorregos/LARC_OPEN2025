@@ -16,6 +16,10 @@ class Communication : public System {
         void update() override;
         void setState(int state) override;
         string getCommand();
+        void startMode();
+        void sendData(const string &payload);
     private:
         string readCommunication();
+        void sendMessage(const string &msg);
+        enum class Mode { NONE=0, START=1, SEND_DATA=2 } mode_ = Mode::NONE;
 };

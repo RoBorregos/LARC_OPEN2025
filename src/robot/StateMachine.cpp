@@ -1,8 +1,6 @@
-#include "StateMachine.hpp"
-#include "robot/robot_instances.h"
+#include "StateMachine.h"
 
-StateMachine::StateMachine(Monitor &monitorRef)
-    : monitor(monitorRef), state_start_time(0), after_obstacle_offset(200), currentState(STATES::START)
+StateMachine::StateMachine()
 {
 }
 
@@ -14,6 +12,8 @@ void StateMachine::begin()
 
 void StateMachine::update()
 {
+  startStateTime();
+
   switch (currentState)
   {
   case STATES::START:
@@ -31,8 +31,8 @@ void StateMachine::update()
   case STATES::ENDLINE:
     handleEndlineState();
     break;
-  case STATES::RIGHTMOST:
-    handleRightmostState();
+  case STATES::PICKUP:
+    handlePickupState();
     break;
   case STATES::RETURN:
     handleReturnState();
@@ -50,41 +50,56 @@ void StateMachine::update()
     handleStopState();
     break;
   default:
-    Serial.println("Error: Estado desconocido.");
+    Serial.println("Error: Unknown state.");
     drive_.acceptInput(0, 0, 0);
     break;
   }
 }
 
-STATES StateMachine::getCurrentState() const
-{
-  return currentState;
-}
-
 void StateMachine::setState(STATES newState)
 {
+  state_start_time = 0;
+  action_start_time = 0;
+  action_stage = 0;
   currentState = newState;
+}
+
+void StateMachine::startStateTime()
+{
+  if (state_start_time == 0)
+  {
+    state_start_time = millis();
+  }
 }
 
 void StateMachine::handleStartState()
 {
   monitor_.println("START STATE");
 
-  drive_.acceptInput(0, 90, 0);
+  elevator_.setState(1); // Move elevator to starting position
 
-  if (state_start_time == 0)
+  if (action_stage == 1)
   {
-    state_start_time = millis();
+    if (millis() - action_start_time > 250)
+    {
+      drive_.acceptInput(0, 0, 0);
+      drive_.hardBrake();
+      action_stage = 0;
+      setState(STATES::AVOID_OBSTACLE_LEFT);
+    }
+    return;
   }
 
-  // if (millis() - state_start_time > 3000)
-  // {
-  //   drive_.acceptInput(0, 0, 0);
-  //   drive_.hardBrake();
-  //   state_start_time = 0;
-  //   currentState = STATES::GO_STRAIGHT;
-  //   return;
-  // }
+  drive_.acceptInput(0, 90, 0);
+
+  if (millis() - state_start_time > 3000)
+  {
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    state_start_time = 0;
+    setState(STATES::GO_STRAIGHT);
+    return;
+  }
 
   auto [obstacle, valid] = distance_sensor_.isObstacle();
   if (obstacle && valid)
@@ -92,11 +107,9 @@ void StateMachine::handleStartState()
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
     drive_.acceptInput(0, -50, 0);
-    delay(250);
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    state_start_time = 0;
-    currentState = STATES::AVOID_OBSTACLE_LEFT;
+
+    action_stage = 1;
+    action_start_time = millis();
     return;
   }
 }
@@ -105,57 +118,67 @@ void StateMachine::handleAvoidObstacleLeftState()
 {
   monitor_.println("AVOID OBSTACLE LEFT STATE");
 
-  // // if the distance is greater than the max target distance, it means we've reached the edge of the pool with one sensor, so we should keep moving until both sensors dont see the pool
-  // if (distance_sensor_.getDistance(0) > DistanceSensorConstants::kMaxTargetDistance || distance_sensor_.getDistance(1) > DistanceSensorConstants::kMaxTargetDistance)
-  // {
-  //   drive_.acceptInput(-75, 0, 0);
-  // }
-  // else
-  // {
-  // }
-  maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -80);
+  // if the distance is greater than the max target distance, it means we've reached the edge of the pool with one sensor, so we should keep moving until both sensors dont see the pool
+  auto [leftDistance, leftValid] = distance_sensor_.getDistance(0);
+  if (leftDistance > DistanceSensorConstants::kObstacleDistance && leftValid)
+  {
+    drive_.acceptInput(-80, 0, 0);
+  }
+  else
+  {
+    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -80);
+  }
 
   if (line_sensor_.isLeftLine())
   {
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
-    currentState = STATES::AVOID_OBSTACLE_RIGHT;
+    setState(STATES::AVOID_OBSTACLE_RIGHT);
     return;
   }
 
-  // if (!distance_sensor_.isObstacle())
-  // {
-  //   delay(500);
-  //   drive_.acceptInput(0, 0, 0);
-  //   drive_.hardBrake();
-  //   currentState = STATES::GO_STRAIGHT;
-  //   return;
-  // }
+  auto [isObstacle, isValid] = distance_sensor_.isObstacle();
+  monitor_.print("Is Obstacle: ");
+  monitor_.println(isObstacle ? "Yes" : "No");
+  monitor_.print("Is Valid: ");
+  monitor_.println(isValid ? "Yes" : "No");
+  if (!isObstacle && isValid)
+  {
+    delay(700);
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    drive_.acceptInput(0, -50, 0);
+    delay(250);
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    setState(STATES::GO_STRAIGHT);
+    return;
+  }
 }
 
 void StateMachine::handleAvoidObstacleRightState()
 {
   monitor_.println("AVOID OBSTACLE RIGHT STATE");
 
-  // the problem here is that the get distance function validates the distance with kMaxTargetDistance, so
-  // the distance will never be greater than that value unless the reading is invalid
   auto [distance, valid] = distance_sensor_.getDistance(1);
   if (distance > DistanceSensorConstants::kObstacleDistance && valid)
   {
+    Serial.println("RIGHT SENSOR CLEAR");
     drive_.acceptInput(80, 0, 0);
   }
   else
   {
+    Serial.println("RIGHT SENSOR BLOCKED");
     maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 80);
   }
 
-  // if (line_sensor_.isRightLine())
-  // {
-  //   drive_.acceptInput(0, 0, 0);
-  //   drive_.hardBrake();
-  //   currentState = STATES::AVOID_OBSTACLE_LEFT;
-  //   return;
-  // }
+  if (line_sensor_.isRightLine())
+  {
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    setState(STATES::AVOID_OBSTACLE_LEFT);
+    return;
+  }
 
   auto [isObstacle, rightValid] = distance_sensor_.isObstacle();
   if (!isObstacle && rightValid)
@@ -167,7 +190,7 @@ void StateMachine::handleAvoidObstacleRightState()
     delay(250);
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
-    currentState = STATES::GO_STRAIGHT;
+    setState(STATES::GO_STRAIGHT);
     return;
   }
 }
@@ -176,11 +199,27 @@ void StateMachine::handleGoStraightState()
 {
   monitor_.println("GO_STRAIGHT STATE");
 
+  if (action_stage == 1)
+  {
+    if (millis() - action_start_time > 250)
+    {
+      drive_.acceptInput(0, 0, 0);
+      drive_.hardBrake();
+      action_stage = 0;
+      setState(STATES::ENDLINE);
+    }
+    return;
+  }
+
   if (line_sensor_.isFrontLine())
   {
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
-    currentState = STATES::STOP;
+    drive_.acceptInput(0, -100, 0);
+
+    action_stage = 1;
+    action_start_time = millis();
+    return;
   }
   else
   {
@@ -190,119 +229,183 @@ void StateMachine::handleGoStraightState()
 
 void StateMachine::handleEndlineState()
 {
-  currentState = STATES::STOP;
-  // Serial.println("ENDLINE STATE");
-  // monitor_.println("ENDLINE STATE");
+  monitor_.println("ENDLINE STATE");
 
-  // followLine(-70);
+  followLineHybrid(-70, 0.02f);
 
-  // if (line_sensor_.isLeftLine())
-  // {
-  //   drive_.acceptInput(0, 0, 0);
-  //   drive_.hardBrake();
-  //   currentState = STATES::RIGHTMOST;
-  // }
-}
-
-void StateMachine::handleRightmostState()
-{
-  monitor_.println("RIGHTMOST STATE");
-
-  followLine(70);
-
-  if (line_sensor_.isRightLine())
+  if (line_sensor_.isBackLeftLine())
   {
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
-    currentState = STATES::RETURN;
+    setState(STATES::PICKUP);
   }
 }
+
+void StateMachine::handlePickupState()
+{
+  monitor_.println("PICKUP STATE");
+
+  followLineHybrid(70, 0.02f);
+
+  if (line_sensor_.isBackRightLine())
+  {
+    drive_.acceptInput(0, 0, 0);
+    setState(STATES::RETURN);
+    return;
+  }
+
+  // Implementation for pickup state goes here
+}
+
+// ================ RETURNING STATES ===================
+// Keep in mind that when returning, left and right are swapped
+// ======================================================
 
 void StateMachine::handleReturnState()
 {
   monitor_.println("RETURN STATE");
-  drive_.acceptHeadingInput(Rotation2D::fromDegrees(180));
+
+  if (action_stage == 1)
+  {
+    if (millis() - action_start_time > 650)
+    {
+      drive_.acceptInput(0, 0, 0);
+      drive_.acceptHeadingInput(Rotation2D::fromDegrees(180));
+      action_stage = 2;
+    }
+    return;
+  }
+  else if (action_stage == 2)
+  {
+    if (drive_.isAtHeadingTarget())
+    {
+      drive_.acceptInput(0, 0, 0);
+      drive_.hardBrake();
+      setState(STATES::AVOID_OBSTACLE_LEFT_RETURN);
+    }
+    return;
+  }
+  else if (action_stage == 0)
+  {
+    drive_.acceptInput(-60, -60, 0);
+    action_stage = 1;
+    action_start_time = millis();
+  }
 }
 
+// Keep in mind that when returning, left and right are swapped
 void StateMachine::handleAvoidObstacleLeftReturnState()
 {
-  monitor_.println("AVOID OBSTACLE LEFT RETURN STATE");
-  drive_.acceptInput(0, 0, 0);
+  monitor_.println("AVOID OBSTACLE LEFT STATE");
 
-  if (line_sensor_.isLeftLine())
+  // if the distance is greater than the max target distance, it means we've reached the edge of the pool with one sensor, so we should keep moving until both sensors dont see the pool
+  auto [leftDistance, leftValid] = distance_sensor_.getDistance(0);
+  if (leftDistance > DistanceSensorConstants::kObstacleDistance && leftValid)
   {
-    state_start_time = 0;
-    currentState = STATES::AVOID_OBSTACLE_RIGHT_RETURN;
+    drive_.acceptInput(-80, 0, 0);
   }
   else
   {
-    drive_.acceptInput(-80, 0, 180);
+    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -80);
   }
 
-  if (state_start_time == 0)
+  if (line_sensor_.isLeftLine())
   {
-    state_start_time = millis();
-  }
-
-  auto [obstacle, valid] = distance_sensor_.isObstacle();
-  if (!obstacle || millis() - state_start_time > 12000)
-  {
-    state_start_time = 0;
-    drive_.acceptInput(0, 0, 180);
+    drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
-    currentState = STATES::GO_BEGINNING;
+    setState(STATES::AVOID_OBSTACLE_RIGHT_RETURN);
+    return;
+  }
+
+  auto [isObstacle, isValid] = distance_sensor_.isObstacle();
+  if (!isObstacle && isValid)
+  {
+    delay(700);
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    drive_.acceptInput(0, -50, 0);
+    delay(250);
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    setState(STATES::GO_BEGINNING);
+    return;
   }
 }
 
 void StateMachine::handleAvoidObstacleRightReturnState()
 {
-  monitor_.println("AVOID OBSTACLE RIGHT RETURN STATE");
-  drive_.acceptInput(0, 0, 0);
+  monitor_.println("AVOID OBSTACLE RIGHT STATE");
 
-  if (line_sensor_.isRightLine())
+  auto [distance, valid] = distance_sensor_.getDistance(1);
+  if (distance > DistanceSensorConstants::kObstacleDistance && valid)
   {
-    state_start_time = 0;
-    currentState = STATES::AVOID_OBSTACLE_LEFT_RETURN;
+    drive_.acceptInput(80, 0, 0);
   }
   else
   {
-    drive_.acceptInput(80, 0, 180);
+    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 80);
   }
 
-  if (state_start_time == 0)
+  if (line_sensor_.isRightLine())
   {
-    state_start_time = millis();
-  }
-
-  auto [obstacle, valid] = distance_sensor_.isObstacle();
-  if (!obstacle || millis() - state_start_time > 12000)
-  {
-    state_start_time = 0;
-    drive_.acceptInput(0, 0, 180);
+    drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
-    currentState = STATES::GO_BEGINNING;
+    setState(STATES::AVOID_OBSTACLE_LEFT_RETURN);
+    return;
+  }
+
+  auto [isObstacle, rightValid] = distance_sensor_.isObstacle();
+  if (!isObstacle && rightValid)
+  {
+    delay(700);
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    drive_.acceptInput(0, -50, 0);
+    delay(250);
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    setState(STATES::GO_BEGINNING);
+    return;
   }
 }
 
 void StateMachine::handleGoBeginningState()
 {
-  monitor_.println("GO BEGINNING STATE");
-  drive_.acceptInput(0, 0, 0);
+  monitor_.println("GO_BEGINNING STATE");
+
+  if (action_stage == 1)
+  {
+    if (millis() - action_start_time > 250)
+    {
+      drive_.acceptInput(0, 0, 0);
+      drive_.hardBrake();
+      action_stage = 0;
+      elevator_.setState(2); // Lower elevator
+      setState(STATES::STOP);
+    }
+    return;
+  }
 
   if (line_sensor_.isFrontLine())
   {
     drive_.acceptInput(0, 0, 0);
-    Serial.println("FOUND THE BEGINNING");
+    drive_.hardBrake();
+    drive_.acceptInput(0, -100, 0);
+
+    action_stage = 1;
+    action_start_time = millis();
+    return;
   }
   else
   {
-    drive_.acceptInput(0, 70, 180);
+    drive_.acceptInput(0, 80, 0);
   }
 }
 
 void StateMachine::handleStopState()
 {
   monitor_.println("STOP STATE");
+
   drive_.acceptInput(0, 0, 0);
   drive_.hardBrake();
 }

@@ -48,10 +48,10 @@ std::pair<float, bool> DistanceSensor::getDistance(int kSensor)
     if (kSensor == 0)
     {
         float measurement = readSensor(Pins::kDistanceSensors[0][0], Pins::kDistanceSensors[0][1]);
-        
+
         // This will only insert valid measurements into the readings vector, if there is not a valid measurement it will keep the previous readings
-        bool isValid = isValidDistance(measurement); 
-        
+        bool isValid = isValidDistance(measurement);
+
         if (isValid)
         {
             insertReadingLeft(measurement);
@@ -72,7 +72,7 @@ std::pair<float, bool> DistanceSensor::getDistance(int kSensor)
 
         // This will only insert valid measurements into the readings vector, if there is not a valid measurement it will keep the previous readings
         bool isValid = isValidDistance(measurement);
-        
+
         if (isValidDistance(measurement))
         {
             insertReadingRight(measurement);
@@ -92,7 +92,7 @@ std::pair<float, bool> DistanceSensor::getDistance(int kSensor)
 }
 
 std::pair<bool, bool> DistanceSensor::isObstacle()
-{   
+{
     std::pair<float, bool> frontLeftDistance = getDistance(0);
     std::pair<float, bool> frontRightDistance = getDistance(1);
     bool obstacle = (frontLeftDistance.first < DistanceSensorConstants::kObstacleDistance) || (frontRightDistance.first < DistanceSensorConstants::kObstacleDistance);
