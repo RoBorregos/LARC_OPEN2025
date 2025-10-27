@@ -13,6 +13,10 @@ void Intake::begin()
     LowerIntakeServo.attach(Pins::kLowerIntakeServo);
     IntakeRampEnableServo.attach(Pins::kIntakeRampEnable);
 
+    setIntakeServoPosition(UpperIntakeServo, IntakeConstants::kAvoidBallUpperServoPosition);
+    setIntakeServoPosition(LowerIntakeServo, IntakeConstants::kAvoidBallLowerServoPosition);
+    setIntakeServoPosition(IntakeRampEnableServo, IntakeConstants::kIntakeRampStored);
+
     setState(0);
 }
 

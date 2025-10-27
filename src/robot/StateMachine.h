@@ -13,6 +13,7 @@ enum class STATES
   AVOID_OBSTACLE_RIGHT,
   GO_STRAIGHT,
   ENDLINE,
+  PICKUP,
   AVOID_OBSTACLE_LEFT_RETURN,
   AVOID_OBSTACLE_RIGHT_RETURN,
   RETURN,
@@ -45,6 +46,7 @@ private:
   void handleAvoidObstacleRightState();
   void handleGoStraightState();
   void handleEndlineState();
+  void handlePickupState();
   void handleReturnState();
   void handleAvoidObstacleLeftReturnState();
   void handleAvoidObstacleRightReturnState();

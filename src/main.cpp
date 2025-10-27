@@ -69,11 +69,10 @@ void loop()
 {
   drive_.update();
 
-  // intake_.update();
-  // elevator_.update();
+  intake_.update();
+  elevator_.update();
 
-  // stateMachine.update();
-  followLineHybrid(70, 0.2f);
+  stateMachine.update();
 
   delay(SystemConstants::kUpdateInterval);
 }
