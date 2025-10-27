@@ -15,12 +15,22 @@ void loop() {
         incoming.trim();
 
         if (incoming.length() > 0) {
-            Serial.print("Received matrix: ");
-            Serial.println(incoming);
-
-            // Echo the received matrix back
-            Serial.print("Echoing back: ");
-            Serial.println(incoming);
+            int matrixVals[2] = { -1, -1 };
+            int idx = 0;
+            int start = 0;
+            for (int i = 0; i <= incoming.length() && idx < 2; ++i) {
+                if (i == incoming.length() || incoming.charAt(i) == ',') {
+                    String token = incoming.substring(start, i);
+                    token.trim();
+                    if (token.length() > 0) {
+                        matrixVals[idx] = token.toInt();
+                    } else {
+                        matrixVals[idx] = -1;
+                    }
+                    idx++;
+                    start = i + 1;
+                }
+            }
         }
     }
 }

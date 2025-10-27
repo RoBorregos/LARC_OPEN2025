@@ -113,20 +113,35 @@ def annotate_and_show(r, frame, matrix, mid_x, best_for):
 def send_matrix_to_esp32(matrix, port='/dev/ttyUSB0', baudrate=115200):
     """
     Sends the matrix data to the ESP32 via serial communication.
-
-    Args:
-        matrix (list): The matrix data to send.
-        port (str): The serial port to use for communication.
-        baudrate (int): The baud rate for the serial communication.
     """
     try:
         ser = serial.Serial(port, baudrate, timeout=1)
-        print("Serial connection established with ESP32.")
 
-        # Convert matrix to a string and send it
-        matrix_str = ','.join(matrix) + '\n'
+        # inmature -> 0, mature -> 1, overmature -> 2
+        mapping = {
+            "inmature": "0",
+            "mature": "1",
+            "overmature": "2",
+            NONE_TEXT: "-1",
+        }
+
+        numeric_items = []
+        for item in matrix:
+            if isinstance(item, str):
+                key = item.strip().lower()
+                numeric = mapping.get(key)
+                if numeric is None:
+                    try:
+                        int(key)
+                        numeric = key
+                    except ValueError:
+                        numeric = "-1"
+                numeric_items.append(numeric)
+            else:
+                numeric_items.append(str(item))
+
+        matrix_str = ','.join(numeric_items) + '\n'
         ser.write(matrix_str.encode('utf-8'))
-        print(f"Matrix sent to ESP32: {matrix_str.strip()}")
 
     except serial.SerialException as e:
         print(f"Error in serial communication: {e}")
@@ -160,7 +175,7 @@ def run(verbose: bool):
 
             # Always print to terminal
             print_status(matrix, last_seen_ts, now, infer_ms)
-            #send_matrix_to_esp32(matrix)
+            send_matrix_to_esp32(matrix)
 
             # Only show annotated window if verbose
             if verbose:
@@ -177,4 +192,3 @@ def run(verbose: bool):
 
 if __name__ == "__main__":
     run(verbose=False)
-
