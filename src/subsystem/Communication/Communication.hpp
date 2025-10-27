@@ -17,9 +17,7 @@ class Communication : public System {
         void update() override;
         void setState(int state) override;
         string getCommand();
-        void sendData(const string &payload);
         vector<int> getMatrix();
     private:
         string readCommunication();
-        void sendMessage(const string &msg);
 };
