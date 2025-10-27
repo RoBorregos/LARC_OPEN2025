@@ -6,7 +6,7 @@ StateMachine::StateMachine()
 
 void StateMachine::begin()
 {
-  currentState = STATES::RETURN;
+  currentState = STATES::START;
   state_start_time = 0;
 }
 
@@ -30,6 +30,9 @@ void StateMachine::update()
     break;
   case STATES::ENDLINE:
     handleEndlineState();
+    break;
+  case STATES::PICKUP:
+    handlePickupState();
     break;
   case STATES::RETURN:
     handleReturnState();
@@ -114,8 +117,8 @@ void StateMachine::handleAvoidObstacleLeftState()
   monitor_.println("AVOID OBSTACLE LEFT STATE");
 
   // if the distance is greater than the max target distance, it means we've reached the edge of the pool with one sensor, so we should keep moving until both sensors dont see the pool
-  auto [distance, valid] = distance_sensor_.getDistance(0);
-  if (distance > DistanceSensorConstants::kObstacleDistance && valid)
+  auto [leftDistance, leftValid] = distance_sensor_.getDistance(0);
+  if (leftDistance > DistanceSensorConstants::kObstacleDistance && leftValid)
   {
     drive_.acceptInput(-80, 0, 0);
   }
@@ -132,8 +135,12 @@ void StateMachine::handleAvoidObstacleLeftState()
     return;
   }
 
-  auto [isObstacle, leftValid] = distance_sensor_.isObstacle();
-  if (!isObstacle && leftValid)
+  auto [isObstacle, isValid] = distance_sensor_.isObstacle();
+  monitor_.print("Is Obstacle: ");
+  monitor_.println(isObstacle ? "Yes" : "No");
+  monitor_.print("Is Valid: ");
+  monitor_.println(isValid ? "Yes" : "No");
+  if (!isObstacle && isValid)
   {
     delay(700);
     drive_.acceptInput(0, 0, 0);
@@ -222,17 +229,30 @@ void StateMachine::handleEndlineState()
 {
   monitor_.println("ENDLINE STATE");
 
-  setState(STATES::STOP);
-  // Serial.println("ENDLINE STATE");
+  followLineHybrid(-70, 0.02f);
 
-  // followLine(-70);
+  if (line_sensor_.isBackLeftLine())
+  {
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    setState(STATES::PICKUP);
+  }
+}
 
-  // if (line_sensor_.isLeftLine())
-  // {
-  //   drive_.acceptInput(0, 0, 0);
-  //   drive_.hardBrake();
-  //   currentState = STATES::RIGHTMOST;
-  // }
+void StateMachine::handlePickupState()
+{
+  monitor_.println("PICKUP STATE");
+
+  followLineHybrid(70, 0.02f);
+
+  if (line_sensor_.isBackRightLine())
+  {
+    drive_.acceptInput(0, 0, 0);
+    setState(STATES::RETURN);
+    return;
+  }
+
+  // Implementation for pickup state goes here
 }
 
 // ================ RETURNING STATES ===================
@@ -245,7 +265,7 @@ void StateMachine::handleReturnState()
 
   if (action_stage == 1)
   {
-    if (millis() - action_start_time > 1000)
+    if (millis() - action_start_time > 650)
     {
       drive_.acceptInput(0, 0, 0);
       drive_.acceptHeadingInput(Rotation2D::fromDegrees(180));
@@ -259,15 +279,15 @@ void StateMachine::handleReturnState()
     {
       drive_.acceptInput(0, 0, 0);
       drive_.hardBrake();
-      action_stage = 0;
       setState(STATES::AVOID_OBSTACLE_LEFT_RETURN);
     }
     return;
   }
   else if (action_stage == 0)
   {
-    drive_.acceptInput(0, -40, 0);
+    drive_.acceptInput(-60, -60, 0);
     action_stage = 1;
+    action_start_time = millis();
   }
 }
 
@@ -277,8 +297,8 @@ void StateMachine::handleAvoidObstacleLeftReturnState()
   monitor_.println("AVOID OBSTACLE LEFT STATE");
 
   // if the distance is greater than the max target distance, it means we've reached the edge of the pool with one sensor, so we should keep moving until both sensors dont see the pool
-  auto [distance, valid] = distance_sensor_.getDistance(0);
-  if (distance > DistanceSensorConstants::kObstacleDistance && valid)
+  auto [leftDistance, leftValid] = distance_sensor_.getDistance(0);
+  if (leftDistance > DistanceSensorConstants::kObstacleDistance && leftValid)
   {
     drive_.acceptInput(-80, 0, 0);
   }
@@ -295,8 +315,8 @@ void StateMachine::handleAvoidObstacleLeftReturnState()
     return;
   }
 
-  auto [isObstacle, leftValid] = distance_sensor_.isObstacle();
-  if (!isObstacle && leftValid)
+  auto [isObstacle, isValid] = distance_sensor_.isObstacle();
+  if (!isObstacle && isValid)
   {
     delay(700);
     drive_.acceptInput(0, 0, 0);
