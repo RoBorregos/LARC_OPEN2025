@@ -4,7 +4,7 @@ from ultralytics import YOLO
 import serial
 
 # ------------ Configuration ------------
-MODEL_PATH   = "model/nanoModel.engine"
+MODEL_PATH   = "model/nanoModel.pt"
 IGNORE_CLASS = {"blue_benefit", "red_benefit"}
 SOURCE       = 0 # Use 0 for xavier
 NONE_TEXT    = "none"
@@ -130,11 +130,6 @@ def send_matrix_to_esp32(matrix, port='/dev/ttyUSB0', baudrate=9600):
 
     except serial.SerialException as e:
         print(f"Error in serial communication: {e}")
-
-    finally:
-        if 'ser' in locals() and ser.is_open:
-            ser.close()
-            print("Serial connection closed.")
 
 
 # ------------ Main loop ------------
