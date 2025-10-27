@@ -26,7 +26,7 @@ void setup()
   com_.begin();
   line_sensor_.begin();
   distance_sensor_.begin();
-  intake_.begin();
+  // intake_.begin();
   stateMachine.begin();
   elevator_.begin();
   monitor_.println("All systems initialized...");
@@ -75,4 +75,20 @@ void loop()
   stateMachine.update();
 
   delay(SystemConstants::kUpdateInterval);
+}
+
+void approach1()
+{
+  auto [isObstacle, rightValid] = distance_sensor_.isObstacle();
+  if (!isObstacle && rightValid)
+  {
+    Serial.println("RIGHT SENSOR CLEAR");
+    followLineJp(80, true);
+  }
+  else
+  {
+    Serial.println("RIGHT SENSOR BLOCKED");
+    maintainDistance(DistanceSensorConstants::kTreeTargetDistance, 79);
+    followLineJp(80, false);
+  }
 }
