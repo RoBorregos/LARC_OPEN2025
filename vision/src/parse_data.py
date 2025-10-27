@@ -110,7 +110,7 @@ def annotate_and_show(r, frame, matrix, mid_x, best_for):
     cv2.imshow("Detections (with matrix)", annotated)
 
 
-def send_matrix_to_esp32(matrix, port='/dev/ttyUSB0', baudrate=9600):
+def send_matrix_to_esp32(matrix, port='/dev/ttyUSB0', baudrate=115200):
     """
     Sends the matrix data to the ESP32 via serial communication.
 
