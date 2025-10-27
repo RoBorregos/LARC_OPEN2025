@@ -26,7 +26,7 @@ void setup()
   com_.begin();
   line_sensor_.begin();
   distance_sensor_.begin();
-  // intake_.begin();
+  intake_.begin();
   stateMachine.begin();
   elevator_.begin();
   monitor_.println("All systems initialized...");
@@ -69,11 +69,10 @@ void loop()
 {
   drive_.update();
 
-  // intake_.update();
-  // elevator_.update();
+  intake_.update();
+  elevator_.update();
 
   stateMachine.update();
-  // followLineHybrid(80, 0.02f);
 
   delay(SystemConstants::kUpdateInterval);
 }
