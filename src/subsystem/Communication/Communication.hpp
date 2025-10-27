@@ -5,6 +5,7 @@
 #include "constants/constants.h"
 #include "constants/pins.h"
 #include <string>
+#include <vector>
 
 using namespace Constants;
 using namespace std;
@@ -16,10 +17,9 @@ class Communication : public System {
         void update() override;
         void setState(int state) override;
         string getCommand();
-        void startMode();
         void sendData(const string &payload);
+        vector<int> getMatrix(const string &msg);
     private:
         string readCommunication();
         void sendMessage(const string &msg);
-        enum class Mode { NONE=0, START=1, SEND_DATA=2 } mode_ = Mode::NONE;
 };
