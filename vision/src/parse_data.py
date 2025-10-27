@@ -132,23 +132,10 @@ def annotate_and_show(r, frame, matrix, mid_x, best_for):
 
 
 def send_matrix_to_esp32(matrix, port='/dev/ttyUSB0', baudrate=115200):
-    """
-    Sends the matrix data to the ESP32 via serial communication.
-
-    Args:
-        matrix (list): The matrix data to send.
-        port (str): The serial port to use for communication.
-        baudrate (int): The baud rate for the serial communication.
-    """
     try:
         ser = serial.Serial(port, baudrate, timeout=1)
-        print("Serial connection established with ESP32.")
-
-        # Convert matrix to a string and send it
-        matrix_str = ','.join(matrix) + '\n'
-        ser.write(matrix_str.encode('utf-8'))
-        print(f"Matrix sent to ESP32: {matrix_str.strip()}")
-
+        message = f"{matrix[0]},{matrix[1]}\n"
+        ser.write(message.encode('utf-8'))
     except serial.SerialException as e:
         print(f"Error in serial communication: {e}")
 
