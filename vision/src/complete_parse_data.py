@@ -118,7 +118,7 @@ class Camera:
         return outputs
 
 
-    def detect(self) -> List[DetectOutput]:
+    def detect(self) -> List[Optional[DetectOutput]]:
         '''State manager'''
         if self._state == CameraState.STOP:
             self.detection_matrix = [None, None]
@@ -129,10 +129,10 @@ class Camera:
             return self._detect_beans()
         
         elif self._state == CameraState.DETECT_RED_STORAGE:
-            return self._detect_storage(benefit_type="red_benefit").list()
+            return self._detect_storage(benefit_type="red_benefit")
         
         else: # CameraState.DETECT_BLUE_STORAGE
-            return self._detect_storage(benefit_type="blue_benefit").list()
+            return self._detect_storage(benefit_type="blue_benefit")
         
     
     
@@ -202,7 +202,7 @@ class Camera:
     
     
     
-    def _detect_storage(self, benefit_type: str) -> DetectOutput:
+    def _detect_storage(self, benefit_type: str) -> List[Optional[DetectOutput]]:
         '''Returns single DetectOutput for specified benefit_type and offset'''
         # NOTE: camera is rotated 90 degrees, so we use vertical offset
         results = self._read_frame()
@@ -211,6 +211,7 @@ class Camera:
         
         storage = DetectOutput(label=benefit_type, confidence = 0.0, bbox = [])
         offset: float = 0.0  # normalized offset (-1.0 to 1.0)
+        found: bool = False
         
         if getattr(results, "boxes", None) is not None and len(results.boxes) > 0:
             for box in results.boxes:
@@ -229,9 +230,10 @@ class Camera:
 
                     storage = DetectOutput(label=label, confidence=conf, bbox=[x1, y1, x2, y2])
                     offset = round(norm_offset, 2)
+                    found = True
                     
         self.detection_matrix = [benefit_type, offset]
-        return storage
+        return storage if found else []
     
     
     
@@ -269,7 +271,7 @@ if __name__ == "__main__":
         if not cap.isOpened():
             raise RuntimeError("Failed to open camera/video source.")
 
-        cam.set_state(CameraState.DETECT_BEANS)
+        cam.set_state(CameraState.DETECT_BLUE_STORAGE)
 
         while True:
             ret, frame = cap.read()
