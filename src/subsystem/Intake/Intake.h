@@ -17,9 +17,16 @@ private:
     Servo LowerIntakeServo;
     Servo IntakeRampEnableServo;
 
+    // interval (ms) between calls to com_.getMatrix()
+    static constexpr unsigned long recive_values_interval = 800UL;
+    // store last received timestamp using unsigned long to match millis()
+    unsigned long last_value_received = 0;
+
     void setIntakeServoPosition(Servo &servo, int position);
     Communication com_;
 public:
+
+    std::vector<int> values = {0, 0};
     Intake();
 
     void begin() override;
