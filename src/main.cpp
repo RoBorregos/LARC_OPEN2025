@@ -75,21 +75,6 @@ void loop()
   sorter_.update();
   stateMachine.update();
 
-  delay(SystemConstants::kUpdateInterval);
-}
 
-void approach1()
-{
-  auto [isObstacle, rightValid] = distance_sensor_.isObstacle();
-  if (!isObstacle && rightValid)
-  {
-    Serial.println("RIGHT SENSOR CLEAR");
-    followLineJp(80, true);
-  }
-  else
-  {
-    Serial.println("RIGHT SENSOR BLOCKED");
-    maintainDistance(DistanceSensorConstants::kTreeTargetDistance, 79);
-    followLineJp(80, false);
-  }
+  delay(SystemConstants::kUpdateInterval);
 }

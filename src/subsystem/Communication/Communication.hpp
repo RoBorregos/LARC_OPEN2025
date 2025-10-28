@@ -16,8 +16,16 @@ class Communication : public System {
         void begin() override;
         void update() override;
         void setState(int state) override;
-        string getCommand();
+        
+        string getCommand();        
         vector<int> getMatrix();
+        vector<int> getBenefitsPositions();
+
+        void sendStartPicking();
+        void sendStopPicking();
+
+        void sendStartSearching();
+        void sendStopSearching();
     private:
         string readCommunication();
 };
