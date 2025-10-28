@@ -20,7 +20,7 @@ class DetectOutput:
 class Camera:
     def __init__(self,
                  model: YOLO,
-                 timeout: float = 0.5):
+                 timeout: float = 2.0):
         
         self.MODEL = model
         self.TIMEOUT = timeout
@@ -28,6 +28,7 @@ class Camera:
         self._frame: Optional[cv2.Mat] = None
         self._state = CameraState.STOP
         self._infer_ms = 0.0
+        self._last_read_s = { "top": 0.0, "bottom": 0.0 }  # for top and bottom halves
 
         #* output matrix, always 1x2
         # DETECT_BEANS:    ["<top>", "<bottom>"]
@@ -36,7 +37,7 @@ class Camera:
         self.detection_matrix = [None, None]
 
     #* --------- for SystemController ---------
-    def set_state(self, new_state: CameraState):
+    def set_state(self, new_state: CameraState) -> None:
         if not isinstance(new_state, CameraState):
             raise ValueError("Invalid state")
         self._state = new_state
@@ -49,7 +50,7 @@ class Camera:
         state_name = getattr(self._state, "name", "UNKNOWN")
         print(f"[Camera] {state_name} data → {self.detection_matrix} | infer_ms → {self._infer_ms:.1f} ms")
 
-    def _show(self, detections: List[DetectOutput] | None) -> None:
+    def _show(self, detections) -> None:
         if self._frame is None:
             return 
         annotated = self._frame.copy()
@@ -89,16 +90,36 @@ class Camera:
 
         cv2.imshow("Detections", annotated)
     
-    def _infer(self) -> any:
+    def _read_frame(self) -> List[DetectOutput]:
         if self._frame is None:
             self._infer_ms = 0.0
-            return None 
+            return []
+
         t0 = time.time()
         results = self.MODEL.predict(self._frame, verbose=False)
         self._infer_ms = (time.time() - t0) * 1000.0
-        return results[0] if results else None
+
+        outputs: List[DetectOutput] = []
+        if not results:
+            return outputs
+
+        # Assume first batch element (frame)
+        result = results[0]
+        if getattr(result, "boxes", None) is None or len(result.boxes) == 0:
+            return outputs
+
+        for box in result.boxes:
+            cls_id = int(box.cls[0])
+            label = self.MODEL.names.get(cls_id, str(cls_id))
+            conf = float(box.conf[0]) if getattr(box, "conf", None) is not None else 0.0
+            bbox = list(map(float, box.xyxy[0]))
+            outputs.append(DetectOutput(label=label, confidence=conf, bbox=bbox))
+
+        return outputs
+
 
     def detect(self) -> List[DetectOutput]:
+        '''State manager'''
         if self._state == CameraState.STOP:
             self.detection_matrix = [None, None]
             self._infer_ms = 0.0
@@ -108,73 +129,83 @@ class Camera:
             return self._detect_beans()
         
         elif self._state == CameraState.DETECT_RED_STORAGE:
-            return [self._detect_storage(benefit_type="red_benefit")]
+            return self._detect_storage(benefit_type="red_benefit").list()
         
         else: # CameraState.DETECT_BLUE_STORAGE
-            return [self._detect_storage(benefit_type="blue_benefit")]
+            return self._detect_storage(benefit_type="blue_benefit").list()
         
+    
+    
+    
+    
+    
+    
     #* --------- State Handlers ---------
-    def _detect_beans(self) -> List[DetectOutput]:
+    def _detect_beans(self) -> List[Optional[DetectOutput]]:
+        '''Returns list of 2 DetectOutput for top and bottom halves'''
         targets = {"inmature", "mature", "overmature"}
 
-        # Initialize or maintain sticky state
-        if not hasattr(self, '_last_label'):
-            self._last_label = {"bottom": None, "top": None}
-            self._last_seen_ts = {"bottom": None, "top": None}
-
-        # Perform inference
-        results = self._infer()
+        # Inference
+        results = self._read_frame()
         now = time.time()
 
-        # Process detection results
+        # Split frame in two by X midpoint
         h, w = self._frame.shape[:2]
-        mid_x = w // 2
+        mid_x = w * 0.5
+        
+        # Initialize with a dummy object having negative confidence
+        default_output = DetectOutput(label=None, confidence=-1.0, bbox=[])
         best_for = {
-            "top": {"label": None, "conf": -1.0, "bbox": None}, # LEFT
-            "bottom": {"label": None, "conf": -1.0, "bbox": None}, # RIGHT
+            "top": default_output,
+            "bottom": default_output,
         }
+        
+        # Check if the current detections in detection_matrix are still valid
+        for side in ["top", "bottom"]:
+            idx = 0 if side == "top" else 1
+            if self.detection_matrix[idx] is not None and self._last_read_s[side] + self.TIMEOUT < now:
+                self.detection_matrix[idx] = None
+                
+        # Collect best detection per half for target classes
+        for det in results:
+            if det.label not in targets:
+                continue
 
-        if results.boxes is not None and len(results.boxes) > 0:
-            for box in results.boxes:
-                cls_id = int(box.cls[0])
-                label = self.MODEL.names.get(cls_id, str(cls_id))
-                if label not in targets:
-                    continue
+            # Determine which half the bean belongs to based on its center x-coordinate
+            x1, y1, x2, y2 = det.bbox
+            cx = 0.5 * (x1 + x2)
+            side = "top" if cx > mid_x else "bottom"
+            
+            idx = 0 if side == "top" else 1
+            
+            # Only search for a new bean if the current slot is empty (None)
+            if self.detection_matrix[idx] is None:
+                if det.confidence > best_for[side].confidence:
+                    best_for[side] = det
 
-                conf = float(box.conf[0]) if box.conf is not None else 0.0
-                x1, y1, x2, y2 = map(float, box.xyxy[0])
-                cx = 0.5 * (x1 + x2)
-                side = "top" if cx < mid_x else "bottom"
-
-                if conf > best_for[side]["conf"]:
-                    best_for[side] = {"label": label, "conf": conf, "bbox": (x1, y1, x2, y2)}
-
-        # Update sticky state
-        for side in ("top", "bottom"):
-            candidate_label = best_for[side]["label"]
-            if candidate_label is not None:
-                self._last_label[side] = candidate_label
-                self._last_seen_ts[side] = now
+        final_detections: List[Optional[DetectOutput]] = []
+        for idx, side in enumerate(["top", "bottom"]):
+            best_det = best_for[side]
+            
+            if best_det.label is not None:
+                self.detection_matrix[idx] = best_det.label
+                self._last_read_s[side] = now # Reset timer
+                final_detections.append(best_det)
             else:
-                last_time = self._last_seen_ts[side]
-                if last_time is not None and (now - last_time) > self.TIMEOUT:
-                    self._last_label[side] = None
+                self.detection_matrix[idx] = self.detection_matrix[idx]
+                final_detections.append(None)
 
-        # Build matrix
-        self.detection_matrix = [self._last_label["top"], self._last_label["bottom"]]
+        return final_detections
 
-        # Return detection outputs
-        return [
-        DetectOutput(label=best_for["top"]["label"], confidence=best_for["top"]["conf"], bbox=best_for["top"]["bbox"]) if best_for["top"]["label"] else None,
-        DetectOutput(
-            label=best_for["bottom"]["label"],
-            confidence=best_for["bottom"]["conf"],
-            bbox=best_for["bottom"]["bbox"]) if best_for["bottom"]["label"] else None,
-    ]
-
+    
+    
+    
+    
+    
     def _detect_storage(self, benefit_type: str) -> DetectOutput:
+        '''Returns single DetectOutput for specified benefit_type and offset'''
         # NOTE: camera is rotated 90 degrees, so we use vertical offset
-        results = self._infer()
+        results = self._read_frame()
         h, w = self._frame.shape[:2]
         midline = h//2 # horizontal midline / center of frame
         
@@ -202,6 +233,12 @@ class Camera:
         self.detection_matrix = [benefit_type, offset]
         return storage
     
+    
+    
+    
+    
+    
+    
     #* --------- Main ---------
     def run(self, frame, verbose=False) -> None:
         self._frame = frame
@@ -226,13 +263,13 @@ if __name__ == "__main__":
     cap = None
     try:
         model = YOLO("model/nanoModel.pt", task="detect")
-        cam = Camera(model=model, timeout=0.5)
+        cam = Camera(model=model, timeout=1.0)
 
-        cap = cv2.VideoCapture(2)  # or a file path
+        cap = cv2.VideoCapture(0)
         if not cap.isOpened():
             raise RuntimeError("Failed to open camera/video source.")
 
-        cam.set_state(CameraState.DETECT_RED_STORAGE)
+        cam.set_state(CameraState.DETECT_BEANS)
 
         while True:
             ret, frame = cap.read()

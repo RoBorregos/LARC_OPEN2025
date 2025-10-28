@@ -10,7 +10,7 @@ from typing import Union
 # ------------ Configuration ------------
 MODEL_PATH   = "model/nanoModel.pt"
 SOURCE       = 0            # Use 0 for Xavier camera
-TIMEOUT_SEC  = 0.5
+TIMEOUT_SEC  = 1.0
 SERIAL_PORT  = "/dev/ttyACM0"
 BAUDRATE     = 115200
 
@@ -18,7 +18,7 @@ def handle_serial_command(cmd: str, cam: Camera):
     """Handle a single command coming from Teensy."""
     cmd = cmd.strip()
     command_actions = {
-        "DETECT_BEANS":        lambda: cam.set_state(CameraState.DETECT_BEANS),
+        "PICKUP STATE":        lambda: cam.set_state(CameraState.DETECT_BEANS),
         "DETECT_RED_STORAGE":  lambda: cam.set_state(CameraState.DETECT_RED_STORAGE),
         "DETECT_BLUE_STORAGE": lambda: cam.set_state(CameraState.DETECT_BLUE_STORAGE),
         "STOP_DETECTING":      lambda: cam.set_state(CameraState.STOP),
@@ -35,10 +35,6 @@ def handle_serial_command(cmd: str, cam: Camera):
         print(f"[WARN] Unknown command from serial: {cmd}")
 
 def map_value(value: Union[str, int, float, None]) -> Union[int, float]:
-    """
-    Maps labels to integers for the Teensy protocol.
-    Passes through numeric offsets (floats/ints) unchanged.
-    """
     if isinstance(value, (int, float)):
         return value
     if value is None:
@@ -53,7 +49,10 @@ def map_value(value: Union[str, int, float, None]) -> Union[int, float]:
         # storage
         "blue_benefit": 0,
         "red_benefit": 1,
+
+        #Float : number
     }
+    print(f"[DEBUG] Mapping value: {value} -> {mapping_dict.get(key, -1)}")
     return mapping_dict.get(key, -1)
 
 # ------------ Main loop ------------
@@ -81,7 +80,6 @@ def run():
     ser = serial.Serial(SERIAL_PORT, BAUDRATE, timeout=0.05)
     print(f"[INFO] Listening for Teensy commands on {SERIAL_PORT}...")
 
-    # Optional handshake (kept commented out)
     # while ser.readline().decode(errors="ignore").strip() != "START":
     #     continue
     # ser.write(b"STARTED\n")
@@ -125,7 +123,6 @@ def run():
             v1 = map_value(out1)
             sending_msg = f"{v0},{v1}\n".encode()
 
-            # Debug print (bytes is fine)
             print(sending_msg)
 
             try:
