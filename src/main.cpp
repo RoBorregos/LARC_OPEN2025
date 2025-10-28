@@ -26,7 +26,6 @@ void setup()
   com_.begin();
   line_sensor_.begin();
   distance_sensor_.begin();
-  // intake_.begin();
   stateMachine.begin();
   elevator_.begin();
   Serial.println("All systems initialized...");
