@@ -24,14 +24,14 @@ private:
 
     void setIntakeServoPosition(Servo &servo, int position);
     Communication com_;
+
 public:
     Intake();
 
     void begin() override;
     void update() override;
     void setState(int state) override;
-    void vision();
-    
+
     enum class IntakeState
     {
         ALL_SERVOS_STORED = 0,
