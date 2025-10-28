@@ -14,8 +14,8 @@ class Sorter : public System {
 private:
     AccelStepper stepper;
     static constexpr uint8_t kMotorInterfaceType = 1; // DRIVER
-    static constexpr uint16_t kMaxStepperSpeed = 1500;
-    static constexpr uint16_t kStepperAcceleration = 1000;
+    static constexpr uint16_t kMaxStepperSpeed = 200;
+    static constexpr uint16_t kStepperAcceleration = 15000;
     static constexpr int kStepsPerPosition = 273; // steps between consecutive preset positions
     void setDirection(bool forward);
 
