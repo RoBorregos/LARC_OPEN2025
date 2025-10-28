@@ -1,75 +1,55 @@
-/*
- * @file Elevador.cpp
- * @date 25/04/2025
- * @author Brisma Alvarez Valdez
+/**
+ * Written by Juan Pablo Gutierrez
  *
- * @brief Implementation of the Elevador class to control a stepper motor
+ * 25 10 2025
  */
+
 #include "Elevator.h"
-#include <Arduino.h>
 
-Elevator::Elevator()
-    : motor_(Pins::kElevatorINA[0], Pins::kElevatorINA[1], Pins::kPwmPin[4], ElevatorConstants::kInverted, Pins::kEncoders[8], Pins::kEncoders[9]),
-      pid_controller_(ElevatorConstants::kP, ElevatorConstants::kI, ElevatorConstants::kD),
-      limit_button_(Pins::kLimitPin)
+Elevator::Elevator() : elevator_state_(0), ina1(Pins::kElevatorINA1), ina2(Pins::kElevatorINA2), pwm(Pins::kElevatorPWM)
 {
-    pid_controller_.setOutputLimits(-255, 255);
-    pid_controller_.setEnabled(true);
-
-    limit_button_.setDebounceTime(50);
 }
 
 void Elevator::begin()
 {
-    motor_.begin();
+    pinMode(ina1, OUTPUT);
+    pinMode(ina2, OUTPUT);
+    pinMode(pwm, OUTPUT);
 }
 
 void Elevator::update()
 {
-    limit_button_.loop();
-
-    current_position_ = motor_.getPositionMeters();
-
-    double output = pid_controller_.update(current_position_, target_position_);
-    motor_.move(output);
-
-    if (getLimitState())
+    switch (elevator_state_)
     {
-        resetPosition(ElevatorConstants::kIdleLevel);
+    case STOP:
+        analogWrite(pwm, 0);
+        break;
+    case UP:
+        moveElevator(UP);
+        break;
+    case DOWN:
+        moveElevator(DOWN);
+        break;
     }
 }
 
 void Elevator::setState(int state)
 {
-    switch (state)
+    elevator_state_ = static_cast<ElevatorState>(state);
+}
+
+void Elevator::moveElevator(int direction)
+{
+    if (direction == UP)
     {
-    case 0: // HOME
-        target_position_ = ElevatorConstants::kIdleLevel;
-        break;
-    case 1: // LOWER
-        target_position_ = ElevatorConstants::kLowerLevel;
-        break;
-    case 2: // MID
-        target_position_ = ElevatorConstants::kMidLevel;
-        break;
-    case 3: // UPPER
-        target_position_ = ElevatorConstants::kUpperLevel;
-        break;
+        digitalWrite(ina1, HIGH);
+        digitalWrite(ina2, LOW);
+        analogWrite(pwm, 255); // Full speed up
     }
-}
-
-bool Elevator::getLimitState()
-{
-    return limit_button_.isPressed();
-}
-
-void Elevator::resetPosition(double position)
-{
-    Serial.println(position);
-    current_position_ = position;
-}
-
-int Elevator::getCurrentPosition()
-{
-    return current_position_;
+    else if (direction == DOWN)
+    {
+        digitalWrite(ina1, LOW);
+        digitalWrite(ina2, HIGH);
+        analogWrite(pwm, 255); // Full speed down
+    }
 }

@@ -1,42 +1,121 @@
 #include "DistanceSensor.hpp"
-#include <Arduino.h>
+#include "../include/constants/pins.h"
 
-DistanceSensor::DistanceSensor() {
+DistanceSensor::DistanceSensor() : System()
+{
 }
 
-std::vector<float> DistanceSensor::getArrayDistance() {
-    float kLeftAnalog  = analogRead(Pins::kLeftDistanceSensor);
-    float kRightAnalog = analogRead(Pins::kRightDistanceSensor);
+void DistanceSensor::begin()
+{
+    pinMode(Pins::kDistanceSensors[0][0], OUTPUT);
+    pinMode(Pins::kDistanceSensors[0][1], INPUT);
+    pinMode(Pins::kDistanceSensors[1][0], OUTPUT);
+    pinMode(Pins::kDistanceSensors[1][1], INPUT);
+}
 
-    float leftVoltage  = kLeftAnalog * (5.0 / 1023.0);
-    float rightVoltage = kRightAnalog * (5.0 / 1023.0);
+void DistanceSensor::update() {}
+void DistanceSensor::setState(int state) {}
 
-    float kLeftDistance  = 27.728 * pow(leftVoltage, -1.2045);
-    float kRightDistance = 27.728 * pow(rightVoltage, -1.2045);
+static inline bool isValidDistance(float d)
+{
+    // Im gonna remove the d < DistanceSensorConstants::kMaxTargetDistance check to allow for farther readings to be considered valid
+    // Add it again if it causes issues
+    return std::isfinite(d) && d > 0.0f && !isnan(d) && d > 2.0f;
+}
 
-    if (kLeftDistance > 80) kLeftDistance = 80;
-    if (kLeftDistance < 10) kLeftDistance = 10;
+float DistanceSensor::readSensor(uint8_t trigPin, uint8_t echoPin) const
+{
+    digitalWrite(trigPin, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin, LOW);
 
-    if (kRightDistance > 80) kRightDistance = 80;
-    if (kRightDistance < 10) kRightDistance = 10;
+    long duration = pulseIn(echoPin, HIGH, 10000); //   timeout
 
-    Serial.print("Left Distance: ");
-    Serial.println(kLeftDistance);
-    Serial.print("Right Distance: ");
-    Serial.println(kRightDistance);
+    if (duration == 0)
+    {
+        return std::numeric_limits<float>::infinity();
+    }
 
-    delay(1000); 
-    std::vector<float> distance = {kLeftDistance, kRightDistance};
+    float distance = duration * 0.0343 / 2.0;
+
     return distance;
 }
 
-float DistanceSensor::getDistance(int kSensor) {
-    float rawValue = analogRead(kSensor);
-    float voltage  = rawValue * (5.0 / 1023.0);
-    float distance = 27.728 * pow(voltage, -1.2045);
+std::pair<float, bool> DistanceSensor::getDistance(int kSensor)
+{
+    if (kSensor == 0)
+    {
+        float measurement = readSensor(Pins::kDistanceSensors[0][0], Pins::kDistanceSensors[0][1]);
 
-    if (distance > 80) distance = 80;
-    if (distance < 10) distance = 10;
+        // This will only insert valid measurements into the readings vector, if there is not a valid measurement it will keep the previous readings
+        bool isValid = isValidDistance(measurement);
 
-    return distance;
+        if (isValid)
+        {
+            insertReadingLeft(measurement);
+        }
+
+        float sum = 0;
+        for (float reading : leftSensorReadings)
+        {
+            sum += reading;
+        }
+        float average = leftSensorReadings.size() > 0 ? sum / leftSensorReadings.size() : 0;
+
+        return {average, isValid};
+    }
+    else if (kSensor == 1)
+    {
+        float measurement = readSensor(Pins::kDistanceSensors[1][0], Pins::kDistanceSensors[1][1]);
+
+        // This will only insert valid measurements into the readings vector, if there is not a valid measurement it will keep the previous readings
+        bool isValid = isValidDistance(measurement);
+
+        if (isValidDistance(measurement))
+        {
+            insertReadingRight(measurement);
+        }
+
+        float sum = 0;
+        for (float reading : rightSensorReadings)
+        {
+            sum += reading;
+        }
+        float average = rightSensorReadings.size() > 0 ? sum / rightSensorReadings.size() : 0;
+
+        return {average, isValid};
+    }
+
+    return {-1.0f, false};
+}
+
+std::pair<bool, bool> DistanceSensor::isObstacle()
+{
+    std::pair<float, bool> frontLeftDistance = getDistance(0);
+    std::pair<float, bool> frontRightDistance = getDistance(1);
+    bool obstacle = (frontLeftDistance.first < DistanceSensorConstants::kObstacleDistance) || (frontRightDistance.first < DistanceSensorConstants::kObstacleDistance);
+
+    return {obstacle, frontLeftDistance.second || frontRightDistance.second};
+}
+
+void DistanceSensor::insertReadingLeft(float measurement)
+{
+    leftSensorReadings.push_back(measurement);
+
+    if (leftSensorReadings.size() > 5)
+    {
+        leftSensorReadings.erase(leftSensorReadings.begin());
+    }
+}
+
+void DistanceSensor::insertReadingRight(float measurement)
+{
+    rightSensorReadings.push_back(measurement);
+
+    if (rightSensorReadings.size() > 5)
+    {
+        rightSensorReadings.erase(rightSensorReadings.begin());
+    }
 }

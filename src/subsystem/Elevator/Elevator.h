@@ -1,53 +1,34 @@
-/*
- * @file Elevador.h
- * @date 25/04/2025
- * @author Brisma Alvarez Valdez
+/**
+ * Written by Juan Pablo Gutierrez
  *
- * @brief Head file of the Elevador class to control a stepper motor.
+ * 25 10 2024
  */
 
 #pragma once
-
-#include <Arduino.h>
-#include "constants/constants.h"
 #include "../systems/system.hpp"
 #include "constants/pins.h"
-#include "dcmotor.hpp"
-#include "controllers/PIDController.hpp"
-#include "ezButton.h"
-
-using namespace Constants;
 
 class Elevator : public System
 {
-
 public:
     Elevator();
-    void begin() override;
-
-    void update() override;
-    void setState(int state) override;
-    int getCurrentPosition();
+    void begin();
+    void update();
+    void setState(int state);
 
 private:
-    void Move(int steps);
-    void resetPosition(double position);
-    bool getLimitState();
+    int elevator_state_;
 
-    // States
-    enum class ElevatorState
+    int ina1;
+    int ina2;
+    int pwm;
+
+    enum ElevatorState
     {
-        HOME = 0,
-        LOWER = 2,
-        MID = 3,
-        UPPER = 4,
+        STOP = 0,
+        UP = 1,
+        DOWN = 2,
     };
 
-    ElevatorState elevator_state_ = ElevatorState::HOME;
-
-    int current_position_ = 0;
-    int target_position_ = 0;
-    DCMotor motor_;
-    PIDController pid_controller_;
-    ezButton limit_button_;
+    void moveElevator(int direction);
 };

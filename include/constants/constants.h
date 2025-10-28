@@ -2,7 +2,7 @@
  * @file constants.h
  * @date 24/04/2025
  * @author Juan Pablo Gutiérrez
- * 
+ *
  * @brief Constants for the robot.
  */
 
@@ -11,72 +11,63 @@
 
 #include <math.h>
 
-namespace Constants {
+namespace Constants
+{
 
-    namespace SystemConstants {
-        constexpr float kUpdateInterval = 50.0; // in ms -> 20Hz
+    namespace SystemConstants
+    {
+        constexpr float kUpdateInterval = 20.0;
     }
 
-    namespace ElevatorConstants {
-        constexpr float kUpperLevel = 0.0; 
-        constexpr float kMidLevel = 0.0; 
-        constexpr float kLowerLevel = 0.0;
-        constexpr float kIdleLevel = 0.0; 
+    // Units: centimeters
+    namespace DistanceSensorConstants
+    {
+        // Distance threshold to consider an obstacle detected
+        constexpr int kObstacleDistance = 40;
 
-        constexpr float kP = 0.01;
-        constexpr float kI = 0.00;
-        constexpr float kD = 0.00;
+        // Target distance from the pool from which to move horizontally
+        constexpr float kPoolTargetDistance = 20.0;
+        constexpr float kTreeTargetDistance = 10.0;
 
-        constexpr bool kInverted = true;
-        constexpr bool kEncoderActiveState = LOW;
+        constexpr float kApproachDistanceTargetControllerKp = 2.5;
+        constexpr float kApproachDistanceTargetControllerKi = 0.00;
+        constexpr float kApproachDistanceTargetControllerKd = 0.00;
 
+        constexpr float kRetreatDistanceTargetControllerKp = 2.0;
+        constexpr float kRetreatDistanceTargetControllerKi = 0.00;
+        constexpr float kRetreatDistanceTargetControllerKd = 0.00;
     }
 
-    namespace LineSensorConstants{
-        constexpr int kPoolDistance = 10;
-        constexpr int kTreeDistance = 15;
-    }
+    // Units: meters, seconds, radians
+    namespace DriveConstants
+    {
+        constexpr float kWheelDiameter = 0.1;
+        constexpr float kWheelRadius = kWheelDiameter / 2.0;
+        constexpr float kWheelCircumference = 2 * M_PI * kWheelRadius;
 
-    namespace GripperConstants {
-        constexpr int kOpenAngle = 140;
-        constexpr int kClosedAngle = 40;
-    }
+        constexpr float kHeadingToleranceDegrees = 5.0f;
 
-    namespace UpperSorterConstants {
-        constexpr int kLeftAngle = 0;
-        constexpr int kCenterAngle = 90;
-        constexpr int kRightAngle = 180;
-    }
-
-    namespace LowerSorterConstants {
-        constexpr int kLeftAngle = 180;
-        constexpr int kCenterAngle = 90;
-        constexpr int kRightAngle = 0;
-    }
-
-    namespace DriveConstants {
-        constexpr float kWheelDiameter = 0.1; // in m
-        constexpr float kWheelRadius = kWheelDiameter / 2.0; // in m
-        constexpr float kWheelCircumference = 2 * M_PI * kWheelRadius; // in m
-
-        constexpr float kHeadingControllerKp = 240.0f;
+        constexpr float kHeadingControllerKp = 165.0f; //165.0f;
         constexpr float kHeadingControllerKi = 0.0f;
-        constexpr float kHeadingControllerKd = 0.0f;
+        constexpr float kHeadingControllerKd = 10.0f;
     }
 
-    namespace VisionConstants {
-        constexpr float kCenterPIDKp = 0.0f;
-        constexpr float kCenterPIDKi = 0.0f;
-        constexpr float kCenterPIDKd = 0.0f;
-        constexpr float kCenterPIDOutputMin = -255.0f;
-        constexpr float kCenterPIDOutputMax = 255.0f;
+    namespace IntakeConstants
+    {
+        constexpr int kGrabBallUpperServoPosition = 130;
+        constexpr int kAvoidBallUpperServoPosition = 40;
 
-        constexpr float kCenterOffsetX = 0.0f;
-        constexpr float kCenterOffsetY = 10.0f;
+        constexpr int kGrabBallLowerServoPosition = 95;
+        constexpr int kAvoidBallLowerServoPosition = 140;
+
+        constexpr int kIntakeRampPositioned = 130;
+        constexpr int kIntakeRampStored = 40;
     }
 
-    namespace BeanConstants {
-        enum BeanType {
+    namespace BeanConstants
+    {
+        enum BeanType
+        {
             NONE,
             MADURO,
             SOBREMADURO

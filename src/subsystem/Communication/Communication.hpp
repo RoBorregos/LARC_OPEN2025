@@ -5,6 +5,7 @@
 #include "constants/constants.h"
 #include "constants/pins.h"
 #include <string>
+#include <vector>
 
 using namespace Constants;
 using namespace std;
@@ -16,37 +17,16 @@ class Communication : public System {
         void update() override;
         void setState(int state) override;
         
-        // Command processing
         string getCommand();
+        
+        vector<int> getMatrix();
+        vector<int> getBenefitsPositions();
 
-        // Vision control
-        void startDetection();
-        void stopDetection();
-        
-        // Bean detection getters
-        string getTopBean();
-        string getBottomBean();
-        bool isVisionActive();
-        
-        // Send data to MQTT via vision system
-        void sendDataToMQTT(const string& data);
-        
+        void sendStartPicking();
+        void sendStopPicking();
+
+        void sendStartSearching();
+        void sendStopSearching();
     private:
-
-        enum class VisionState
-        {
-            GET_BEANS = 0,
-            GET_BENEFICIADEROS = 1,
-        };
-
-        VisionState vision_state_ = VisionState::GET_BEANS;
-        
-        // Bean detection data
-        string top_bean_;
-        string bottom_bean_;
-        bool vision_active_;
-        
-        // Private methods
         string readCommunication();
-        void readVisionData();
 };
