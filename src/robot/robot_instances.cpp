@@ -3,8 +3,6 @@
 
 using namespace Constants;
 
-Monitor monitor_(0, 1);
-
 Drive drive_;
 Sorter sorter_;
 LineSensor line_sensor_;

@@ -9,14 +9,11 @@
 #include "../subsystem/Elevator/Elevator.h"
 #include "../subsystem/Dropper/Dropper.hpp"
 
-#include "./monitor.h"
-
 extern Drive drive_;
 extern DistanceSensor distance_sensor_;
 extern LineSensor line_sensor_;
 extern Communication com_;
 extern Sorter sorter_;
 extern Elevator elevator_;
-extern Monitor monitor_;
 extern Intake intake_;
 extern Dropper dropper_;
