@@ -60,6 +60,38 @@ void Intake::setState(int state)
     intake_state_ = static_cast<IntakeState>(state);
 }
 
+void Intake::vision()
+{
+    static int last_top = -2;
+    static int last_bottom = -2;
+
+    auto values = com_.getMatrix();
+    int top = values[0];
+    int bottom = values[1];
+
+    bool top_ok = (top != -1);
+    bool bottom_ok = (bottom != -1);
+
+    // Solo actualizamos si cambia el estado del sensor
+    if (top_ok != (last_top != -1)) {
+        if (top_ok)
+            setState(4);
+        else
+            setState(2);
+    }
+
+    if (bottom_ok != (last_bottom != -1)) {
+        if (bottom_ok)
+            setState(5);
+        else
+            setState(3);
+    }
+
+    // Guardar últimos valores
+    last_top = top;
+    last_bottom = bottom;
+}
+
 void Intake::setIntakeServoPosition(Servo &servo, int position)
 {
     servo.write(position);

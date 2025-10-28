@@ -37,7 +37,7 @@ void setup()
   // drive_.acceptHeadingInput(Rotation2D::fromDegrees(180.0f));
 
   // Wait for "r" message from Bluetooth before continuing
-  monitor_.println("Waiting for ready command (r)...");
+  // monitor_.println("Waiting for ready command (r)...");
 
   String btInput = "";
   // while (true)
@@ -71,13 +71,9 @@ void loop()
   com_.update();
   intake_.update();
   elevator_.update();
-
-  auto values = com_.getMatrix();
-  int top = values[0];
-  int bottom = values[1];
-
-  Serial.println("Top:" + String(top) + " Bottom:" + String(bottom));
   // stateMachine.update();
+
+  intake_.vision();
 
   delay(SystemConstants::kUpdateInterval);
 }

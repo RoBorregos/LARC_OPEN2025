@@ -28,7 +28,6 @@ string Communication::readCommunication() {
     if (Serial.available()) {
         String msg = Serial.readStringUntil('\n');
         msg.trim();
-        Serial.println(msg);
         return string(msg.c_str()); 
     }
     return "";
@@ -36,18 +35,14 @@ string Communication::readCommunication() {
 
 vector<int> Communication::getMatrix() {
     string s = getCommand();
-    if (s.empty()){
-        Serial.println("NOT SENDING DATA FROM XAVIER");
-        delay(500);
-    }else{
-        s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
-    
-        size_t comma = s.find(',');
-        if (comma == string::npos) return {-1, -1};
-    
-        int top = stoi(s.substr(0, comma));
-        int bottom = stoi(s.substr(comma + 1));
-    
-        return {top, bottom};
-    }
+    if (s.empty()) return {-1, -1};
+    s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+
+    size_t comma = s.find(',');
+    if (comma == string::npos) return {-1, -1};
+
+    int top = stoi(s.substr(0, comma));
+    int bottom = stoi(s.substr(comma + 1));
+
+    return {top, bottom};
 }
