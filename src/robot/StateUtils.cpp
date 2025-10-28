@@ -135,48 +135,6 @@ void followLineHybrid(float lateralSpeed, float dt)
   drive_.acceptInput(lateralSpeed, targetFrontOutput, 0.0f); // Apply lateral speed + correction
 }
 
-void followLine(float lateralSpeed)
-{
-  auto lineValues = line_sensor_.readSensors();
-  bool frontLeft = lineValues[0];
-  bool frontRight = lineValues[1];
-  bool frontCenter = lineValues[4];
-
-  float frontError = 0.0;
-  if (frontLeft && !frontRight)
-    frontError = -1.0;
-  else if (!frontLeft && frontRight)
-    frontError = 1.0;
-
-  bool isLineDetected = frontLeft || frontRight;
-
-  static float lastKnownError = 0.0;
-  static float lastVyCorrection = 0.0;
-  static unsigned long lastDetectionTime = 0;
-
-  float vy_correction = 0.0;
-
-  if (isLineDetected)
-  {
-    vy_correction = followLinePID.update(frontError, 0.0);
-    lastKnownError = frontError;
-    lastVyCorrection = vy_correction;
-    lastDetectionTime = millis();
-  }
-  else if (millis() - lastDetectionTime < 150) // persistencia corta
-  {
-    // Mantén el último control brevemente
-    vy_correction = lastVyCorrection;
-  }
-  else
-  {
-    // Busca lateralmente sin retroceder
-    vy_correction = (lastKnownError > 0) ? 30.0 : -30.0;
-  }
-
-  drive_.acceptInput(lateralSpeed, vy_correction, 0.0);
-}
-
 void evadeLine(float lateralSpeed)
 {
   auto lineValues = line_sensor_.readSensors();
