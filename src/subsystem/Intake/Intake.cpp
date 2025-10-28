@@ -46,7 +46,6 @@ void Intake::update()
     case IntakeState::LOWER_SERVO_ONLY_POSITIONED:
         setIntakeServoPosition(LowerIntakeServo, IntakeConstants::kGrabBallLowerServoPosition);
         break;
-        break;
     default:
         setIntakeServoPosition(UpperIntakeServo, IntakeConstants::kAvoidBallUpperServoPosition);
         setIntakeServoPosition(LowerIntakeServo, IntakeConstants::kAvoidBallLowerServoPosition);

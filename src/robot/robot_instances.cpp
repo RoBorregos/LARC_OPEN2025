@@ -3,8 +3,6 @@
 
 using namespace Constants;
 
-Monitor monitor_(0, 1);
-
 Drive drive_;
 Sorter sorter_;
 LineSensor line_sensor_;
@@ -13,3 +11,4 @@ Elevator elevator_;
 Communication com_;
 Intake intake_;
 BNO bno_;
+Dropper dropper_;

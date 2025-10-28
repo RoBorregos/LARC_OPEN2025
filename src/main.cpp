@@ -17,11 +17,11 @@ StateMachine stateMachine;
 
 void setup()
 {
-  monitor_.begin();
+  Serial.begin(9600);
   Wire.begin();
 
   // All systems must begin after initializing the serial and as the code starts running
-  monitor_.println("Initializing systems...");
+  Serial.println("Initializing systems...");
   drive_.begin();
   com_.begin();
   line_sensor_.begin();
@@ -29,66 +29,22 @@ void setup()
   // intake_.begin();
   stateMachine.begin();
   elevator_.begin();
-  monitor_.println("All systems initialized...");
-
+  Serial.println("All systems initialized...");
+  sorter_.begin();
+  intake_.begin();
   drive_.setState(0);
 
   delay(1000);
-  // drive_.acceptHeadingInput(Rotation2D::fromDegrees(180.0f));
-
-  // Wait for "r" message from Bluetooth before continuing
-  monitor_.println("Waiting for ready command (r)...");
-
-  String btInput = "";
-  // while (true)
-  // {
-  //   if (bluetooth.available())
-  //   {
-  //     char c = bluetooth.read();
-  //     if (c == '\n' || c == '\r')
-  //     {
-  //       btInput.trim();
-  //       if (btInput.equalsIgnoreCase("r"))
-  //       {
-  //         Serial.println("Bluetooth ready received.");
-  //         break;
-  //       }
-  //       btInput = "";
-  //     }
-  //     else
-  //     {
-  //       btInput += c;
-  //     }
-  //   }
-  // }
-
-  drive_.acceptInput(-90, 0, 0);
 }
 
 void loop()
 {
   drive_.update();
-
+  com_.update();
   intake_.update();
   elevator_.update();
-
+  sorter_.update();
   stateMachine.update();
 
   delay(SystemConstants::kUpdateInterval);
-}
-
-void approach1()
-{
-  auto [isObstacle, rightValid] = distance_sensor_.isObstacle();
-  if (!isObstacle && rightValid)
-  {
-    Serial.println("RIGHT SENSOR CLEAR");
-    followLineJp(80, true);
-  }
-  else
-  {
-    Serial.println("RIGHT SENSOR BLOCKED");
-    maintainDistance(DistanceSensorConstants::kTreeTargetDistance, 79);
-    followLineJp(80, false);
-  }
 }

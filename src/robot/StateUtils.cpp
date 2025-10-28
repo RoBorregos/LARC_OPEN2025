@@ -30,14 +30,14 @@ void maintainDistance(float distance, float lateralSpeed)
 
   if (currentDistance < distance)
   {
-    monitor_.print("Too close: ");
+    Serial.print("Too close: ");
     // If we are too close, we need to back up
     leftOutput = retreatLeftDistancePID.update(leftDistance, distance) * -1;
     rightOutput = retreatRightDistancePID.update(rightDistance, distance) * -1;
   }
   else
   {
-    monitor_.print("Too far: ");
+    Serial.print("Too far: ");
     // If we are too far, we need to approach
     leftOutput = approachLeftDistancePID.update(leftDistance, distance) * -1;
     rightOutput = approachRightDistancePID.update(rightDistance, distance) * -1;
@@ -58,20 +58,20 @@ void maintainDistance(float distance, float lateralSpeed)
     }
   }
 
-  monitor_.print("L: ");
-  monitor_.print(leftDistance);
-  monitor_.print("cm (");
-  monitor_.print(leftOutput);
-  monitor_.print(") R: ");
-  monitor_.print(rightDistance);
-  monitor_.print("cm (");
-  monitor_.print(rightOutput);
-  monitor_.print(") Fwd: ");
-  monitor_.print(forwardOutput);
-  monitor_.print(" Error: ");
-  monitor_.print(error.getDegrees());
+  Serial.print("L: ");
+  Serial.print(leftDistance);
+  Serial.print("cm (");
+  Serial.print(leftOutput);
+  Serial.print(") R: ");
+  Serial.print(rightDistance);
+  Serial.print("cm (");
+  Serial.print(rightOutput);
+  Serial.print(") Fwd: ");
+  Serial.print(forwardOutput);
+  Serial.print(" Error: ");
+  Serial.print(error.getDegrees());
 
-  monitor_.println();
+  Serial.println();
 }
 
 struct LowPassFilter
@@ -135,107 +135,6 @@ void followLineHybrid(float lateralSpeed, float dt)
   drive_.acceptInput(lateralSpeed, targetFrontOutput, 0.0f); // Apply lateral speed + correction
 }
 
-// void followLineHybrid(float lateralSpeed, float dt)
-// {
-//   static float estimatedPositionError = 0.0;
-//   static float lastAngle = 0.0;
-
-//   auto lineValues = line_sensor_.readSensors();
-//   bool left = lineValues[0];
-//   bool center = lineValues[4];
-//   bool right = lineValues[1];
-
-//   // IMU data
-//   float angle = drive_.getYaw();                                          // degrees
-//   std::tuple<float, float, float> accel = drive_.getLinearAcceleration(); // m/s^2
-//   float aY_filtered = accelFilterY.update(std::get<1>(accel));
-//   float aX_filtered = accelFilterX.update(std::get<0>(accel));
-
-//   float targetFrontOutput = 0.0;
-
-//   if (center || left || right)
-//   {
-//     estimatedPositionError = 0.0;
-//     lastAngle = angle;
-
-//     if (center)
-//       targetFrontOutput = 0.0;
-//     else if (left && !right)
-//       targetFrontOutput = -35.0;
-//     else if (right && !left)
-//       targetFrontOutput = 35.0;
-
-//     monitor_.print("Line detected | ");
-//     monitor_.print(targetFrontOutput);
-//     monitor_.println();
-//   }
-//   else
-//   {
-//     // --- Inertial recovery ---
-//     float headingRad = angle * M_PI / 180.0f;
-//     float lateralAccel = aX_filtered * cosf(headingRad) - aY_filtered * sinf(headingRad);
-//     estimatedPositionError += lateralAccel * dt * 2.5f; // integrate lateral velocity
-
-//     targetFrontOutput = estimatedError * 100.0f; // big enough gain to feel it
-//     monitor_.print("No line | EstErr: ");
-//     monitor_.print(estimatedError);
-//     monitor_.print(" | aX: ");
-//     monitor_.print(aX_filtered);
-//     monitor_.print(" | aY: ");
-//     monitor_.print(aY_filtered);
-//     monitor_.print(" | Target: ");
-//     monitor_.print(targetFrontOutput);
-//     monitor_.println();
-//   }
-
-//   // Clamp to avoid excessive command
-//   targetFrontOutput = std::clamp(targetFrontOutput, -80.0f, 80.0f);
-
-//   drive_.acceptInput(lateralSpeed, targetFrontOutput, 0.0);
-// }
-
-void followLine(float lateralSpeed)
-{
-  auto lineValues = line_sensor_.readSensors();
-  bool frontLeft = lineValues[0];
-  bool frontRight = lineValues[1];
-  bool frontCenter = lineValues[4];
-
-  float frontError = 0.0;
-  if (frontLeft && !frontRight)
-    frontError = -1.0;
-  else if (!frontLeft && frontRight)
-    frontError = 1.0;
-
-  bool isLineDetected = frontLeft || frontRight;
-
-  static float lastKnownError = 0.0;
-  static float lastVyCorrection = 0.0;
-  static unsigned long lastDetectionTime = 0;
-
-  float vy_correction = 0.0;
-
-  if (isLineDetected)
-  {
-    vy_correction = followLinePID.update(frontError, 0.0);
-    lastKnownError = frontError;
-    lastVyCorrection = vy_correction;
-    lastDetectionTime = millis();
-  }
-  else if (millis() - lastDetectionTime < 150) // persistencia corta
-  {
-    // Mantén el último control brevemente
-    vy_correction = lastVyCorrection;
-  }
-  else
-  {
-    // Busca lateralmente sin retroceder
-    vy_correction = (lastKnownError > 0) ? 30.0 : -30.0;
-  }
-
-  drive_.acceptInput(lateralSpeed, vy_correction, 0.0);
-}
-
 void evadeLine(float lateralSpeed)
 {
   auto lineValues = line_sensor_.readSensors();
@@ -256,14 +155,14 @@ void evadeLine(float lateralSpeed)
 
     drive_.acceptInput(backSpeed, vy_correction, 0.0);
 
-    monitor_.print("Line detected | Error: ");
-    monitor_.print(frontError);
-    monitor_.print(" | vy_corr: ");
-    monitor_.println(vy_correction);
+    Serial.print("Line detected | Error: ");
+    Serial.print(frontError);
+    Serial.print(" | vy_corr: ");
+    Serial.println(vy_correction);
   }
   else
   {
     drive_.acceptInput(lateralSpeed, 0.0, 0.0);
-    monitor_.println("No line detected - moving lateral");
+    Serial.println("No line detected - moving lateral");
   }
 }

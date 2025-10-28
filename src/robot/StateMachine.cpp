@@ -6,7 +6,7 @@ StateMachine::StateMachine()
 
 void StateMachine::begin()
 {
-  currentState = STATES::RETURN;
+  currentState = STATES::PICKUP;
   state_start_time = 0;
 }
 
@@ -74,7 +74,7 @@ void StateMachine::startStateTime()
 
 void StateMachine::handleStartState()
 {
-  monitor_.println("START STATE");
+  Serial.println("START STATE");
 
   elevator_.setState(1); // Move elevator to starting position
 
@@ -116,7 +116,7 @@ void StateMachine::handleStartState()
 
 void StateMachine::handleAvoidObstacleLeftState()
 {
-  monitor_.println("AVOID OBSTACLE LEFT STATE");
+  Serial.println("AVOID OBSTACLE LEFT STATE");
 
   // if the distance is greater than the max target distance, it means we've reached the edge of the pool with one sensor, so we should keep moving until both sensors dont see the pool
   auto [leftDistance, leftValid] = distance_sensor_.getDistance(0);
@@ -138,10 +138,10 @@ void StateMachine::handleAvoidObstacleLeftState()
   }
 
   auto [isObstacle, isValid] = distance_sensor_.isObstacle();
-  monitor_.print("Is Obstacle: ");
-  monitor_.println(isObstacle ? "Yes" : "No");
-  monitor_.print("Is Valid: ");
-  monitor_.println(isValid ? "Yes" : "No");
+  Serial.print("Is Obstacle: ");
+  Serial.println(isObstacle ? "Yes" : "No");
+  Serial.print("Is Valid: ");
+  Serial.println(isValid ? "Yes" : "No");
   if (!isObstacle && isValid)
   {
     delay(700);
@@ -158,7 +158,7 @@ void StateMachine::handleAvoidObstacleLeftState()
 
 void StateMachine::handleAvoidObstacleRightState()
 {
-  monitor_.println("AVOID OBSTACLE RIGHT STATE");
+  Serial.println("AVOID OBSTACLE RIGHT STATE");
 
   auto [distance, valid] = distance_sensor_.getDistance(1);
   if (distance > DistanceSensorConstants::kObstacleDistance && valid)
@@ -197,7 +197,7 @@ void StateMachine::handleAvoidObstacleRightState()
 
 void StateMachine::handleGoStraightState()
 {
-  monitor_.println("GO_STRAIGHT STATE");
+  Serial.println("GO_STRAIGHT STATE");
 
   if (action_stage == 1)
   {
@@ -229,7 +229,7 @@ void StateMachine::handleGoStraightState()
 
 void StateMachine::handleEndlineState()
 {
-  monitor_.println("ENDLINE STATE");
+  Serial.println("ENDLINE STATE");
 
   followLineHybrid(-70, 0.02f);
 
@@ -243,19 +243,47 @@ void StateMachine::handleEndlineState()
 
 void StateMachine::handlePickupState()
 {
-  monitor_.println("PICKUP STATE");
+  static int lastTop = -1;     // last valid value for top
+  static int lastBottom = -1;  // last valid value for bottom
 
+  Serial.println("PICKUP STATE");
   followLineHybrid(70, 0.02f);
+
+  auto values = com_.getMatrix();
+  int top = values[0];
+  int bottom = values[1];
+
+  // --- Upper part control ---
+  if (top != -1 && top != lastTop) {
+    if (top == 2 || top == 1) {
+      intake_.setState(4);   // e.g.: pick up upper part
+    } 
+    else if (top == 0) {
+      intake_.setState(2);   // retract upper part
+    }
+    lastTop = top;
+  }
+
+  // --- Lower part control ---
+  if (bottom != -1 && bottom != lastBottom) {
+    if (bottom == 2 || bottom == 1) {
+      intake_.setState(5);   // pick up lower part
+    } 
+    else if (bottom == 0) {
+      intake_.setState(3);   // retract lower part
+    }
+    lastBottom = bottom;
+  }
 
   if (line_sensor_.isBackRightLine())
   {
     drive_.acceptInput(0, 0, 0);
-    setState(STATES::RETURN);
+    setState(STATES::STOP);
     return;
   }
-
-  // Implementation for pickup state goes here
 }
+
+
 
 // ================ RETURNING STATES ===================
 // Keep in mind that when returning, left and right are swapped
@@ -263,7 +291,7 @@ void StateMachine::handlePickupState()
 
 void StateMachine::handleReturnState()
 {
-  monitor_.println("RETURN STATE");
+  Serial.println("RETURN STATE");
 
   if (action_stage == 1)
   {
@@ -296,7 +324,7 @@ void StateMachine::handleReturnState()
 // Keep in mind that when returning, left and right are swapped
 void StateMachine::handleAvoidObstacleLeftReturnState()
 {
-  monitor_.println("AVOID OBSTACLE LEFT STATE");
+  Serial.println("AVOID OBSTACLE LEFT STATE");
 
   // if the distance is greater than the max target distance, it means we've reached the edge of the pool with one sensor, so we should keep moving until both sensors dont see the pool
   auto [leftDistance, leftValid] = distance_sensor_.getDistance(0);
@@ -334,7 +362,7 @@ void StateMachine::handleAvoidObstacleLeftReturnState()
 
 void StateMachine::handleAvoidObstacleRightReturnState()
 {
-  monitor_.println("AVOID OBSTACLE RIGHT STATE");
+  Serial.println("AVOID OBSTACLE RIGHT STATE");
 
   auto [distance, valid] = distance_sensor_.getDistance(1);
   if (distance > DistanceSensorConstants::kObstacleDistance && valid)
@@ -371,7 +399,7 @@ void StateMachine::handleAvoidObstacleRightReturnState()
 
 void StateMachine::handleGoBeginningState()
 {
-  monitor_.println("GO_BEGINNING STATE");
+  Serial.println("GO_BEGINNING STATE");
 
   if (action_stage == 1)
   {
@@ -404,7 +432,7 @@ void StateMachine::handleGoBeginningState()
 
 void StateMachine::handleStopState()
 {
-  monitor_.println("STOP STATE");
+  Serial.println("STOP STATE");
 
   drive_.acceptInput(0, 0, 0);
   drive_.hardBrake();

@@ -6,6 +6,7 @@
 #include "../systems/system.hpp"
 #include "constants/constants.h"
 #include "constants/pins.h"
+#include "subsystem/Communication/Communication.hpp"
 
 using namespace Constants;
 
@@ -16,14 +17,21 @@ private:
     Servo LowerIntakeServo;
     Servo IntakeRampEnableServo;
 
+    // interval (ms) between calls to com_.getMatrix()
+    static constexpr unsigned long recive_values_interval = 800UL;
+    // store last received timestamp using unsigned long to match millis()
+    unsigned long last_value_received = 0;
+
     void setIntakeServoPosition(Servo &servo, int position);
+    Communication com_;
+
 public:
     Intake();
 
     void begin() override;
     void update() override;
     void setState(int state) override;
-    
+
     enum class IntakeState
     {
         ALL_SERVOS_STORED = 0,
