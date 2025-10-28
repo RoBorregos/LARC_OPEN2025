@@ -243,20 +243,37 @@ void StateMachine::handleEndlineState()
 
 void StateMachine::handlePickupState()
 {
-  monitor_.println("PICKUP STATE");
+  static int lastTop = -1;     // last valid value for top
+  static int lastBottom = -1;  // last valid value for bottom
 
+  monitor_.println("PICKUP STATE");
   followLineHybrid(70, 0.02f);
 
   auto values = com_.getMatrix();
-
   int top = values[0];
-  
-  if (top == 2 || top == 1) {
-    intake_.setState(4);
-  }else{
-    intake_.setState(2);
+  int bottom = values[1];
+
+  // --- Upper part control ---
+  if (top != -1 && top != lastTop) {
+    if (top == 2 || top == 1) {
+      intake_.setState(4);   // e.g.: pick up upper part
+    } 
+    else if (top == 0) {
+      intake_.setState(2);   // retract upper part
+    }
+    lastTop = top;
   }
 
+  // --- Lower part control ---
+  if (bottom != -1 && bottom != lastBottom) {
+    if (bottom == 2 || bottom == 1) {
+      intake_.setState(5);   // pick up lower part
+    } 
+    else if (bottom == 0) {
+      intake_.setState(3);   // retract lower part
+    }
+    lastBottom = bottom;
+  }
 
   if (line_sensor_.isBackRightLine())
   {
@@ -265,6 +282,8 @@ void StateMachine::handlePickupState()
     return;
   }
 }
+
+
 
 // ================ RETURNING STATES ===================
 // Keep in mind that when returning, left and right are swapped
