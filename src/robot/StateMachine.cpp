@@ -6,7 +6,7 @@ StateMachine::StateMachine()
 
 void StateMachine::begin()
 {
-  currentState = STATES::START;
+  currentState = STATES::RETURN;
   state_start_time = 0;
 }
 
