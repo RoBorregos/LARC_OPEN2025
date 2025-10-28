@@ -26,14 +26,14 @@ void setup()
   com_.begin();
   line_sensor_.begin();
   distance_sensor_.begin();
-  // intake_.begin();
   stateMachine.begin();
   elevator_.begin();
-  Serial.println("All systems initialized...");
   sorter_.begin();
   intake_.begin();
-  drive_.setState(0);
+  Serial.println("All systems initialized...");
 
+  drive_.setState(0);
+  drive_.acceptHeadingInput(Rotation2D(0.0f));
   delay(1000);
 }
 
