@@ -17,8 +17,7 @@ class Communication : public System {
         void update() override;
         void setState(int state) override;
         
-        string getCommand();
-        
+        string getCommand();        
         vector<int> getMatrix();
         vector<int> getBenefitsPositions();
 

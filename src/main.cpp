@@ -26,11 +26,12 @@ void setup()
   com_.begin();
   line_sensor_.begin();
   distance_sensor_.begin();
-  intake_.begin();
+  // intake_.begin();
   stateMachine.begin();
   elevator_.begin();
   monitor_.println("All systems initialized...");
-
+  sorter_.begin();
+  intake_.begin();
   drive_.setState(0);
 
   delay(1000);
@@ -62,7 +63,7 @@ void setup()
   //   }
   // }
 
-  drive_.acceptInput(-90, 0, 0);
+  // drive_.acceptInput(-90, 0, 0);
 }
 
 void loop()
@@ -71,9 +72,9 @@ void loop()
   com_.update();
   intake_.update();
   elevator_.update();
-  // stateMachine.update();
+  sorter_.update();
+  stateMachine.update();
 
-  intake_.vision();
 
   delay(SystemConstants::kUpdateInterval);
 }

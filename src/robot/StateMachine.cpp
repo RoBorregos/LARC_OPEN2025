@@ -6,7 +6,7 @@ StateMachine::StateMachine()
 
 void StateMachine::begin()
 {
-  currentState = STATES::START;
+  currentState = STATES::PICKUP;
   state_start_time = 0;
 }
 
@@ -243,19 +243,47 @@ void StateMachine::handleEndlineState()
 
 void StateMachine::handlePickupState()
 {
-  monitor_.println("PICKUP STATE");
+  static int lastTop = -1;     // last valid value for top
+  static int lastBottom = -1;  // last valid value for bottom
 
+  monitor_.println("PICKUP STATE");
   followLineHybrid(70, 0.02f);
+
+  auto values = com_.getMatrix();
+  int top = values[0];
+  int bottom = values[1];
+
+  // --- Upper part control ---
+  if (top != -1 && top != lastTop) {
+    if (top == 2 || top == 1) {
+      intake_.setState(4);   // e.g.: pick up upper part
+    } 
+    else if (top == 0) {
+      intake_.setState(2);   // retract upper part
+    }
+    lastTop = top;
+  }
+
+  // --- Lower part control ---
+  if (bottom != -1 && bottom != lastBottom) {
+    if (bottom == 2 || bottom == 1) {
+      intake_.setState(5);   // pick up lower part
+    } 
+    else if (bottom == 0) {
+      intake_.setState(3);   // retract lower part
+    }
+    lastBottom = bottom;
+  }
 
   if (line_sensor_.isBackRightLine())
   {
     drive_.acceptInput(0, 0, 0);
-    setState(STATES::RETURN);
+    setState(STATES::STOP);
     return;
   }
-
-  // Implementation for pickup state goes here
 }
+
+
 
 // ================ RETURNING STATES ===================
 // Keep in mind that when returning, left and right are swapped

@@ -25,8 +25,6 @@ private:
     void setIntakeServoPosition(Servo &servo, int position);
     Communication com_;
 public:
-
-    std::vector<int> values = {0, 0};
     Intake();
 
     void begin() override;

@@ -41,6 +41,10 @@ private:
   unsigned long action_start_time = 0;
   int action_stage = 0;
 
+  std::vector<int> values = {0, 0};
+  unsigned long last_coffee_value_received = 0;
+  static constexpr unsigned long recive_coffee_values_interval = 800;
+
   void handleStartState();
   void handleAvoidObstacleLeftState();
   void handleAvoidObstacleRightState();

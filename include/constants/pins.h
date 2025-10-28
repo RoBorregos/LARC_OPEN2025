@@ -73,7 +73,8 @@ namespace Pins
     const uint8_t kIntakeRampEnable = 4;
 
     // NOT READY
-    const uint8_t kDropperServo = 37;
+    const uint8_t kDropperServo = 30;
+
 }
 
 #endif
