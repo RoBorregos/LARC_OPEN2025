@@ -75,7 +75,6 @@ void loop()
   sorter_.update();
   stateMachine.update();
 
-
   delay(SystemConstants::kUpdateInterval);
 }
 
