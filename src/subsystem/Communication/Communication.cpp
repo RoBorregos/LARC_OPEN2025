@@ -33,6 +33,22 @@ string Communication::readCommunication() {
     return "";
 }
 
+void Communication::sendStartPicking() {
+    Serial.println("START_PICKING");
+}
+
+void Communication::sendStopPicking() {
+    Serial.println("STOP_PICKING");
+}
+
+void Communication::sendStartSearching() {
+    Serial.println("START_SEARCHING");
+}
+
+void Communication::sendStopSearching() {
+    Serial.println("STOP_SEARCHING");
+}
+
 vector<int> Communication::getMatrix() {
     string s = getCommand();
     if (s.empty()) return {-1, -1};
@@ -45,4 +61,12 @@ vector<int> Communication::getMatrix() {
     int bottom = stoi(s.substr(comma + 1));
 
     return {top, bottom};
+}
+
+vector<int> Communication::getBenefitsPositions() {
+    string s = getCommand();
+    vector<int> positions;
+
+
+    return positions;
 }
