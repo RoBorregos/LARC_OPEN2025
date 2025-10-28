@@ -46,7 +46,6 @@ void Intake::update()
     case IntakeState::LOWER_SERVO_ONLY_POSITIONED:
         setIntakeServoPosition(LowerIntakeServo, IntakeConstants::kGrabBallLowerServoPosition);
         break;
-        break;
     default:
         setIntakeServoPosition(UpperIntakeServo, IntakeConstants::kAvoidBallUpperServoPosition);
         setIntakeServoPosition(LowerIntakeServo, IntakeConstants::kAvoidBallLowerServoPosition);
@@ -58,33 +57,6 @@ void Intake::update()
 void Intake::setState(int state)
 {
     intake_state_ = static_cast<IntakeState>(state);
-}
-
-void Intake::vision()
-{
-    if (millis() - last_value_received > recive_values_interval) {
-        values = com_.getMatrix();
-        last_value_received = millis();
-    }
-
-    int top = values[0];
-    int bottom = values[1];
-
-    bool top_ok = (top != 0) && (top != -1);
-    bool bottom_ok = (bottom != 0) && (bottom != -1);
-
-    // Solo actualizamos si cambia el estado del sensor
-    if (top_ok) {
-        setState(4);
-    } else {
-        setState(2);
-    }
-
-    if (bottom_ok) {
-        setState(5);
-    } else {
-        setState(3);
-    } 
 }
 
 void Intake::setIntakeServoPosition(Servo &servo, int position)

@@ -6,7 +6,7 @@ StateMachine::StateMachine()
 
 void StateMachine::begin()
 {
-  currentState = STATES::RETURN;
+  currentState = STATES::PICKUP;
   state_start_time = 0;
 }
 
@@ -245,7 +245,42 @@ void StateMachine::handlePickupState()
 {
   monitor_.println("PICKUP STATE");
 
-  followLineHybrid(70, 0.02f);
+  // followLineHybrid(70, 0.02f);
+
+  if (millis() - last_coffee_value_received > recive_coffee_values_interval) {
+    values = com_.getMatrix();
+    last_coffee_value_received = millis();
+  }
+
+  int top = values[0];
+  int bottom = values[1];
+
+  bool top_ok = (top != 0) && (top != -1);
+  bool bottom_ok = (bottom != 0) && (bottom != -1);
+
+  // Solo actualizamos si cambia el estado del sensor
+  if (top_ok) {
+    intake_.setState(4);
+    if (top == 1) {
+      sorter_.setState(1); // maduro
+    } else if (top == 2) {
+      sorter_.setState(2); // sobremaduro
+    }
+  } else if (!top_ok) { // verde
+    intake_.setState(2);
+  }
+
+  if (bottom_ok) {
+    intake_.setState(5);
+    if (bottom == 1) {
+      sorter_.setState(1); // maduro
+    } else if (bottom == 2) {
+      sorter_.setState(2); // sobremaduro
+    }
+  } else if (!bottom_ok) {  // verde
+    intake_.setState(3);
+  }
+
 
   if (line_sensor_.isBackRightLine())
   {

@@ -7,6 +7,7 @@
 #include "../subsystem/Sorter/Sorter.hpp"
 #include "../subsystem/Intake/Intake.h"
 #include "../subsystem/Elevator/Elevator.h"
+#include "../subsystem/Dropper/Dropper.hpp"
 
 #include "./monitor.h"
 
@@ -18,3 +19,4 @@ extern Sorter sorter_;
 extern Elevator elevator_;
 extern Monitor monitor_;
 extern Intake intake_;
+extern Dropper dropper_;

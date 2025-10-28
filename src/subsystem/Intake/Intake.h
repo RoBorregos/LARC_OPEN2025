@@ -23,16 +23,13 @@ private:
     unsigned long last_value_received = 0;
 
     void setIntakeServoPosition(Servo &servo, int position);
-    Communication com_;
 public:
 
-    std::vector<int> values = {0, 0};
     Intake();
 
     void begin() override;
     void update() override;
     void setState(int state) override;
-    void vision();
     
     enum class IntakeState
     {

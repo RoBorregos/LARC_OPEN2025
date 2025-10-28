@@ -12,10 +12,9 @@ using namespace Constants;
 class Dropper : public System {
 private:
 
-    static constexpr int CLOSED_POSITION = 0;
-    static constexpr int OPEN_POSITION = 180;
-
     int current_position_;
+    const uint8_t CLOSED_POSITION = 180; // Adjust these values as needed
+    const uint8_t OPEN_POSITION = 0;
     
 public:
 
