@@ -15,7 +15,7 @@ void Intake::begin()
 
     setIntakeServoPosition(UpperIntakeServo, IntakeConstants::kAvoidBallUpperServoPosition);
     setIntakeServoPosition(LowerIntakeServo, IntakeConstants::kAvoidBallLowerServoPosition);
-    setIntakeServoPosition(IntakeRampEnableServo, IntakeConstants::kIntakeRampStored);
+    setIntakeServoPosition(IntakeRampEnableServo, IntakeConstants::kIntakeRampPositioned);
 
     setState(0);
 }
