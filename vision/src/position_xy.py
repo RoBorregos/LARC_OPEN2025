@@ -1,5 +1,7 @@
 import argparse
 import math
+import argparse
+import math
 import sys
 import cv2
 from ultralytics import YOLO
@@ -12,7 +14,6 @@ def parse_args():
 				   help="altura real del objeto en metros (ej. 0.05)")
 	p.add_argument("--hfov", type=float, default=None, help="FOV horizontal de la cámara en grados")
 	p.add_argument("--focal-px", type=float, default=None, help="Focal en píxeles (fx). Si se da, sobrescribe hfov")
-	p.add_argument("--display", action="store_true", help="mostrar ventana con anotaciones")
 	return p.parse_args()
 
 
@@ -95,8 +96,14 @@ def main():
 					except Exception:
 						boxes = []
 
-			# Procesar cada bbox
-			annotated = frame.copy()
+			# Procesar cada bbox y dibujar sobre la imagen anotada que devuelve el modelo
+			# Usamos results[0].plot() como pidió el usuario
+			try:
+				annotated_img = results[0].plot()
+			except Exception:
+				# fallback a la imagen original si plot falla
+				annotated_img = frame.copy()
+
 			for (xyxy, cls, conf) in boxes:
 				if xyxy is None:
 					continue
@@ -108,33 +115,28 @@ def main():
 				label = class_names[int(cls)] if (cls is not None and int(cls) in class_names) else (str(cls) if cls is not None else 'obj')
 
 				if args.real_height is not None:
+					# calculamos Z internamente para obtener X,Y en metros, pero no devolvemos Z
 					Z = (fy * args.real_height) / h_px
 					X = (u - cx) * Z / fx
 					Y = (v - cy) * Z / fy
-					# Mostrar valores en metros
-					txt = f"{label} ({X:.3f}m, {Y:.3f}m, {Z:.3f}m)"
+					txt = f"{label} X={X:.3f}m Y={Y:.3f}m"
+					# Imprimimos solo X,Y (sin Z)
+					print(f"{label}: X={X:.3f} m, Y={Y:.3f} m (conf={conf})")
 				else:
-					Z = None
+					# Sin tamaño real, mostramos offsets en píxeles respecto al centro
 					X = u - cx
 					Y = v - cy
-					txt = f"{label} (u={int(u)}, v={int(v)}, hpx={int(h_px)})"
+					txt = f"{label} u={int(u)} v={int(v)}"
+					print(f"{label}: center(px)=({int(u)},{int(v)}), Xoff={int(X)} px, Yoff={int(Y)} px, conf={conf}")
 
-				# Dibujar bbox y texto
-				cv2.rectangle(annotated, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
-				cv2.circle(annotated, (int(u), int(v)), 3, (0, 0, 255), -1)
-				# Texto encima del bbox
-				cv2.putText(annotated, txt, (int(x1), int(y1) - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 0), 1)
+				# Dibujar encima del annotated_img devuelto por el modelo
+				cv2.circle(annotated_img, (int(u), int(v)), 3, (0, 0, 255), -1)
+				cv2.putText(annotated_img, txt, (int(x1), int(y1) - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
 
-				# También imprimir por consola
-				if Z is not None:
-					print(f"{label}: X={X:.3f} m, Y={Y:.3f} m, Z={Z:.3f} m (conf={conf})")
-				else:
-					print(f"{label}: center(px)=({int(u)},{int(v)}), h={int(h_px)} px, conf={conf}")
-
-			if args.display:
-				cv2.imshow('Detection XY', annotated)
-				if cv2.waitKey(1) & 0xFF == 27:
-					break
+			# Mostrar la ventana como en modelIRL.py
+			cv2.imshow('Detection', annotated_img)
+			if cv2.waitKey(1) & 0xFF == 27:
+				break
 
 	finally:
 		cap.release()
