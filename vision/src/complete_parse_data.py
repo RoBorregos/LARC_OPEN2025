@@ -134,12 +134,6 @@ class Camera:
         else: # CameraState.DETECT_BLUE_STORAGE
             return self._detect_storage(benefit_type="blue_benefit")
         
-    
-    
-    
-    
-    
-    
     #* --------- State Handlers ---------
     def _detect_beans(self) -> List[Optional[DetectOutput]]:
         '''Returns list of 2 DetectOutput for top and bottom halves'''
@@ -196,11 +190,6 @@ class Camera:
                 final_detections.append(None)
 
         return final_detections
-
-    
-    
-    
-    
     
     def _detect_storage(self, benefit_type: str) -> List[Optional[DetectOutput]]:
         '''Returns single DetectOutput for specified benefit_type and offset'''
@@ -234,13 +223,7 @@ class Camera:
                     
         self.detection_matrix = [benefit_type, offset]
         return storage if found else []
-    
-    
-    
-    
-    
-    
-    
+
     #* --------- Main ---------
     def run(self, frame, verbose=False) -> None:
         self._frame = frame
@@ -252,13 +235,6 @@ class Camera:
 
         if verbose:
             self._show(det)
-
-
-
-
-    
-
-
 
 ### testing main
 if __name__ == "__main__":
@@ -280,6 +256,7 @@ if __name__ == "__main__":
                 break
 
             cam.run(frame, verbose=True)
+            cv2.imshow("Detections", frame)
 
             if cv2.waitKey(1) & 0xFF == 27:
                 break
