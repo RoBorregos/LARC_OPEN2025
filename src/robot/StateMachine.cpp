@@ -422,6 +422,7 @@ void StateMachine::handleGoBeginningState()
 
     action_stage = 1;
     action_start_time = millis();
+    Serial.println("SHUTDOWN");
     return;
   }
   else
