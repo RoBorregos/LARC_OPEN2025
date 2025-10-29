@@ -59,6 +59,7 @@ def map_value(value: Union[str, int, float, None]) -> Union[int, float]:
 
 # ------------ Main loop ------------
 def run():
+    global has_sent_running_msg
     # Load model
     model = YOLO(MODEL_PATH, task="detect")
     cam = Camera(model=model, timeout=TIMEOUT_SEC)
