@@ -139,58 +139,64 @@ class Camera:
         '''Returns list of 2 DetectOutput for top and bottom halves'''
         targets = {"inmature", "mature", "overmature"}
 
-        # Inference
+        THRESHOLD_Y = 100  # <<< NUEVA CONSTANTE
+        should_send = False  # <<< NUEVO FLAG
+
         results = self._read_frame()
         now = time.time()
 
-        # Split frame in two by X midpoint
         h, w = self._frame.shape[:2]
         mid_x = w * 0.5
-        
-        # Initialize with a dummy object having negative confidence
+
         default_output = DetectOutput(label=None, confidence=-1.0, bbox=[])
         best_for = {
             "top": default_output,
             "bottom": default_output,
         }
-        
-        # Check if the current detections in detection_matrix are still valid
+
         for side in ["top", "bottom"]:
             idx = 0 if side == "top" else 1
             if self.detection_matrix[idx] is not None and self._last_read_s[side] + self.TIMEOUT < now:
                 self.detection_matrix[idx] = None
-                
-        # Collect best detection per half for target classes
+
         for det in results:
             if det.label not in targets:
                 continue
 
-            # Determine which half the bean belongs to based on its center x-coordinate
             x1, y1, x2, y2 = det.bbox
             cx = 0.5 * (x1 + x2)
+            cy = 0.5 * (y1 + y2) 
+
             side = "top" if cx > mid_x else "bottom"
-            
             idx = 0 if side == "top" else 1
-            
-            # Only search for a new bean if the current slot is empty (None)
+
+            if cy < THRESHOLD_Y:
+                should_send = True
+
             if self.detection_matrix[idx] is None:
                 if det.confidence > best_for[side].confidence:
                     best_for[side] = det
 
-        final_detections: List[Optional[DetectOutput]] = []
+        final_detections = []
         for idx, side in enumerate(["top", "bottom"]):
             best_det = best_for[side]
-            
             if best_det.label is not None:
-                self.detection_matrix[idx] = best_det.label
-                self._last_read_s[side] = now # Reset timer
+                x1, y1, x2, y2 = best_det.bbox
+                cy = 0.5 * (y1 + y2) 
+                self.detection_matrix[idx] = f"{best_det.label}, cy={int(cy)}"
+                self._last_read_s[side] = now
                 final_detections.append(best_det)
             else:
-                self.detection_matrix[idx] = self.detection_matrix[idx]
                 final_detections.append(None)
 
+        print(f"[Camera] cy check, should_send={should_send}")
+
+        # Aquí luego podrías enviar:
+        # if should_send:
+        #     send_matrix_to_teensy(self.detection_matrix)
+
         return final_detections
-    
+
     def _detect_storage(self, benefit_type: str) -> List[Optional[DetectOutput]]:
         '''Returns single DetectOutput for specified benefit_type and offset'''
         # NOTE: camera is rotated 90 degrees, so we use vertical offset
