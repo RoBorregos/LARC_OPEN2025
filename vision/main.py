@@ -78,12 +78,11 @@ def run():
 
     # Open serial port
     ser = serial.Serial(SERIAL_PORT, BAUDRATE, timeout=0.05)
-    print(f"[INFO] Listening for Teensy commands on {SERIAL_PORT}...")
+    print(f"[INFO] Listening for Teensy commands on {SERIAL_PORT} WAITING ON THE PICKUP STATE...")
 
-    # while ser.readline().decode(errors="ignore").strip() != "START":
-    #     continue
-    # ser.write(b"STARTED\n")
-    # print("[INFO] Starting detection loop...")
+    while ser.readline().decode(errors="ignore").strip() != "PICKUP STATE":
+        continue
+    ser.write(b"XAVIER READY\n")
 
     # Default initial state
     cam.set_state(CameraState.DETECT_BEANS)
