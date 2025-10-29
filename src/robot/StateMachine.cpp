@@ -243,45 +243,54 @@ void StateMachine::handleEndlineState()
 
 void StateMachine::handlePickupState()
 {
-  static int lastTop = -1;     // last valid value for top
-  static int lastBottom = -1;  // last valid value for bottom
+  static bool visionReady = false;   // Flag to know if Xavier has started vision
+  static int lastTop = -1;
+  static int lastBottom = -1;
 
   Serial.println("PICKUP STATE");
+  string cmd = com_.getCommand();
+
+  if (!visionReady) {
+    if (cmd == "XAVIER RUNNING VISION") {
+      visionReady = true;
+      Serial.println("[INFO] Xavier vision online — starting movement");
+    } else {
+      drive_.acceptInput(0, 0, 0);
+      return;
+    }
+  }
+
   followLineHybrid(70, 0.02f);
 
   auto values = com_.getMatrix();
   int top = values[0];
   int bottom = values[1];
 
-  // --- Upper part control ---
   if (top != -1 && top != lastTop) {
     if (top == 2 || top == 1) {
-      intake_.setState(4);   // e.g.: pick up upper part
-    } 
-    else if (top == 0) {
-      intake_.setState(2);   // retract upper part
+      intake_.setState(4);   
+    } else if (top == 0) {
+      intake_.setState(2);   
     }
     lastTop = top;
   }
 
-  // --- Lower part control ---
   if (bottom != -1 && bottom != lastBottom) {
     if (bottom == 2 || bottom == 1) {
-      intake_.setState(5);   // pick up lower part
-    } 
-    else if (bottom == 0) {
-      intake_.setState(3);   // retract lower part
+      intake_.setState(5);  
+    } else if (bottom == 0) {
+      intake_.setState(3); 
     }
     lastBottom = bottom;
   }
 
-  if (line_sensor_.isBackRightLine())
-  {
+  if (line_sensor_.isBackRightLine()) {
     drive_.acceptInput(0, 0, 0);
     setState(STATES::STOP);
     return;
   }
 }
+
 
 
 

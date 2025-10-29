@@ -4,7 +4,7 @@
 using namespace std;
 
 Communication::Communication(){
-    Serial.begin(115200);       // USB serial
+    Serial.begin(9600);       // USB serial
 }
 
 void Communication::begin() {
