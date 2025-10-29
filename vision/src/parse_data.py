@@ -168,7 +168,20 @@ def run(verbose: bool):
 
             # Always print to terminal
             print_status(matrix, last_seen_ts, now, infer_ms)
-            send_matrix_to_teensy(matrix)
+            
+            # Only send if any detected object's cy < 170
+            should_send = False
+            for side in ("top", "bottom"):
+                bbox = best_for_half[side]["bbox"]
+                if bbox: 
+                    x1, y1, x2, y2 = bbox
+                    cy = 0.5 * (y1 + y2)
+                    if cy < 170: 
+                        should_send = True
+                        break
+
+            if should_send:
+                send_matrix_to_teensy(matrix)
 
             # Only show annotated window if verbose
             if verbose:
