@@ -33,20 +33,16 @@ string Communication::readCommunication() {
     return "";
 }
 
-void Communication::sendStartPicking() {
-    Serial.println("START_PICKING");
-}
-
-void Communication::sendStopPicking() {
-    Serial.println("STOP_PICKING");
-}
-
 void Communication::sendStartSearching() {
     Serial.println("START_SEARCHING");
 }
 
 void Communication::sendStopSearching() {
     Serial.println("STOP_SEARCHING");
+}
+
+void Communication::sendPowerOff() {
+    Serial.println("SHUTDOWN");
 }
 
 vector<int> Communication::getMatrix() {
