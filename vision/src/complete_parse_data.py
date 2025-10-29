@@ -88,7 +88,7 @@ class Camera:
             label_text = f"{det.label} ({det.confidence:.2f})"
             cv2.putText(annotated, label_text, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
-        cv2.imshow("Detections", annotated)
+        # cv2.imshow("Detections", annotated)
     
     def _read_frame(self) -> List[DetectOutput]:
         if self._frame is None:
@@ -139,8 +139,9 @@ class Camera:
         '''Returns list of 2 DetectOutput for top and bottom halves'''
         targets = {"inmature", "mature", "overmature"}
 
-        THRESHOLD_Y = 100  # <<< NUEVA CONSTANTE
-        should_send = False  # <<< NUEVO FLAG
+        THRESHOLD_TOP = 100      # cy threshold for TOP side
+        THRESHOLD_BOTTOM = 160   # cy threshold for BOTTOM side
+        should_send = False
 
         results = self._read_frame()
         now = time.time()
@@ -154,6 +155,7 @@ class Camera:
             "bottom": default_output,
         }
 
+        # Timeout limpiando detection_matrix
         for side in ["top", "bottom"]:
             idx = 0 if side == "top" else 1
             if self.detection_matrix[idx] is not None and self._last_read_s[side] + self.TIMEOUT < now:
@@ -165,12 +167,13 @@ class Camera:
 
             x1, y1, x2, y2 = det.bbox
             cx = 0.5 * (x1 + x2)
-            cy = 0.5 * (y1 + y2) 
+            cy = 0.5 * (y1 + y2)
 
             side = "top" if cx > mid_x else "bottom"
             idx = 0 if side == "top" else 1
 
-            if cy < THRESHOLD_Y:
+            # <<< UMBRAL DIFERENTE PARA CADA LADO >>>
+            if (side == "top" and cy < THRESHOLD_TOP) or (side == "bottom" and cy < THRESHOLD_BOTTOM):
                 should_send = True
 
             if self.detection_matrix[idx] is None:
@@ -182,20 +185,17 @@ class Camera:
             best_det = best_for[side]
             if best_det.label is not None:
                 x1, y1, x2, y2 = best_det.bbox
-                cy = 0.5 * (y1 + y2) 
+                cy = 0.5 * (y1 + y2)
                 self.detection_matrix[idx] = f"{best_det.label}, cy={int(cy)}"
                 self._last_read_s[side] = now
                 final_detections.append(best_det)
             else:
                 final_detections.append(None)
 
-        print(f"[Camera] cy check, should_send={should_send}")
-
-        # Aquí luego podrías enviar:
-        # if should_send:
-        #     send_matrix_to_teensy(self.detection_matrix)
+        print(f"[Camera] cy check → should_send={should_send}, matrix={self.detection_matrix}")
 
         return final_detections
+
 
     def _detect_storage(self, benefit_type: str) -> List[Optional[DetectOutput]]:
         '''Returns single DetectOutput for specified benefit_type and offset'''
@@ -253,7 +253,7 @@ if __name__ == "__main__":
         if not cap.isOpened():
             raise RuntimeError("Failed to open camera/video source.")
 
-        cam.set_state(CameraState.DETECT_BLUE_STORAGE)
+        cam.set_state(CameraState.DETECT_BEANS)
 
         while True:
             ret, frame = cap.read()
