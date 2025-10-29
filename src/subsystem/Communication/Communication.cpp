@@ -58,19 +58,18 @@ vector<int> Communication::getMatrix() {
     size_t comma = s.find(',');
     if (comma == string::npos) return {0, 0};
 
+    string top_str = s.substr(0, comma);
+    string bottom_str = s.substr(comma + 1);
+
     int top = 0;
     int bottom = 0;
 
-    try {
-        top = stoi(s.substr(0, comma));
-    } catch (...) {
-        top = 0;
+    if (!top_str.empty() && all_of(top_str.begin(), top_str.end(), ::isdigit)) {
+        top = stoi(top_str);
     }
 
-    try {
-        bottom = stoi(s.substr(comma + 1));
-    } catch (...) {
-        bottom = 0;
+    if (!bottom_str.empty() && all_of(bottom_str.begin(), bottom_str.end(), ::isdigit)) {
+        bottom = stoi(bottom_str);
     }
 
     top = max(0, min(top, 2));
