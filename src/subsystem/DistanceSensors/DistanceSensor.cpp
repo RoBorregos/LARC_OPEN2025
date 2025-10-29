@@ -119,3 +119,9 @@ void DistanceSensor::insertReadingRight(float measurement)
         rightSensorReadings.erase(rightSensorReadings.begin());
     }
 }
+
+void DistanceSensor::clearReadings()
+{
+    leftSensorReadings.clear();
+    rightSensorReadings.clear();
+}

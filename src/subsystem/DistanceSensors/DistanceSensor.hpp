@@ -22,10 +22,12 @@ public:
     std::pair<bool, bool> isObstacle();
     std::pair<bool, bool> isTree();
     std::pair<float, bool> getDistance(int kSensor);
+    void clearReadings();
 
 private:
     void insertReadingLeft(float measurement);
     void insertReadingRight(float measurement);
+
 
     float readSensor(uint8_t trigPin, uint8_t echoPin) const;
     std::vector<float> leftSensorReadings;
