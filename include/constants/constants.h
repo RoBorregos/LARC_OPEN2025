@@ -29,11 +29,11 @@ namespace Constants
         constexpr float kPoolTargetDistance = 20.0;
         constexpr float kTreeTargetDistance = 10.0;
 
-        constexpr float kApproachDistanceTargetControllerKp = 2.5;
+        constexpr float kApproachDistanceTargetControllerKp = 4.5;
         constexpr float kApproachDistanceTargetControllerKi = 0.00;
         constexpr float kApproachDistanceTargetControllerKd = 0.00;
 
-        constexpr float kRetreatDistanceTargetControllerKp = 2.0;
+        constexpr float kRetreatDistanceTargetControllerKp = 4.0;
         constexpr float kRetreatDistanceTargetControllerKi = 0.00;
         constexpr float kRetreatDistanceTargetControllerKd = 0.00;
     }
@@ -47,7 +47,7 @@ namespace Constants
 
         constexpr float kHeadingToleranceDegrees = 5.0f;
 
-        constexpr float kHeadingControllerKp = 165.0f; //165.0f;
+        constexpr float kHeadingControllerKp = 180.0f; //165.0f;
         constexpr float kHeadingControllerKi = 0.0f;
         constexpr float kHeadingControllerKd = 10.0f;
     }
