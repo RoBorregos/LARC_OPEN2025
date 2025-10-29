@@ -4,6 +4,7 @@ import enum
 import time
 from typing import List, Optional
 from dataclasses import dataclass
+import serial
 
 class CameraState(enum.Enum):
     DETECT_BEANS = enum.auto()
@@ -136,15 +137,16 @@ class Camera:
             return self._detect_storage(benefit_type="blue_benefit")
         
     #* --------- State Handlers ---------
-    def _detect_beans(self) -> List[Optional[DetectOutput]]:
-        '''Returns list of 2 DetectOutput for top and bottom halves'''
+    def _detect_beans(self, ser: serial.Serial = None) -> List[Optional[DetectOutput]]:
+        '''Returns list of 2 DetectOutput for top and bottom halves and optionally sends to Teensy'''
         targets = {"inmature", "mature", "overmature"}
+        label_to_num = {"inmature": 0, "mature": 1, "overmature": 2}
 
-        # THERSHOLD
+        # THRESHOLD
         THRESHOLD_TOP_MIN = 50
-        THRESHOLD_TOP_MAX = 100
-        THRESHOLD_BOTTOM_MIN = 80
-        THRESHOLD_BOTTOM_MAX = 150
+        THRESHOLD_TOP_MAX = 160
+        THRESHOLD_BOTTOM_MIN = 70
+        THRESHOLD_BOTTOM_MAX = 170
 
         results = self._read_frame()
         now = time.time()
@@ -153,10 +155,7 @@ class Camera:
         mid_x = w * 0.5
 
         default_output = DetectOutput(label=None, confidence=-1.0, bbox=[])
-        best_for = {
-            "top": default_output,
-            "bottom": default_output,
-        }
+        best_for = {"top": default_output, "bottom": default_output}
 
         # Timeout: limpiar detections viejas
         for side in ["top", "bottom"]:
@@ -168,43 +167,49 @@ class Camera:
         for det in results:
             if det.label not in targets:
                 continue
-
             x1, y1, x2, y2 = det.bbox
             cx = 0.5 * (x1 + x2)
             cy = 0.5 * (y1 + y2)
-
             side = "top" if cx > mid_x else "bottom"
             idx = 0 if side == "top" else 1
-
             if self.detection_matrix[idx] is None or det.confidence > best_for[side].confidence:
                 best_for[side] = det
 
         # Construir matriz de salida considerando umbrales
-        matrix_to_send = [None, None]
+        matrix_to_send = [0, 0]  # None o fuera de rango → 0
         final_detections = [None, None]
+        cy_positions = [None, None]
 
         for idx, side in enumerate(["top", "bottom"]):
             best_det = best_for[side]
             if best_det.label is not None:
                 x1, y1, x2, y2 = best_det.bbox
                 cy = 0.5 * (y1 + y2)
+                cy_positions[idx] = cy
 
                 # Validación con min/max thresholds
                 if side == "top" and THRESHOLD_TOP_MIN <= cy <= THRESHOLD_TOP_MAX:
-                    matrix_to_send[idx] = f"{best_det.label}, cy={int(cy)}"
+                    matrix_to_send[idx] = label_to_num[best_det.label]
                     final_detections[idx] = best_det
                     self._last_read_s[side] = now
                 elif side == "bottom" and THRESHOLD_BOTTOM_MIN <= cy <= THRESHOLD_BOTTOM_MAX:
-                    matrix_to_send[idx] = f"{best_det.label}, cy={int(cy)}"
+                    matrix_to_send[idx] = label_to_num[best_det.label]
                     final_detections[idx] = best_det
                     self._last_read_s[side] = now
 
         self.detection_matrix = matrix_to_send
 
-        if any(matrix_to_send):
-            print(f"[SEND] {self.detection_matrix}")
-        else:
-            print(f"[HOLD] out of range → matrix={self.detection_matrix}")
+        # Imprimir resultados
+        print(f"[DETECT] matrix={matrix_to_send} → cy_top={cy_positions[0]}, cy_bottom={cy_positions[1]}")
+
+        # Enviar a Teensy si se pasó el serial
+        if ser is not None:
+            try:
+                msg = f"{matrix_to_send[0]},{matrix_to_send[1]}\n".encode()
+                ser.write(msg)
+                ser.flush()
+            except Exception as e:
+                print(f"[WARN] Failed to send to Teensy: {e}")
 
         return final_detections
 
