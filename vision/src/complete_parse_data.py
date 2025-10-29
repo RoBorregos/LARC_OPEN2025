@@ -200,7 +200,7 @@ class Camera:
         self.detection_matrix = matrix_to_send
 
         # Imprimir resultados
-        print(f"[DETECT] matrix={matrix_to_send} → cy_top={cy_positions[0]}, cy_bottom={cy_positions[1]}")
+        # print(f"[DETECT] matrix={matrix_to_send} → cy_top={cy_positions[0]}, cy_bottom={cy_positions[1]}")
 
         # Enviar a Teensy si se pasó el serial
         if ser is not None:
@@ -212,8 +212,6 @@ class Camera:
                 print(f"[WARN] Failed to send to Teensy: {e}")
 
         return final_detections
-
-
 
     def _detect_storage(self, benefit_type: str) -> List[Optional[DetectOutput]]:
         '''Returns single DetectOutput for specified benefit_type and offset'''
@@ -259,16 +257,26 @@ class Camera:
         if verbose:
             self._show(det)
 
-### testing main
 if __name__ == "__main__":
     cap = None
+    ser = None
     try:
+        # Cargar modelo
         model = YOLO("model/nanoModel.pt", task="detect")
         cam = Camera(model=model, timeout=1.0)
 
+        # Abrir cámara
         cap = cv2.VideoCapture(0)
         if not cap.isOpened():
             raise RuntimeError("Failed to open camera/video source.")
+
+        # Abrir puerto serial para Teensy
+        try:
+            ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+            print("[INFO] Serial port opened for Teensy")
+        except serial.SerialException as e:
+            print(f"[WARN] Could not open serial port: {e}")
+            ser = None
 
         cam.set_state(CameraState.DETECT_BEANS)
 
@@ -278,7 +286,16 @@ if __name__ == "__main__":
                 print("Failed to read frame.")
                 break
 
-            cam.run(frame, verbose=True)
+            # Pasar serial a _detect_beans mediante run
+            cam._frame = frame
+            det = cam.detect()  # Esto llamará internamente a _detect_beans
+            if cam._state == CameraState.DETECT_BEANS:
+                cam._detect_beans(ser=ser)  # Enviar datos a Teensy aquí
+
+            cam._print_data()
+
+            if True:  # verbose
+                cam._show(det)
 
             if cv2.waitKey(1) & 0xFF == 27:
                 break
@@ -290,4 +307,7 @@ if __name__ == "__main__":
     finally:
         if cap is not None:
             cap.release()
+        if ser is not None:
+            ser.close()
+            print("[INFO] Serial port closed")
         cv2.destroyAllWindows()
