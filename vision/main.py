@@ -12,7 +12,9 @@ MODEL_PATH   = "model/nanoModel.pt"
 SOURCE       = 0            # Use 0 for Xavier camera
 TIMEOUT_SEC  = 1.0
 SERIAL_PORT  = "/dev/ttyACM0"
-BAUDRATE     = 115200
+BAUDRATE     = 9600
+
+has_sent_running_msg = False
 
 def handle_serial_command(cmd: str, cam: Camera):
     """Handle a single command coming from Teensy."""
@@ -108,6 +110,9 @@ def run():
             # --- Run detection state machine ---
             try:
                 cam.run(frame, verbose=False)
+                if not has_sent_running_msg:
+                    ser.write(b"XAVIER RUNNING VISION\n")
+                    has_sent_running_msg = True
             except Exception as e:
                 # Keep loop alive even if a single inference fails
                 print(f"[WARN] cam.run failed: {e}")
