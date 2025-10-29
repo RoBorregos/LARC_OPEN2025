@@ -114,9 +114,12 @@ void followLineHybrid(float lateralSpeed, float dt)
 
   if (center || left || right)
   {
-    accelBiasY += 0.05f * (a_world_sideways - accelBiasY);       // Update bias while sensors are trusted
-    estimatedPositionError = 0.0f;                               // Reset IMU integral when line is visible
-    lastLineOnRight = right && !left;                            // Record which side had the line
+    accelBiasY += 0.05f * (a_world_sideways - accelBiasY); // Update bias while sensors are trusted
+    estimatedPositionError = 0.0f;                         // Reset IMU integral when line is visible
+    lastLineOnRight = right && !left;                      // Record which side had the line
+    if (center)
+      lastLineOnRight = false; // If center, bias to left
+
     targetFrontOutput = center ? 0.0f : (left ? -30.0f : 30.0f); // Sensor-based correction
   }
   else

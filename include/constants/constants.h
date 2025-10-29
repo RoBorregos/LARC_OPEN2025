@@ -47,8 +47,8 @@ namespace Constants
 
         constexpr float kHeadingToleranceDegrees = 5.0f;
 
-        constexpr float kHeadingControllerKp = 180.0f; //165.0f;
-        constexpr float kHeadingControllerKi = 0.0f;
+        constexpr float kHeadingControllerKp = 205.0f; //165.0f;
+        constexpr float kHeadingControllerKi = 10.0f;
         constexpr float kHeadingControllerKd = 10.0f;
     }
 
