@@ -221,7 +221,8 @@ class Camera:
         midline = h//2 # horizontal midline / center of frame
         
         storage = DetectOutput(label=benefit_type, confidence = 0.0, bbox = [])
-        offset: float = 0.0  # normalized offset (-1.0 to 1.0)
+        offset_x: float = 0.0  # normalized offset (-1.0 to 1.0)
+        offset_y: float = 0.0  # normalized offset (-1.0 to 1.0)
         found: bool = False
         
         if getattr(results, "boxes", None) is not None and len(results.boxes) > 0:
@@ -236,14 +237,20 @@ class Camera:
                 if conf > storage.confidence:
                     x1, y1, x2, y2 = map(float, box.xyxy[0])
                     vertical_center = 0.5 * (y1 + y2)
-                    norm_offset = (vertical_center - midline) / (h / 2)
-                    norm_offset = max(-1.0, min(1.0, norm_offset))
+                    horizontal_center = 0.5 * (y1 + y2)
+                    norm_offset_x = (vertical_center - midline) / (h / 2)
+                    norm_offset_x = max(-1.0, min(1.0, norm_offset_x))
+
+                    norm_offset_y = (horizontal_center - w//2) / (w / 2)
+                    norm_offset_y = max(-1.0, min(1.0, norm_offset_y))
 
                     storage = DetectOutput(label=label, confidence=conf, bbox=[x1, y1, x2, y2])
-                    offset = round(norm_offset, 2)
+                    offset_x = round(norm_offset_x, 2)
+                    offset_y = round(norm_offset_y, 2)
                     found = True
                     
-        self.detection_matrix = [benefit_type, offset]
+        # self.detection_matrix = [benefit_type, offset_x]
+        self.detection_matrix = [offset_x, offset_y]
         return storage if found else []
 
     #* --------- Main ---------
