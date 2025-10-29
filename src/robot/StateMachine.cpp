@@ -6,7 +6,7 @@ StateMachine::StateMachine()
 
 void StateMachine::begin()
 {
-  currentState = STATES::ENDLINE;
+  currentState = STATES::START;
   state_start_time = 0;
 }
 
@@ -233,14 +233,53 @@ void StateMachine::handleGoStraightState()
 void StateMachine::handleEndlineState()
 {
   Serial.println("ENDLINE STATE");
+  Serial.println("Action Stage: " + String(action_stage));
 
-  followLineHybrid(-145, 0.02f);
-
-  if (line_sensor_.isBackLeftLine())
+  // followLineHybrid(-145, 0.02f);
+  if (action_stage == 0)
   {
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    setState(STATES::PICKUP);
+    drive_.acceptInput(-145, 0, 0);
+
+    if (line_sensor_.isCenterLine())
+    {
+      action_stage = 1;
+      action_start_time = millis();
+      drive_.acceptInput(0, -70, 0);
+    }
+  }
+
+  else if (action_stage == 1)
+  {
+    if (millis() - action_start_time > 700)
+    {
+      action_stage = 0;
+    }
+  }
+  else if (action_stage == 2)
+  {
+    if (line_sensor_.isFrontRightLine() || line_sensor_.isCenterLine())
+    {
+      Serial.println("FRONT RIGHT OR CENTER LINE DETECTED");
+      drive_.acceptInput(0, 0, 0);
+      drive_.hardBrake();
+      setState(STATES::PICKUP);
+    }
+    else
+    {
+      Serial.println("FRONT RIGHT LINE NOT DETECTED");
+      drive_.acceptInput(0, 90, 0);
+    }
+  }
+
+  if (action_stage != 2)
+  {
+
+    if (line_sensor_.isBackLeftLine())
+    {
+      drive_.acceptInput(0, 0, 0);
+      drive_.hardBrake();
+      action_stage = 2;
+    }
   }
 }
 
@@ -290,7 +329,7 @@ void StateMachine::handlePickupState()
   if (line_sensor_.isBackRightLine())
   {
     drive_.acceptInput(0, 0, 0);
-    setState(STATES::STOP);
+    setState(STATES::RETURN);
     return;
   }
 }

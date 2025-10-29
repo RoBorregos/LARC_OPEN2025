@@ -135,37 +135,19 @@ void followLineHybrid(float lateralSpeed, float dt)
     targetFrontOutput = std::clamp(estimatedPositionError * gain, -80.0f, 80.0f); // Clamp output
   }
 
+  Serial.print("Line L:");
+  Serial.print(left);
+  Serial.print(" R:");
+  Serial.print(right);
+  Serial.print(" C:");
+  Serial.print(center);
+  Serial.print(" | a_y:");
+  Serial.print(a_world_sideways, 3);
+  Serial.print(" estErr:");
+  Serial.print(estimatedPositionError, 3);
+  Serial.print(" tgtF:");
+  Serial.println(targetFrontOutput, 1);
+  Serial.println();
+
   drive_.acceptInput(lateralSpeed, targetFrontOutput, 0.0f); // Apply lateral speed + correction
-}
-
-void evadeLine(float lateralSpeed)
-{
-  auto lineValues = line_sensor_.readSensors();
-  bool frontLeft = lineValues[0];
-  bool frontRight = lineValues[1];
-  bool isLineDetected = frontLeft || frontRight;
-
-  float frontError = 0.0;
-  if (frontLeft && !frontRight)
-    frontError = -1.0;
-  else if (!frontLeft && frontRight)
-    frontError = 1.0;
-
-  if (isLineDetected)
-  {
-    float backSpeed = -fabs(lateralSpeed) * 0.5;
-    float vy_correction = lateralPID.update(-frontError, 0.0);
-
-    drive_.acceptInput(backSpeed, vy_correction, 0.0);
-
-    Serial.print("Line detected | Error: ");
-    Serial.print(frontError);
-    Serial.print(" | vy_corr: ");
-    Serial.println(vy_correction);
-  }
-  else
-  {
-    drive_.acceptInput(lateralSpeed, 0.0, 0.0);
-    Serial.println("No line detected - moving lateral");
-  }
 }

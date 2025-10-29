@@ -34,7 +34,7 @@ void setup()
 
   drive_.setState(0);
   drive_.acceptHeadingInput(Rotation2D(0.0f));
-  
+
   elevator_.setState(1);
   elevator_.update();
   delay(2000);
@@ -48,6 +48,6 @@ void loop()
   elevator_.update();
   sorter_.update();
   stateMachine.update();
-  
+
   delay(SystemConstants::kUpdateInterval);
 }

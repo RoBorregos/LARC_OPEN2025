@@ -2,27 +2,41 @@
  * @file heading_controller.cpp
  * @date 22/04/2025
  * @author Juan Pablo Gutiérrez
- *  
+ *
  * @brief Implementation file for the HeadingController class, which controls the robot's heading, while still being able to move the robot.
  */
 
 #include "heading_controller.hpp"
 
-HeadingController::HeadingController() : pid_(PIDController(DriveConstants::kHeadingControllerKp, DriveConstants::kHeadingControllerKi, DriveConstants::kHeadingControllerKd, -255.0f, 255.0f)) {
+HeadingController::HeadingController() : pid_(PIDController(DriveConstants::kHeadingControllerKp, DriveConstants::kHeadingControllerKi, DriveConstants::kHeadingControllerKd, -255.0f, 255.0f))
+{
     desired_heading_ = Rotation2D();
     pid_.setEnabled(true);
     pid_.setAngleWrapping(true);
 }
 
-float HeadingController::update(Rotation2D current_heading) {
+float HeadingController::update(Rotation2D current_heading)
+{
+
     float output = -pid_.update(current_heading.getRadians(), desired_heading_.getRadians());
+
+    Serial.print("Current Heading: ");
+    Serial.print(current_heading.getDegrees());
+    Serial.print(" Desired Heading: ");
+    Serial.print(desired_heading_.getDegrees());
+    Serial.print(" Heading Error: ");
+    Serial.print(getError(current_heading).getDegrees());
+
+    Serial.println();
     return output;
 }
 
-void HeadingController::setDesiredHeading(Rotation2D desired_heading) {
+void HeadingController::setDesiredHeading(Rotation2D desired_heading)
+{
     desired_heading_ = desired_heading;
 }
 
-Rotation2D HeadingController::getError(Rotation2D current_heading){
+Rotation2D HeadingController::getError(Rotation2D current_heading)
+{
     return desired_heading_ - current_heading;
 }
