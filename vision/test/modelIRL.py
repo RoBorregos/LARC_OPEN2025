@@ -6,7 +6,7 @@ import cv2
 model = YOLO("model/nanoModel.pt")
 class_names = model.names  
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(2)
 if not cap.isOpened():
     print("Can't open camera.")
     exit()
