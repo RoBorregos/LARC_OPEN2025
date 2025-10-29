@@ -9,6 +9,7 @@ def main():
         print("No se pudo abrir la cámara")
         return
 
+    cv2.namedWindow("Detección", cv2.WINDOW_NORMAL)
     print("Presiona ESC para salir")
 
     while True:
@@ -16,25 +17,25 @@ def main():
         if not ret:
             break
 
-        # Inferencia
         results = model(frame, verbose=False)
         annotated = frame.copy()
 
         for r in results:
-            boxes = r.boxes  # Contiene todas las detecciones
-            for box in boxes:
-                x1, y1, x2, y2 = box.xyxy[0]  # Coordenadas esquina bbox
-                cx = int((x1 + x2) / 2)       # Centro X
-                cy = int((y1 + y2) / 2)       # Centro Y
+            for box in r.boxes:
+                x1, y1, x2, y2 = box.xyxy[0]
+                cx = int((x1 + x2) / 2)
+                cy = int((y1 + y2) / 2)
 
-                # Dibujar caja y centro
+                # Dibujar
                 cv2.rectangle(annotated, (int(x1), int(y1)), (int(x2), int(y2)), (0,255,0), 2)
                 cv2.circle(annotated, (cx, cy), 4, (0,0,255), -1)
 
                 print(f"Centro XY: ({cx}, {cy})")
 
+        # Mostrar SIEMPRE en la misma ventana
         cv2.imshow("Detección", annotated)
-        if cv2.waitKey(1) & 0xFF == 27:  # ESC para salir
+
+        if cv2.waitKey(1) & 0xFF == 27:  # tecla ESC
             break
 
     cap.release()
