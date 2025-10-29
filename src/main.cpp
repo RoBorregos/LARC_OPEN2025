@@ -45,6 +45,6 @@ void loop()
   elevator_.update();
   sorter_.update();
   stateMachine.update();
-
+  
   delay(SystemConstants::kUpdateInterval);
 }
