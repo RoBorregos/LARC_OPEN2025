@@ -30,6 +30,7 @@ string Communication::readCommunication() {
         msg.trim();
         return string(msg.c_str()); 
     }
+    
     return "";
 }
 
