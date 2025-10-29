@@ -51,17 +51,34 @@ void Communication::sendStopSearching() {
 
 vector<int> Communication::getMatrix() {
     string s = getCommand();
-    if (s.empty()) return {-1, -1};
+    if (s.empty()) return {0, 0};
+
     s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
 
     size_t comma = s.find(',');
-    if (comma == string::npos) return {-1, -1};
+    if (comma == string::npos) return {0, 0};
 
-    int top = stoi(s.substr(0, comma));
-    int bottom = stoi(s.substr(comma + 1));
+    int top = 0;
+    int bottom = 0;
+
+    try {
+        top = stoi(s.substr(0, comma));
+    } catch (...) {
+        top = 0;
+    }
+
+    try {
+        bottom = stoi(s.substr(comma + 1));
+    } catch (...) {
+        bottom = 0;
+    }
+
+    top = max(0, min(top, 2));
+    bottom = max(0, min(bottom, 2));
 
     return {top, bottom};
 }
+
 
 vector<int> Communication::getBenefitsPositions() {
     string s = getCommand();
