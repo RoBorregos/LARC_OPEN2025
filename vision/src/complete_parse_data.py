@@ -24,6 +24,7 @@ class Camera:
         
         self.MODEL = model
         self.TIMEOUT = timeout
+        self.DEBUG = False
         
         self._frame: Optional[cv2.Mat] = None
         self._state = CameraState.STOP
@@ -191,8 +192,8 @@ class Camera:
                 final_detections.append(best_det)
             else:
                 final_detections.append(None)
-
-        print(f"[Camera] cy check → should_send={should_send}, matrix={self.detection_matrix}")
+        if self.DEBUG:
+            print(f"[Camera] cy check → should_send={should_send}, matrix={self.detection_matrix}")
 
         return final_detections
 
@@ -237,9 +238,9 @@ class Camera:
 
         det = self.detect()
 
-        self._print_data()
 
         if verbose:
+            self._print_data()
             self._show(det)
 
 ### testing main
