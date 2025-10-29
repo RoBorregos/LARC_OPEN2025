@@ -140,9 +140,11 @@ class Camera:
         '''Returns list of 2 DetectOutput for top and bottom halves'''
         targets = {"inmature", "mature", "overmature"}
 
-        THRESHOLD_TOP = 100      # cy threshold for TOP side
-        THRESHOLD_BOTTOM = 160   # cy threshold for BOTTOM side
-        should_send = False
+        # THERSHOLD
+        THRESHOLD_TOP_MIN = 50
+        THRESHOLD_TOP_MAX = 100
+        THRESHOLD_BOTTOM_MIN = 80
+        THRESHOLD_BOTTOM_MAX = 150
 
         results = self._read_frame()
         now = time.time()
@@ -156,12 +158,13 @@ class Camera:
             "bottom": default_output,
         }
 
-        # Timeout limpiando detection_matrix
+        # Timeout: limpiar detections viejas
         for side in ["top", "bottom"]:
             idx = 0 if side == "top" else 1
             if self.detection_matrix[idx] is not None and self._last_read_s[side] + self.TIMEOUT < now:
                 self.detection_matrix[idx] = None
 
+        # Seleccionar la mejor detección por lado
         for det in results:
             if det.label not in targets:
                 continue
@@ -173,29 +176,38 @@ class Camera:
             side = "top" if cx > mid_x else "bottom"
             idx = 0 if side == "top" else 1
 
-            # <<< UMBRAL DIFERENTE PARA CADA LADO >>>
-            if (side == "top" and cy < THRESHOLD_TOP) or (side == "bottom" and cy < THRESHOLD_BOTTOM):
-                should_send = True
+            if self.detection_matrix[idx] is None or det.confidence > best_for[side].confidence:
+                best_for[side] = det
 
-            if self.detection_matrix[idx] is None:
-                if det.confidence > best_for[side].confidence:
-                    best_for[side] = det
+        # Construir matriz de salida considerando umbrales
+        matrix_to_send = [None, None]
+        final_detections = [None, None]
 
-        final_detections = []
         for idx, side in enumerate(["top", "bottom"]):
             best_det = best_for[side]
             if best_det.label is not None:
                 x1, y1, x2, y2 = best_det.bbox
                 cy = 0.5 * (y1 + y2)
-                self.detection_matrix[idx] = f"{best_det.label}, cy={int(cy)}"
-                self._last_read_s[side] = now
-                final_detections.append(best_det)
-            else:
-                final_detections.append(None)
-        if self.DEBUG:
-            print(f"[Camera] cy check → should_send={should_send}, matrix={self.detection_matrix}")
+
+                # Validación con min/max thresholds
+                if side == "top" and THRESHOLD_TOP_MIN <= cy <= THRESHOLD_TOP_MAX:
+                    matrix_to_send[idx] = f"{best_det.label}, cy={int(cy)}"
+                    final_detections[idx] = best_det
+                    self._last_read_s[side] = now
+                elif side == "bottom" and THRESHOLD_BOTTOM_MIN <= cy <= THRESHOLD_BOTTOM_MAX:
+                    matrix_to_send[idx] = f"{best_det.label}, cy={int(cy)}"
+                    final_detections[idx] = best_det
+                    self._last_read_s[side] = now
+
+        self.detection_matrix = matrix_to_send
+
+        if any(matrix_to_send):
+            print(f"[SEND] {self.detection_matrix}")
+        else:
+            print(f"[HOLD] out of range → matrix={self.detection_matrix}")
 
         return final_detections
+
 
 
     def _detect_storage(self, benefit_type: str) -> List[Optional[DetectOutput]]:
@@ -237,10 +249,9 @@ class Camera:
         self.get_state()
 
         det = self.detect()
-
+        self._print_data()
 
         if verbose:
-            self._print_data()
             self._show(det)
 
 ### testing main
