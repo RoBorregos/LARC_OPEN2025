@@ -243,7 +243,7 @@ void StateMachine::handleEndlineState()
 
 void StateMachine::handlePickupState()
 {
-  static bool visionReady = false;   // Flag to know if Xavier has started vision
+  static bool visionReady = false;
   static int lastTop = -1;
   static int lastBottom = -1;
 
@@ -290,8 +290,6 @@ void StateMachine::handlePickupState()
     return;
   }
 }
-
-
 
 
 // ================ RETURNING STATES ===================
