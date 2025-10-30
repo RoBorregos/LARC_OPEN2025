@@ -10,7 +10,6 @@ void Intake::begin()
 {
     servo.attach(pin);
 
-    setState(0);
     update();
 }
 
