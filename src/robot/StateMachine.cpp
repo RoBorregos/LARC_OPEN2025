@@ -6,7 +6,7 @@ StateMachine::StateMachine()
 
 void StateMachine::begin()
 {
-  currentState = STATES::RETURN;
+  currentState = STATES::START;
   state_start_time = 0;
 }
 
@@ -77,6 +77,7 @@ void StateMachine::handleStartState()
   Serial.println("START STATE");
 
   elevator_.setState(1); // Move elevator to starting position
+  intake_.setState(1);   // Set intake to GRAB BALL position
 
   if (action_stage == 1)
   {
@@ -125,6 +126,7 @@ void StateMachine::handleAvoidObstacleLeftState()
   auto [leftDistance, leftValid] = distance_sensor_.getDistance(0);
   if (leftDistance > DistanceSensorConstants::kObstacleDistance && leftValid)
   {
+    Serial.println("LEFT SENSOR CLEAR");
     drive_.acceptInput(-130, 0, 0);
   }
   else
@@ -163,8 +165,8 @@ void StateMachine::handleAvoidObstacleRightState()
 {
   Serial.println("AVOID OBSTACLE RIGHT STATE");
 
-  auto [distance, valid] = distance_sensor_.getDistance(1);
-  if (distance > DistanceSensorConstants::kObstacleDistance && valid)
+  auto [rightDistance, rightValid] = distance_sensor_.getDistance(1);
+  if (rightDistance > DistanceSensorConstants::kObstacleDistance && rightValid)
   {
     Serial.println("RIGHT SENSOR CLEAR");
     drive_.acceptInput(130, 0, 0);
@@ -183,8 +185,8 @@ void StateMachine::handleAvoidObstacleRightState()
     return;
   }
 
-  auto [isObstacle, rightValid] = distance_sensor_.isObstacle();
-  if (!isObstacle && rightValid)
+  auto [isObstacle, isValid] = distance_sensor_.isObstacle();
+  if (!isObstacle && isValid)
   {
     delay(700);
     drive_.acceptInput(0, 0, 0);
@@ -372,7 +374,7 @@ void StateMachine::handleReturnState()
       drive_.acceptInput(0, 0, 0);
       drive_.hardBrake();
       action_stage = 0;
-      setState(STATES::AVOID_OBSTACLE_LEFT_RETURN);
+      setState(STATES::AVOID_OBSTACLE_RIGHT); // Lo cambié para debuggear
     }
     else
     {
