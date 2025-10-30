@@ -24,7 +24,7 @@ private:
     Communication com_;
 
 public:
-    Intake(int pin_, int grabPosition_, int storedPosition_);
+    Intake(int pin_, int storedPosition_, int grabPosition_);
 
     int pin;
     int grabPosition = 0;
