@@ -37,6 +37,7 @@ void setup()
 
   elevator_.setState(1);
   elevator_.update();
+  
   // delay(35000); // DELAY TO ALLOW ELEVATOR TO REACH STARTING POSITION
   delay(1000);
 }
