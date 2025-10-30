@@ -6,7 +6,7 @@ StateMachine::StateMachine()
 
 void StateMachine::begin()
 {
-  currentState = STATES::PICKUP;
+  currentState = STATES::START;
   state_start_time = 0;
 }
 
@@ -292,9 +292,8 @@ void StateMachine::handlePickupState()
     }
   }
 
-  // followLineHybrid(145, 0.02f);
-  followLineImpulse(145);
-
+  followLineHybrid(145, 0.02f);
+  
   auto values = com_.getMatrix();
   int top = values[0];
   int bottom = values[1];
