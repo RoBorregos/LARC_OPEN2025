@@ -53,13 +53,14 @@ namespace Constants
     }
 
     namespace IntakeConstants
-    {   
-        // READY
+    {
         constexpr int kGrabBallUpperServoPosition = 130;
-        constexpr int kAvoidBallUpperServoPosition = 180;
+        constexpr int kAvoidBallUpperServoPosition = 165;
+        constexpr int kStoredUpperIntakeServoPosition = 40;
 
-        constexpr int kGrabBallLowerServoPosition = 160;
-        constexpr int kAvoidBallLowerServoPosition = 120;
+        constexpr int kGrabBallLowerServoPosition = 100;
+        constexpr int kAvoidBallLowerServoPosition = 125;
+        constexpr int kStoredLowerIntakeServoPosition = 150;
 
         constexpr int kIntakeRampPositioned = 60;
         constexpr int kIntakeRampStored = 10;

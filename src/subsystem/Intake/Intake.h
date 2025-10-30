@@ -23,6 +23,7 @@ private:
     unsigned long last_value_received = 0;
 
     void setIntakeServoPosition(Servo &servo, int position);
+    void intakeServoDetach(Servo &servo);
     Communication com_;
 
 public:
@@ -36,8 +37,8 @@ public:
     {
         ALL_SERVOS_STORED = 0,
         ALL_SERVOS_POSITIONED = 1,
-        UPPER_SERVO_ONLY_STORED = 2,
-        LOWER_SERVO_ONLY_STORED = 3,
+        UPPER_SERVO_AVOID_BALL = 2,
+        LOWER_SERVO_AVOID_BALL = 3,
         UPPER_SERVO_ONLY_POSITIONED = 4,
         LOWER_SERVO_ONLY_POSITIONED = 5,
     };
