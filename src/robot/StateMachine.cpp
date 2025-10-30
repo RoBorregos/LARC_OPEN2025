@@ -303,11 +303,11 @@ void StateMachine::handlePickupState()
   {
     if (top == 2 || top == 1)
     {
-      intake_.setState(4);
+      upperIntake_.setState(1);
     }
     else if (top == 0)
     {
-      intake_.setState(2);
+      upperIntake_.setState(0);
     }
     lastTop = top;
   }
@@ -316,11 +316,11 @@ void StateMachine::handlePickupState()
   {
     if (bottom == 2 || bottom == 1)
     {
-      intake_.setState(5);
+      lowerIntake_.setState(1);
     }
     else if (bottom == 0)
     {
-      intake_.setState(3);
+      lowerIntake_.setState(0);
     }
     lastBottom = bottom;
   }

@@ -70,7 +70,7 @@ namespace Pins
 
     const uint8_t kUpperIntakeServo = 3;
     const uint8_t kLowerIntakeServo = 6;
-    const uint8_t kIntakeRampEnable = 4;
+    const uint8_t kRampIntakeServo = 4;
 
     // NOT READY
     const uint8_t kDropperServo = 30;

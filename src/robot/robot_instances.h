@@ -15,5 +15,7 @@ extern LineSensor line_sensor_;
 extern Communication com_;
 extern Sorter sorter_;
 extern Elevator elevator_;
-extern Intake intake_;
+extern Intake upperIntake_;
+extern Intake lowerIntake_;
+extern Intake rampIntake_;
 extern Dropper dropper_;
