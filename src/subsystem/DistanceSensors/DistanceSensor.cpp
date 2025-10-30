@@ -45,50 +45,40 @@ float DistanceSensor::readSensor(uint8_t trigPin, uint8_t echoPin) const
 
 std::pair<float, bool> DistanceSensor::getDistance(int kSensor)
 {
-    if (kSensor == 0)
-    {
-        float measurement = readSensor(Pins::kDistanceSensors[0][0], Pins::kDistanceSensors[0][1]);\
+    unsigned long &lastReadTime = (kSensor == 0) ? lastReadTimeLeft : lastReadTimeRight;
+    auto &readings = (kSensor == 0) ? leftSensorReadings : rightSensorReadings;
+    uint8_t trigPin = Pins::kDistanceSensors[kSensor][0];
+    uint8_t echoPin = Pins::kDistanceSensors[kSensor][1];
 
-        // This will only insert valid measurements into the readings vector, if there is not a valid measurement it will keep the previous readings
+    // Only read every 110 ms
+    if (millis() - lastReadTime > 110)
+    {
+        float measurement = readSensor(trigPin, echoPin);
         bool isValid = isValidDistance(measurement);
 
         if (isValid)
         {
-            insertReadingLeft(measurement);
+            if (kSensor == 0)
+                insertReadingLeft(measurement);
+            else
+                insertReadingRight(measurement);
         }
 
-        float sum = 0;
-        for (float reading : leftSensorReadings)
-        {
-            sum += reading;
-        }
-        float average = leftSensorReadings.size() > 0 ? sum / leftSensorReadings.size() : 0;
+        Serial.print(kSensor == 0 ? "Left Sensor Measurement: " : "Right Sensor Measurement: ");
+        Serial.println(measurement);
 
-        return {average, isValid};
-    }
-    else if (kSensor == 1)
-    {
-        float measurement = readSensor(Pins::kDistanceSensors[1][0], Pins::kDistanceSensors[1][1]);
-
-        // This will only insert valid measurements into the readings vector, if there is not a valid measurement it will keep the previous readings
-        bool isValid = isValidDistance(measurement);
-
-        if (isValidDistance(measurement))
-        {
-            insertReadingRight(measurement);
-        }
-
-        float sum = 0;
-        for (float reading : rightSensorReadings)
-        {
-            sum += reading;
-        }
-        float average = rightSensorReadings.size() > 0 ? sum / rightSensorReadings.size() : 0;
-
-        return {average, isValid};
+        lastReadTime = millis();
     }
 
-    return {-1.0f, false};
+    // Always return the smoothed (averaged) value
+    float sum = 0;
+    for (float r : readings)
+        sum += r;
+
+    float average = readings.empty() ? 0 : sum / readings.size();
+    bool valid = isValidDistance(average);
+
+    return {average, valid};
 }
 
 std::pair<bool, bool> DistanceSensor::isObstacle()

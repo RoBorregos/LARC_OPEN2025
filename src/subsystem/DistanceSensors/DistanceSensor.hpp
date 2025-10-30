@@ -32,6 +32,9 @@ private:
     float readSensor(uint8_t trigPin, uint8_t echoPin) const;
     std::vector<float> leftSensorReadings;
     std::vector<float> rightSensorReadings;
+
+    uint32_t lastReadTimeLeft = 0;
+    uint32_t lastReadTimeRight = 0;
 };
 
 #endif
