@@ -143,17 +143,9 @@ void StateMachine::handleAvoidObstacleLeftState()
   }
 
   auto [isObstacle, isValid] = distance_sensor_.isObstacle();
-  Serial.print("Is Obstacle: ");
-  Serial.println(isObstacle ? "Yes" : "No");
-  Serial.print("Is Valid: ");
-  Serial.println(isValid ? "Yes" : "No");
   if (!isObstacle && isValid)
   {
-    delay(700);
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    drive_.acceptInput(0, -50, 0);
-    delay(250);
+    delay(400);
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
     setState(STATES::GO_STRAIGHT);
@@ -188,11 +180,7 @@ void StateMachine::handleAvoidObstacleRightState()
   auto [isObstacle, isValid] = distance_sensor_.isObstacle();
   if (!isObstacle && isValid)
   {
-    delay(700);
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    drive_.acceptInput(0, -50, 0);
-    delay(250);
+    delay(400);
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
     setState(STATES::GO_STRAIGHT);
@@ -287,53 +275,65 @@ void StateMachine::handleEndlineState()
 
 void StateMachine::handlePickupState()
 {
-  static bool visionReady = false;
-  static int lastTop = -1;
-  static int lastBottom = -1;
+  // static bool visionReady = false;
+  // static int lastTop = -1;
+  // static int lastBottom = -1;
 
-  Serial.println("PICKUP STATE");
-  string cmd = com_.getCommand();
+  // Serial.println("PICKUP STATE");
+  // string cmd = com_.getCommand();
 
-  if (!visionReady) {
-    if (cmd == "XAVIER RUNNING VISION") {
-      visionReady = true;
-      Serial.println("[INFO] Xavier vision online — starting movement");
-    } else {
-      drive_.acceptInput(0, 0, 0);
-      return;
-    }
-  }
+  // if (!visionReady)
+  // {
+  //   if (cmd == "XAVIER RUNNING VISION")
+  //   {
+  //     visionReady = true;
+  //     Serial.println("[INFO] Xavier vision online — starting movement");
+  //   }
+  //   else
+  //   {
+  //     drive_.acceptInput(0, 0, 0);
+  //     return;
+  //   }
+  // }
 
   followLineHybrid(145, 0.02f);
 
-  auto values = com_.getMatrix();
-  int top = values[0];
-  int bottom = values[1];
+  // auto values = com_.getMatrix();
+  // int top = values[0];
+  // int bottom = values[1];
 
-  if (top != -1 && top != lastTop) {
-    if (top == 2 || top == 1) {
-      intake_.setState(4);
-    } else if (top == 0) {
-      intake_.setState(2);
-    }
-    lastTop = top;
-  }
+  // if (top != -1 && top != lastTop)
+  // {
+  //   if (top == 2 || top == 1)
+  //   {
+  //     intake_.setState(4);
+  //   }
+  //   else if (top == 0)
+  //   {
+  //     intake_.setState(2);
+  //   }
+  //   lastTop = top;
+  // }
 
-  if (bottom != -1 && bottom != lastBottom) {
-    if (bottom == 2 || bottom == 1) {
-      intake_.setState(5);
-    } else if (bottom == 0) {
-      intake_.setState(3);
-    }
-    lastBottom = bottom;
-  }
+  // if (bottom != -1 && bottom != lastBottom)
+  // {
+  //   if (bottom == 2 || bottom == 1)
+  //   {
+  //     intake_.setState(5);
+  //   }
+  //   else if (bottom == 0)
+  //   {
+  //     intake_.setState(3);
+  //   }
+  //   lastBottom = bottom;
+  // }
 
-  if (line_sensor_.isBackRightLine())
-  {
-    drive_.acceptInput(0, 0, 0);
-    setState(STATES::RETURN);
-    return;
-  }
+  // if (line_sensor_.isBackRightLine())
+  // {
+  //   drive_.acceptInput(0, 0, 0);
+  //   setState(STATES::RETURN);
+  //   return;
+  // }
 }
 
 // ================ RETURNING STATES ===================
@@ -346,7 +346,7 @@ void StateMachine::handleReturnState()
 
   if (action_stage == 1)
   {
-    if (millis() - action_start_time > 650)
+    if (millis() - action_start_time > 350)
     {
       drive_.acceptInput(0, 0, 0);
       drive_.acceptHeadingInput(Rotation2D::fromDegrees(180));
@@ -376,10 +376,7 @@ void StateMachine::handleReturnState()
       action_stage = 0;
       setState(STATES::AVOID_OBSTACLE_RIGHT); // Lo cambié para debuggear
     }
-    else
-    {
-      drive_.acceptInput(0, 60, 0);
-    }
+
     return;
   }
   else if (action_stage == 0)
@@ -437,12 +434,12 @@ void StateMachine::handleAvoidObstacleRightReturnState()
   if (distance > DistanceSensorConstants::kObstacleDistance && valid)
   {
     Serial.println("MANUAL");
-    drive_.acceptInput(140, 0, 0);
+    drive_.acceptInput(130, 0, 0);
   }
   else
   {
     Serial.println("AUTOMATIC");
-    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 140);
+    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 130);
   }
 
   if (line_sensor_.isRightLine())
