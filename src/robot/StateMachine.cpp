@@ -76,9 +76,6 @@ void StateMachine::handleStartState()
 {
   Serial.println("START STATE");
 
-  elevator_.setState(1); // Move elevator to starting position
-  intake_.setState(1);   // Set intake to GRAB BALL position
-
   if (action_stage == 1)
   {
     if (millis() - action_start_time > 250)
@@ -225,7 +222,6 @@ void StateMachine::handleEndlineState()
   Serial.println("ENDLINE STATE");
   Serial.println("Action Stage: " + String(action_stage));
 
-  // followLineHybrid(-145, 0.02f);
   if (action_stage == 0)
   {
     drive_.acceptInput(-145, 0, 0);
@@ -374,7 +370,7 @@ void StateMachine::handleReturnState()
       drive_.acceptInput(0, 0, 0);
       drive_.hardBrake();
       action_stage = 0;
-      setState(STATES::AVOID_OBSTACLE_RIGHT); // Lo cambié para debuggear
+      setState(STATES::AVOID_OBSTACLE_LEFT_RETURN);
     }
 
     return;
