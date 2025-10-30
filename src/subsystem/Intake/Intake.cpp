@@ -1,8 +1,8 @@
 #include "Intake.h"
 
-Intake::Intake(int pin)
+Intake::Intake(int pin, int grabPosition_, int storedPosition_)
     : servo(),
-      pin(pin)
+      pin(pin), grabPosition(grabPosition_), storedPosition(storedPosition_)
 {
 }
 
