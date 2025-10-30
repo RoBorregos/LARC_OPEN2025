@@ -151,3 +151,69 @@ void followLineHybrid(float lateralSpeed, float dt)
 
   drive_.acceptInput(lateralSpeed, targetFrontOutput, 0.0f); // Apply lateral speed + correction
 }
+
+
+void followLineImpulse(float lateralSpeed)
+{
+  auto lineValues = line_sensor_.readSensors();
+  bool left = lineValues[0];
+  bool right = lineValues[1];
+  bool center = lineValues[4];
+
+  static unsigned long lastStepTime = 0;
+  static bool isMoving = false;
+  const unsigned long stepDuration = 200;  
+  const unsigned long pauseDuration = 500;
+
+  unsigned long now = millis();
+  float correction = 0.0f;
+
+  if (isMoving && now - lastStepTime > stepDuration)
+  {
+    isMoving = false;
+    lastStepTime = now;
+    drive_.acceptInput(0.0f, 0.0f, 0.0f);
+    return;
+  }
+  else if (!isMoving && now - lastStepTime > pauseDuration)
+  {
+    isMoving = true;
+    lastStepTime = now;
+  }
+
+  if (!isMoving)
+  {
+    drive_.acceptInput(0.0f, 0.0f, 0.0f);
+    return;
+  }
+
+  if (center)
+  {
+    correction = 0.0f;
+  }
+  else if (left)
+  {
+    correction = -80.0f;
+  }
+  else if (right)
+  {
+    correction = 80.0f;
+  }
+  else
+  {
+    correction = 0.0f;
+  }
+
+  Serial.print("[IMPULSE] L:");
+  Serial.print(left);
+  Serial.print(" R:");
+  Serial.print(right);
+  Serial.print(" C:");
+  Serial.print(center);
+  Serial.print(" Corr:");
+  Serial.print(correction);
+  Serial.print(" Moving:");
+  Serial.println(isMoving ? "YES" : "NO");
+
+  drive_.acceptInput(lateralSpeed, 0.0f, correction);
+}
