@@ -41,6 +41,7 @@ public:
     };
 
     IntakeState intake_state_ = IntakeState::STORED;
+    
 };
 
 #endif // INTAKE_H

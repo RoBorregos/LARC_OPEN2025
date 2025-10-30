@@ -16,6 +16,17 @@ void Intake::begin()
 
 void Intake::update()
 {
+}
+
+void Intake::setState(int state)
+{
+    IntakeState newState = static_cast<IntakeState>(state);
+    if (newState == intake_state_)
+        return; // no change — don’t rewrite servo signal
+
+    intake_state_ = newState;
+
+    // Only update servo when state actually changes
     switch (intake_state_)
     {
     case IntakeState::STORED:
@@ -24,15 +35,7 @@ void Intake::update()
     case IntakeState::POSITIONED:
         setIntakeServoPosition(grabPosition);
         break;
-    default:
-
-        break;
     }
-}
-
-void Intake::setState(int state)
-{
-    intake_state_ = static_cast<IntakeState>(state);
 }
 
 void Intake::setIntakeServoPosition(int position)
