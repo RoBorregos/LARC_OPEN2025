@@ -47,7 +47,7 @@ std::pair<float, bool> DistanceSensor::getDistance(int kSensor)
 {
     if (kSensor == 0)
     {
-        float measurement = readSensor(Pins::kDistanceSensors[0][0], Pins::kDistanceSensors[0][1]);
+        float measurement = readSensor(Pins::kDistanceSensors[0][0], Pins::kDistanceSensors[0][1]);\
 
         // This will only insert valid measurements into the readings vector, if there is not a valid measurement it will keep the previous readings
         bool isValid = isValidDistance(measurement);

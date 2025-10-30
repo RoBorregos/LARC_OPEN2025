@@ -6,7 +6,7 @@ StateMachine::StateMachine()
 
 void StateMachine::begin()
 {
-  currentState = STATES::START;
+  currentState = STATES::RETURN;
   state_start_time = 0;
 }
 
@@ -125,11 +125,11 @@ void StateMachine::handleAvoidObstacleLeftState()
   auto [leftDistance, leftValid] = distance_sensor_.getDistance(0);
   if (leftDistance > DistanceSensorConstants::kObstacleDistance && leftValid)
   {
-    drive_.acceptInput(-110, 0, 0);
+    drive_.acceptInput(-130, 0, 0);
   }
   else
   {
-    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -110);
+    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -130);
   }
 
   if (line_sensor_.isLeftLine())
@@ -167,12 +167,12 @@ void StateMachine::handleAvoidObstacleRightState()
   if (distance > DistanceSensorConstants::kObstacleDistance && valid)
   {
     Serial.println("RIGHT SENSOR CLEAR");
-    drive_.acceptInput(110, 0, 0);
+    drive_.acceptInput(130, 0, 0);
   }
   else
   {
     Serial.println("RIGHT SENSOR BLOCKED");
-    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 110);
+    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 130);
   }
 
   if (line_sensor_.isRightLine())
@@ -285,46 +285,46 @@ void StateMachine::handleEndlineState()
 
 void StateMachine::handlePickupState()
 {
-  // static bool visionReady = false;
-  // static int lastTop = -1;
-  // static int lastBottom = -1;
+  static bool visionReady = false;
+  static int lastTop = -1;
+  static int lastBottom = -1;
 
-  // Serial.println("PICKUP STATE");
-  // string cmd = com_.getCommand();
+  Serial.println("PICKUP STATE");
+  string cmd = com_.getCommand();
 
-  // if (!visionReady) {
-  //   if (cmd == "XAVIER RUNNING VISION") {
-  //     visionReady = true;
-  //     Serial.println("[INFO] Xavier vision online — starting movement");
-  //   } else {
-  //     drive_.acceptInput(0, 0, 0);
-  //     return;
-  //   }
-  // }
+  if (!visionReady) {
+    if (cmd == "XAVIER RUNNING VISION") {
+      visionReady = true;
+      Serial.println("[INFO] Xavier vision online — starting movement");
+    } else {
+      drive_.acceptInput(0, 0, 0);
+      return;
+    }
+  }
 
   followLineHybrid(145, 0.02f);
 
-  // auto values = com_.getMatrix();
-  // int top = values[0];
-  // int bottom = values[1];
+  auto values = com_.getMatrix();
+  int top = values[0];
+  int bottom = values[1];
 
-  // if (top != -1 && top != lastTop) {
-  //   if (top == 2 || top == 1) {
-  //     intake_.setState(4);
-  //   } else if (top == 0) {
-  //     intake_.setState(2);
-  //   }
-  //   lastTop = top;
-  // }
+  if (top != -1 && top != lastTop) {
+    if (top == 2 || top == 1) {
+      intake_.setState(4);
+    } else if (top == 0) {
+      intake_.setState(2);
+    }
+    lastTop = top;
+  }
 
-  // if (bottom != -1 && bottom != lastBottom) {
-  //   if (bottom == 2 || bottom == 1) {
-  //     intake_.setState(5);
-  //   } else if (bottom == 0) {
-  //     intake_.setState(3);
-  //   }
-  //   lastBottom = bottom;
-  // }
+  if (bottom != -1 && bottom != lastBottom) {
+    if (bottom == 2 || bottom == 1) {
+      intake_.setState(5);
+    } else if (bottom == 0) {
+      intake_.setState(3);
+    }
+    lastBottom = bottom;
+  }
 
   if (line_sensor_.isBackRightLine())
   {
@@ -382,7 +382,7 @@ void StateMachine::handleReturnState()
   }
   else if (action_stage == 0)
   {
-    drive_.acceptInput(-60, -60, 0);
+    drive_.acceptInput(-90, -90, 0);
     action_stage = 1;
     action_start_time = millis();
   }
@@ -434,11 +434,13 @@ void StateMachine::handleAvoidObstacleRightReturnState()
   auto [distance, valid] = distance_sensor_.getDistance(1);
   if (distance > DistanceSensorConstants::kObstacleDistance && valid)
   {
-    drive_.acceptInput(130, 0, 0);
+    Serial.println("MANUAL");
+    drive_.acceptInput(140, 0, 0);
   }
   else
   {
-    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 130);
+    Serial.println("AUTOMATIC");
+    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 140);
   }
 
   if (line_sensor_.isRightLine())
