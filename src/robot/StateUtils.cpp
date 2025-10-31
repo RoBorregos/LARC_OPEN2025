@@ -149,7 +149,16 @@ void followLineHybrid(float lateralSpeed, float dt)
   Serial.println(targetFrontOutput, 1);
   Serial.println();
 
-  drive_.acceptInput(lateralSpeed, targetFrontOutput, 0.0f); // Apply lateral speed + correction
+  Rotation2D error = drive_.getHeadingError();
+
+  // Only correct if theading error is within 30 degrees
+  if (std::abs(error.getDegrees()) < 20)
+  {
+    drive_.acceptInput(lateralSpeed, targetFrontOutput, 0.0f); // Apply lateral speed + correction
+  } else {
+    drive_.acceptInput(0, 0, 0);
+  }
+
 }
 
 

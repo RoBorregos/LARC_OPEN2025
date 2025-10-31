@@ -6,7 +6,7 @@ StateMachine::StateMachine()
 
 void StateMachine::begin()
 {
-  currentState = STATES::PICKUP;
+  currentState = STATES::AVOID_OBSTACLE_LEFT_RETURN;
   state_start_time = 0;
 }
 
@@ -99,15 +99,13 @@ void StateMachine::handleStartState()
     return;
   }
 
-  if (millis() - state_start_time > 1000)
+  if (millis() - state_start_time > 1500)
   {
     auto [obstacle, valid] = distance_sensor_.isObstacle();
     if (obstacle && valid)
     {
       drive_.acceptInput(0, 0, 0);
       drive_.hardBrake();
-      drive_.acceptInput(0, -50, 0);
-
       action_stage = 1;
       action_start_time = millis();
       return;
@@ -276,53 +274,54 @@ void StateMachine::handlePickupState()
   static int lastBottom = -1;
 
   Serial.println("PICKUP STATE");
-  string cmd = com_.getCommand();
+  // string cmd = com_.getCommand();
 
-  if (!visionReady)
-  {
-    if (cmd == "XAVIER RUNNING VISION")
-    {
-      visionReady = true;
-      Serial.println("[INFO] Xavier vision online — starting movement");
-    }
-    else
-    {
-      drive_.acceptInput(0, 0, 0);
-      return;
-    }
-  }
+  // if (!visionReady)
+  // {
+  //   if (cmd == "XAVIER RUNNING VISION")
+  //   {
+  //     visionReady = true;
+  //     Serial.println("[INFO] Xavier vision online — starting movement");
+  //   }
+  //   else
+  //   {
+  //     drive_.acceptInput(0, 0, 0);
+  //     return;
+  //   }
+  // }
 
   followLineHybrid(145, 0.02f);
 
-  auto values = com_.getMatrix();
-  int top = values[0];
-  int bottom = values[1];
+  // auto values = com_.getMatrix();
+  // int top = values[0];
+  // int bottom = values[1];
+  // Serial.println("TOP: " + String(top) + "BOTTOM: " + String(bottom));
 
-  if (top != -1 && top != lastTop)
-  {
-    if (top == 2 || top == 1)
-    {
-      upperIntake_.setState(1);
-    }
-    else if (top == 0)
-    {
-      upperIntake_.setState(0);
-    }
-    lastTop = top;
-  }
+  // if (top != -1 && top != lastTop)
+  // {
+  //   if (top == 2 || top == 1)
+  //   {
+  //     upperIntake_.setState(1);
+  //   }
+  //   else if (top == 0)
+  //   {
+  //     upperIntake_.setState(0);
+  //   }
+  //   lastTop = top;
+  // }
 
-  if (bottom != -1 && bottom != lastBottom)
-  {
-    if (bottom == 2 || bottom == 1)
-    {
-      lowerIntake_.setState(1);
-    }
-    else if (bottom == 0)
-    {
-      lowerIntake_.setState(0);
-    }
-    lastBottom = bottom;
-  }
+  // if (bottom != -1 && bottom != lastBottom)
+  // {
+  //   if (bottom == 2 || bottom == 1)
+  //   {
+  //     lowerIntake_.setState(1);
+  //   }
+  //   else if (bottom == 0)
+  //   {
+  //     lowerIntake_.setState(0);
+  //   }
+  //   lastBottom = bottom;
+  // }
 
   if (line_sensor_.isBackRightLine())
   {
