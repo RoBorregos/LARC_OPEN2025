@@ -40,7 +40,7 @@ void setup()
   elevator_.setState(0);
   elevator_.update();
 
-  delay(3200); // WAIT FOR ELEVATOR
+  // delay(3200); // WAIT FOR ELEVATOR
   delay(1000);
 }
 
@@ -53,7 +53,9 @@ void loop()
   rampIntake_.update();
   elevator_.update();
   sorter_.update();
-  stateMachine.update();
+  // stateMachine.update();
+
+  upperIntake_.setState(1);
 
 
   delay(SystemConstants::kUpdateInterval);
