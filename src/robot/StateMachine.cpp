@@ -6,7 +6,7 @@ StateMachine::StateMachine()
 
 void StateMachine::begin()
 {
-  currentState = STATES::START;
+  currentState = STATES::PICKUP;
   state_start_time = 0;
 }
 
@@ -271,61 +271,61 @@ void StateMachine::handlePickupState()
   static int lastBottom = -1;
 
   Serial.println("PICKUP STATE");
-  // string cmd = com_.getCommand();
+  string cmd = com_.getCommand();
 
-  // if (!visionReady)
-  // {
-  //   if (cmd == "XAVIER RUNNING VISION")
-  //   {
-  //     visionReady = true;
-  //     Serial.println("[INFO] Xavier vision online — starting movement");
-  //   }
-  //   else
-  //   {
-  //     drive_.acceptInput(0, 0, 0);
-  //     return;
-  //   }
-  // }
-
-  followLineHybrid(130, 0.02f);
-
-  // auto values = com_.getMatrix();
-  // int top = values[0];
-  // int bottom = values[1];
-  // Serial.println("TOP: " + String(top) + "BOTTOM: " + String(bottom));
-
-  // if (top != -1 && top != lastTop)
-  // {
-  //   if (top == 2 || top == 1)
-  //   {
-  //     upperIntake_.setState(1);
-  //   }
-  //   else if (top == 0)
-  //   {
-  //     upperIntake_.setState(0);
-  //   }
-  //   lastTop = top;
-  // }
-
-  // if (bottom != -1 && bottom != lastBottom)
-  // {
-  //   if (bottom == 2 || bottom == 1)
-  //   {
-  //     lowerIntake_.setState(1);
-  //   }
-  //   else if (bottom == 0)
-  //   {
-  //     lowerIntake_.setState(0);
-  //   }
-  //   lastBottom = bottom;
-  // }
-
-  if (line_sensor_.isBackRightLine())
+  if (!visionReady)
   {
-    drive_.acceptInput(0, 0, 0);
-    setState(STATES::RETURN);
-    return;
+    if (cmd == "XAVIER RUNNING VISION")
+    {
+      visionReady = true;
+      Serial.println("[INFO] Xavier vision online — starting movement");
+    }
+    else
+    {
+      drive_.acceptInput(0, 0, 0);
+      return;
+    }
   }
+
+  // followLineHybrid(130, 0.02f);
+
+  auto values = com_.getMatrix();
+  int top = values[0];
+  int bottom = values[1];
+  Serial.println("TOP: " + String(top) + " BOTTOM: " + String(bottom));
+
+  if (top != -1 && top != lastTop)
+  {
+    if (top == 2 || top == 1)
+    {
+      upperIntake_.setState(1);
+    }
+    else if (top == 0)
+    {
+      upperIntake_.setState(0);
+    }
+    lastTop = top;
+  }
+
+  if (bottom != -1 && bottom != lastBottom)
+  {
+    if (bottom == 2 || bottom == 1)
+    {
+      lowerIntake_.setState(1);
+    }
+    else if (bottom == 0)
+    {
+      lowerIntake_.setState(0);
+    }
+    lastBottom = bottom;
+  }
+
+  // if (line_sensor_.isBackRightLine())
+  // {
+  //   drive_.acceptInput(0, 0, 0);
+  //   setState(STATES::RETURN);
+  //   return;
+  // }
 }
 
 // ================ RETURNING STATES ===================

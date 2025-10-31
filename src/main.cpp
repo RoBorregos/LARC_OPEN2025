@@ -37,10 +37,10 @@ void setup()
   drive_.setState(0);
   drive_.acceptHeadingInput(Rotation2D(0.0f));
 
-  elevator_.setState(1);
+  elevator_.setState(0);
   elevator_.update();
 
-  // delay(35000); // DELAY TO ALLOW ELEVATOR TO REACH STARTING POSITION
+  delay(3200); // WAIT FOR ELEVATOR
   delay(1000);
 }
 
@@ -54,6 +54,7 @@ void loop()
   elevator_.update();
   sorter_.update();
   stateMachine.update();
+
 
   delay(SystemConstants::kUpdateInterval);
 }

@@ -70,8 +70,7 @@ vector<int> Communication::getMatrix() {
 
     top = max(0, min(top, 2));
     bottom = max(0, min(bottom, 2));
-    Serial.println(top + bottom);
-
+    
     return {top, bottom};
 }
 
