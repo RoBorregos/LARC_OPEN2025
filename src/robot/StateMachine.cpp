@@ -6,7 +6,7 @@ StateMachine::StateMachine()
 
 void StateMachine::begin()
 {
-  currentState = STATES::AVOID_OBSTACLE_LEFT_RETURN;
+  currentState = STATES::AVOID_OBSTACLE_RIGHT_RETURN;
   state_start_time = 0;
 }
 
@@ -36,9 +36,6 @@ void StateMachine::update()
     break;
   case STATES::RETURN:
     handleReturnState();
-    break;
-  case STATES::AVOID_OBSTACLE_LEFT_RETURN:
-    handleAvoidObstacleLeftReturnState();
     break;
   case STATES::AVOID_OBSTACLE_RIGHT_RETURN:
     handleAvoidObstacleRightReturnState();
@@ -369,84 +366,40 @@ void StateMachine::handleReturnState()
       drive_.acceptInput(0, 0, 0);
       drive_.hardBrake();
       action_stage = 0;
-      setState(STATES::AVOID_OBSTACLE_LEFT_RETURN);
+      setState(STATES::AVOID_OBSTACLE_RIGHT_RETURN);
     }
 
     return;
   }
   else if (action_stage == 0)
   {
-    drive_.acceptInput(-90, -90, 0);
+    drive_.acceptInput(-90, -70, 0);
     action_stage = 1;
     action_start_time = millis();
   }
 }
 
 // Keep in mind that when returning, left and right are swapped
-void StateMachine::handleAvoidObstacleLeftReturnState()
-{
-  Serial.println("AVOID OBSTACLE LEFT STATE");
-
-  // if the distance is greater than the max target distance, it means we've reached the edge of the pool with one sensor, so we should keep moving until both sensors dont see the pool
-  auto [leftDistance, leftValid] = distance_sensor_.getDistance(0);
-  if (leftDistance > DistanceSensorConstants::kObstacleDistance && leftValid)
-  {
-    drive_.acceptInput(-130, 0, 0);
-  }
-  else
-  {
-    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -130);
-  }
-
-  if (line_sensor_.isLeftLine())
-  {
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    setState(STATES::AVOID_OBSTACLE_RIGHT_RETURN);
-    return;
-  }
-
-  auto [isObstacle, isValid] = distance_sensor_.isObstacle();
-  if (!isObstacle && isValid)
-  {
-    delay(700);
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    drive_.acceptInput(0, -50, 0);
-    delay(250);
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    setState(STATES::GO_BEGINNING);
-    return;
-  }
-}
-
+// this function is somewhat hardcoded, im sorry
 void StateMachine::handleAvoidObstacleRightReturnState()
 {
   Serial.println("AVOID OBSTACLE RIGHT STATE");
 
-  auto [distance, valid] = distance_sensor_.getDistance(1);
-  if (distance > DistanceSensorConstants::kObstacleDistance && valid)
+  auto [rightDistance, rightValid] = distance_sensor_.getDistance(1);
+  if (rightDistance > 50 && rightValid)
   {
     Serial.println("MANUAL");
-    drive_.acceptInput(130, 0, 0);
+    drive_.acceptInput(120, 0, 0);
   }
   else
   {
     Serial.println("AUTOMATIC");
-    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 130);
+    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 120);
   }
 
-  if (line_sensor_.isRightLine())
-  {
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    setState(STATES::AVOID_OBSTACLE_LEFT_RETURN);
-    return;
-  }
-
-  auto [isObstacle, rightValid] = distance_sensor_.isObstacle();
-  if (!isObstacle && rightValid)
+  // we use only the left sensor, we're moving to the right, so when the left sensor is clear, we are clear of the obstacle
+  auto [leftDistance, leftValid] = distance_sensor_.getDistance(0);
+  if (leftDistance > 50)
   {
     delay(700);
     drive_.acceptInput(0, 0, 0);
@@ -464,7 +417,25 @@ void StateMachine::handleGoBeginningState()
 {
   Serial.println("GO_BEGINNING STATE");
 
-  if (action_stage == 1)
+  if (action_stage == 0)
+  {
+    drive_.acceptInput(0, 100, 0);
+
+    if (line_sensor_.isLeftLine())
+    {
+      action_stage = 1;
+      action_start_time = millis();
+      drive_.acceptInput(80, 0, 0);
+    }
+  }
+  else if (action_stage == 1)
+  {
+    if (millis() - action_start_time > 700)
+    {
+      action_stage = 0;
+    }
+  }
+  else if (action_stage == 2)
   {
     if (millis() - action_start_time > 250)
     {
@@ -476,20 +447,19 @@ void StateMachine::handleGoBeginningState()
     return;
   }
 
-  if (line_sensor_.isFrontLine())
+  if (action_stage != 2)
   {
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    drive_.acceptInput(0, -100, 0);
+    if (line_sensor_.isCenterLine())
+    {
+      drive_.acceptInput(0, 0, 0);
+      drive_.hardBrake();
+      drive_.acceptInput(0, -100, 0);
 
-    action_stage = 1;
-    action_start_time = millis();
-    Serial.println("SHUTDOWN");
-    return;
-  }
-  else
-  {
-    drive_.acceptInput(0, 80, 0);
+      action_stage = 2;
+      action_start_time = millis();
+      Serial.println("SHUTDOWN");
+      return;
+    }
   }
 }
 
