@@ -272,7 +272,7 @@ void StateMachine::handlePickupState()
 
   Serial.println("PICKUP STATE");
   if (!visionReady)
-  { 
+  {
     string cmd = com_.getCommand();
     if (cmd == "XAVIER RUNNING VISION")
     {
@@ -286,7 +286,7 @@ void StateMachine::handlePickupState()
     }
   }
 
-  // followLineHybrid(130, 0.02f);
+  followLineHybrid(145, 0.02f);
 
   auto values = com_.getMatrix();
   int top = values[0];
@@ -319,12 +319,13 @@ void StateMachine::handlePickupState()
     lastBottom = bottom;
   }
 
-  // if (line_sensor_.isBackRightLine())
-  // {
-  //   drive_.acceptInput(0, 0, 0);
-  //   setState(STATES::RETURN);
-  //   return;
-  // }
+  if (line_sensor_.isBackRightLine())
+  {
+    drive_.acceptInput(0, 0, 0);
+    delay(500);
+    setState(STATES::STOP);
+    return;
+  }
 }
 
 // ================ RETURNING STATES ===================
@@ -337,12 +338,13 @@ void StateMachine::handleReturnState()
 
   if (action_stage == 1)
   {
-    if (millis() - action_start_time > 450)
+    if (millis() - action_start_time > 1050)
     {
       drive_.acceptInput(0, 0, 0);
       drive_.acceptHeadingInput(Rotation2D::fromDegrees(90));
       // elevator_.setState(2); TODO: uncomment when elevator is ready
       action_stage = 2;
+      action_start_time = millis();
     }
     return;
   }
@@ -350,40 +352,51 @@ void StateMachine::handleReturnState()
   {
     if (drive_.isAtHeadingTarget())
     {
-      drive_.acceptInput(0, 0, 0);
-      drive_.hardBrake();
-      drive_.acceptHeadingInput(Rotation2D::fromDegrees(180));
-      action_stage = 3;
-      action_start_time = millis();
+      if (millis() - action_start_time > 2000)
+      {
+        drive_.acceptInput(0, 0, 0);
+        action_stage = 3;
+      }
+      else
+      {
+        drive_.acceptInput(100, 60, 0);
+      }
     }
-    return;
   }
   else if (action_stage == 3)
+  {
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    drive_.acceptHeadingInput(Rotation2D::fromDegrees(180));
+    action_stage = 4;
+    action_start_time = millis();
+  }
+  else if (action_stage == 4)
   {
     if (drive_.isAtHeadingTarget())
     {
       drive_.acceptInput(0, 0, 0);
       drive_.hardBrake();
-      action_stage = 4;
+      action_stage = 5;
       action_start_time = millis();
       distance_sensor_.clearReadings();
     }
     return;
   }
-  else if (action_stage == 4)
+  else if (action_stage == 5)
   {
     if (millis() - action_start_time > 450)
     {
       drive_.acceptInput(0, 0, 0);
       drive_.hardBrake();
-      setState(STATES::AVOID_OBSTACLE_RIGHT_RETURN);
+      setState(STATES::STOP);
     }
 
     return;
   }
   else if (action_stage == 0)
   {
-    drive_.acceptInput(-90, -40, 0);
+    drive_.acceptInput(-100, -50, 0);
     action_stage = 1;
     action_start_time = millis();
   }
