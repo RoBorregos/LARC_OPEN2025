@@ -53,10 +53,7 @@ void loop()
   rampIntake_.update();
   elevator_.update();
   sorter_.update();
-  // stateMachine.update();
-
-  upperIntake_.setState(1);
-
+  stateMachine.update();
 
   delay(SystemConstants::kUpdateInterval);
 }

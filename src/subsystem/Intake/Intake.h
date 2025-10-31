@@ -24,11 +24,12 @@ private:
     Communication com_;
 
 public:
-    Intake(int pin_, int storedPosition_, int grabPosition_);
+    Intake(int pin_, int storedPosition_, int grabPosition_, int avoidPosition_);
 
     int pin;
     int grabPosition = 0;
     int storedPosition = 0;
+    int avoidPosition = 0;
 
     void begin() override;
     void update() override;
@@ -38,6 +39,7 @@ public:
     {
         STORED = 0,
         POSITIONED = 1,
+        AVOID = 2,
     };
 
     IntakeState intake_state_ = IntakeState::STORED;

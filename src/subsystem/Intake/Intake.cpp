@@ -1,8 +1,8 @@
 #include "Intake.h"
 
-Intake::Intake(int pin, int storedPosition_, int grabPosition_)
+Intake::Intake(int pin, int storedPosition_, int grabPosition_, int avoidPosition_)
     : servo(),
-      pin(pin), grabPosition(grabPosition_), storedPosition(storedPosition_)
+      pin(pin), grabPosition(grabPosition_), storedPosition(storedPosition_), avoidPosition(avoidPosition_)
 {
 }
 
@@ -35,6 +35,10 @@ void Intake::setState(int state)
     case IntakeState::POSITIONED:
         Serial.print("Moved servo to POSITIONED - PIN: " + String(pin));
         setIntakeServoPosition(grabPosition);
+        break;
+    case IntakeState::AVOID:
+        Serial.print("Moved servo to AVOID - PIN: " + String(pin));
+        setIntakeServoPosition(avoidPosition);
         break;
     }
 }

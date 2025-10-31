@@ -10,12 +10,6 @@ void setup(){
 }
 
 void loop(){
-
-    com_.update();
-    upperIntake_.update();
-    lowerIntake_.update();
-    rampIntake_.update();
-
     static bool visionReady = false;
     static int lastTop = -1;
     static int lastBottom = -1;
@@ -36,10 +30,11 @@ void loop(){
         return;
     }
     }
-
+    
     auto values = com_.getMatrix();
     int top = values[0];
     int bottom = values[1];
+    Serial.println(String("Top: ") + top + " | Bottom: " + bottom);
 
     if (top != -1 && top != lastTop)
     {

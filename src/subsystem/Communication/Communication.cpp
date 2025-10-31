@@ -4,7 +4,7 @@
 using namespace std;
 
 Communication::Communication(){
-    Serial.begin(9600);       // USB serial
+    Serial.begin(9600);
 }
 
 void Communication::begin() {
@@ -19,16 +19,17 @@ void Communication::setState(int state) {
 }
 
 string Communication::getCommand() {
-    string msg = readCommunication();
+    String msg = readCommunication();
 
-    return msg;
+    return msg.c_str();
 }
 
-string Communication::readCommunication() {
+String Communication::readCommunication() {
     if (Serial.available()) {
         String msg = Serial.readStringUntil('\n');
         msg.trim();
-        return string(msg.c_str()); 
+        Serial.println("MESSAGE : " + msg);
+        return msg;
     }
     return "";
 }
@@ -47,7 +48,7 @@ void Communication::sendPowerOff() {
 
 vector<int> Communication::getMatrix() {
     string s = getCommand();
-    if (s.empty()) return {0, 0};
+    if (s.empty()) return {-1, -1};
 
     s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
 
@@ -68,8 +69,8 @@ vector<int> Communication::getMatrix() {
         bottom = stoi(bottom_str);
     }
 
-    top = max(0, min(top, 2));
-    bottom = max(0, min(bottom, 2));
+    top = max(0, min(top, 3));
+    bottom = max(0, min(bottom, 3));
     
     return {top, bottom};
 }

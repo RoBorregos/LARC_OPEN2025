@@ -271,10 +271,9 @@ void StateMachine::handlePickupState()
   static int lastBottom = -1;
 
   Serial.println("PICKUP STATE");
-  string cmd = com_.getCommand();
-
   if (!visionReady)
-  {
+  { 
+    string cmd = com_.getCommand();
     if (cmd == "XAVIER RUNNING VISION")
     {
       visionReady = true;
@@ -300,7 +299,7 @@ void StateMachine::handlePickupState()
     {
       upperIntake_.setState(1);
     }
-    else if (top == 0)
+    else if (top == 3)
     {
       upperIntake_.setState(0);
     }
@@ -313,7 +312,7 @@ void StateMachine::handlePickupState()
     {
       lowerIntake_.setState(1);
     }
-    else if (bottom == 0)
+    else if (bottom == 3)
     {
       lowerIntake_.setState(0);
     }

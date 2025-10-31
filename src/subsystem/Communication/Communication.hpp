@@ -26,5 +26,5 @@ class Communication : public System {
 
         void sendPowerOff();
     private:
-        string readCommunication();
+        String readCommunication();
 };
