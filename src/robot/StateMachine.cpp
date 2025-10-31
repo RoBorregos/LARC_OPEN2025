@@ -287,7 +287,7 @@ void StateMachine::handlePickupState()
   //   }
   // }
 
-  followLineHybrid(145, 0.02f);
+  followLineHybrid(130, 0.02f);
 
   // auto values = com_.getMatrix();
   // int top = values[0];
@@ -338,11 +338,11 @@ void StateMachine::handleReturnState()
 
   if (action_stage == 1)
   {
-    if (millis() - action_start_time > 350)
+    if (millis() - action_start_time > 450)
     {
       drive_.acceptInput(0, 0, 0);
-      drive_.acceptHeadingInput(Rotation2D::fromDegrees(180));
-      elevator_.setState(2);
+      drive_.acceptHeadingInput(Rotation2D::fromDegrees(90));
+      // elevator_.setState(2); TODO: uncomment when elevator is ready
       action_stage = 2;
     }
     return;
@@ -353,19 +353,30 @@ void StateMachine::handleReturnState()
     {
       drive_.acceptInput(0, 0, 0);
       drive_.hardBrake();
+      drive_.acceptHeadingInput(Rotation2D::fromDegrees(180));
       action_stage = 3;
       action_start_time = millis();
-      distance_sensor_.clearReadings();
     }
     return;
   }
   else if (action_stage == 3)
   {
+    if (drive_.isAtHeadingTarget())
+    {
+      drive_.acceptInput(0, 0, 0);
+      drive_.hardBrake();
+      action_stage = 4;
+      action_start_time = millis();
+      distance_sensor_.clearReadings();
+    }
+    return;
+  }
+  else if (action_stage == 4)
+  {
     if (millis() - action_start_time > 450)
     {
       drive_.acceptInput(0, 0, 0);
       drive_.hardBrake();
-      action_stage = 0;
       setState(STATES::AVOID_OBSTACLE_RIGHT_RETURN);
     }
 
@@ -373,7 +384,7 @@ void StateMachine::handleReturnState()
   }
   else if (action_stage == 0)
   {
-    drive_.acceptInput(-90, -70, 0);
+    drive_.acceptInput(-90, -40, 0);
     action_stage = 1;
     action_start_time = millis();
   }
