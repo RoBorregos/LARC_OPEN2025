@@ -6,7 +6,7 @@ StateMachine::StateMachine()
 
 void StateMachine::begin()
 {
-  currentState = STATES::AVOID_OBSTACLE_RIGHT_RETURN;
+  currentState = STATES::START;
   state_start_time = 0;
 }
 
