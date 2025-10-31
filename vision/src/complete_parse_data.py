@@ -50,7 +50,7 @@ class Camera:
     #* --------- Helpers ---------
     def _print_data(self) -> None:
         state_name = getattr(self._state, "name", "UNKNOWN")
-        print(f"[Camera] {state_name} data → {self.detection_matrix} | infer_ms → {self._infer_ms:.1f} ms")
+        #print(f"[Camera] {state_name} data → {self.detection_matrix} | infer_ms → {self._infer_ms:.1f} ms")
 
     def _show(self, detections) -> None:
         if self._frame is None:
@@ -90,7 +90,7 @@ class Camera:
             label_text = f"{det.label} ({det.confidence:.2f})"
             cv2.putText(annotated, label_text, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
-        # cv2.imshow("Detections", annotated)
+        cv2.imshow("Detections", annotated)
     
     def _read_frame(self) -> List[DetectOutput]:
         if self._frame is None:
@@ -100,7 +100,6 @@ class Camera:
         t0 = time.time()
         results = self.MODEL.predict(self._frame, verbose=False)
         self._infer_ms = (time.time() - t0) * 1000.0
-
         outputs: List[DetectOutput] = []
         if not results:
             return outputs
@@ -109,7 +108,6 @@ class Camera:
         result = results[0]
         if getattr(result, "boxes", None) is None or len(result.boxes) == 0:
             return outputs
-
         for box in result.boxes:
             cls_id = int(box.cls[0])
             label = self.MODEL.names.get(cls_id, str(cls_id))
@@ -140,13 +138,15 @@ class Camera:
     def _detect_beans(self, ser: serial.Serial = None) -> List[Optional[DetectOutput]]:
         '''Returns list of 2 DetectOutput for top and bottom halves and optionally sends to Teensy'''
         targets = {"inmature", "mature", "overmature"}
-        label_to_num = {"inmature": 0, "mature": 1, "overmature": 2}
+        label_to_num = {"inmature": 3, "mature": 1, "overmature": 2}
 
         # THRESHOLD
-        THRESHOLD_TOP_MIN = 50
-        THRESHOLD_TOP_MAX = 160
-        THRESHOLD_BOTTOM_MIN = 70
-        THRESHOLD_BOTTOM_MAX = 170
+        THRESHOLD_TOP_MIN = 90
+        THRESHOLD_TOP_MAX = 180
+        THRESHOLD_BOTTOM_MIN = 110
+        THRESHOLD_BOTTOM_MAX = 160
+
+        THRESHOLD_PX = 140
 
         results = self._read_frame()
         now = time.time()
@@ -163,7 +163,9 @@ class Camera:
             if self.detection_matrix[idx] is not None and self._last_read_s[side] + self.TIMEOUT < now:
                 self.detection_matrix[idx] = None
 
-        # Seleccionar la mejor detección por lado
+        # Seleccionar la mejor detección por lado — elegir la detección más alta (menor cy)
+        # Si dos detecciones están muy cercanas en y (<= THRESHOLD_PX), desempatar por confianza
+        
         for det in results:
             if det.label not in targets:
                 continue
@@ -172,21 +174,47 @@ class Camera:
             cy = 0.5 * (y1 + y2)
             side = "top" if cx > mid_x else "bottom"
             idx = 0 if side == "top" else 1
-            if self.detection_matrix[idx] is None or det.confidence > best_for[side].confidence:
+
+            print(f"[DEBUG] Detected {det.label.upper()} | conf={det.confidence:.2f} | "
+            f"bbox=({x1:.0f},{y1:.0f},{x2:.0f},{y2:.0f}) | cy={cy:.1f} | side={side}")
+
+            current_best = best_for[side]
+            # If there's no current best for this side, pick this one
+            if current_best.label is None:
                 best_for[side] = det
+                continue
+
+            # Compute current best cy robustly
+            try:
+                bx1, by1, bx2, by2 = current_best.bbox
+                best_cy = 0.5 * (by1 + by2)
+            except Exception:
+                best_cy = float('inf')
+
+            # If vertical centers are close, choose by higher confidence
+            if abs(cy - best_cy) <= THRESHOLD_PX:
+                try:
+                    if det.confidence > current_best.confidence:
+                        best_for[side] = det
+                except Exception:
+                    # If confidence is missing for any reason, prefer the one with smaller cy
+                    if cy < best_cy:
+                        best_for[side] = det
+            else:
+                # Otherwise choose the one with smaller cy (upper-most)
+                if cy < best_cy:
+                    best_for[side] = det
 
         # Construir matriz de salida considerando umbrales
         matrix_to_send = [0, 0]  # None o fuera de rango → 0
         final_detections = [None, None]
         cy_positions = [None, None]
-
         for idx, side in enumerate(["top", "bottom"]):
             best_det = best_for[side]
             if best_det.label is not None:
                 x1, y1, x2, y2 = best_det.bbox
                 cy = 0.5 * (y1 + y2)
                 cy_positions[idx] = cy
-
                 # Validación con min/max thresholds
                 if side == "top" and THRESHOLD_TOP_MIN <= cy <= THRESHOLD_TOP_MAX:
                     matrix_to_send[idx] = label_to_num[best_det.label]
@@ -198,10 +226,6 @@ class Camera:
                     self._last_read_s[side] = now
 
         self.detection_matrix = matrix_to_send
-
-        # Imprimir resultados
-        # print(f"[DETECT] matrix={matrix_to_send} → cy_top={cy_positions[0]}, cy_bottom={cy_positions[1]}")
-
         # Enviar a Teensy si se pasó el serial
         if ser is not None:
             try:
@@ -293,6 +317,11 @@ if __name__ == "__main__":
                 print("Failed to read frame.")
                 break
 
+            #ZED CAMERA
+            #======================================================
+            h, w = frame.shape[:2]
+            frame = frame[:, w//2:w]  # Crop to right half
+            #======================================================
             # Pasar serial a _detect_beans mediante run
             cam._frame = frame
             det = cam.detect()  # Esto llamará internamente a _detect_beans

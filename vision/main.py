@@ -97,7 +97,7 @@ def run():
                 if ser.in_waiting:
                     line = ser.readline().decode(errors="ignore").strip()
                     if line:
-                        handle_serial_command(line, cam)  # <-- FIX: pass cam
+                        handle_serial_command(line, cam)
             except Exception as e:
                 print(f"[WARN] Serial read error: {e}")
 
@@ -110,6 +110,11 @@ def run():
 
             # --- Run detection state machine ---
             try:
+                # ZED CAMERA
+                # ======================================================
+                h, w = frame.shape[:2]
+                frame = frame[:, w//2:w]  # Crop to right half
+                # ======================================================
                 cam.run(frame, verbose=False)
                 if not has_sent_running_msg:
                     ser.write(b"XAVIER RUNNING VISION\n")
@@ -128,21 +133,24 @@ def run():
             v1 = map_value(out1)
             sending_msg = f"{v0},{v1}\n".encode()
 
-            print(sending_msg)
+            #print(f"[DEBUG] Sending message: {sending_msg}")
 
             try:
+                
                 ser.write(sending_msg)
                 # Optional: flush to minimize latency
                 ser.flush()
             except Exception as e:
-                print(f"[WARN] Serial write error: {e}")
+                #print(f"[WARN] Serial write error: {e}")
+                pass
 
             # Escape on ESC (only useful if you display a window elsewhere)
             if cv2.waitKey(1) & 0xFF == 27:
                 break
 
     except KeyboardInterrupt:
-        print("\n[INFO] Interrupted by user. Exiting...")
+        pass    
+        #print("\n[INFO] Interrupted by user. Exiting...")
     finally:
         try:
             cap.release()
