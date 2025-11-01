@@ -6,7 +6,7 @@ StateMachine::StateMachine()
 
 void StateMachine::begin()
 {
-  currentState = STATES::PICKUP;
+  currentState = STATES::START;
   state_start_time = 0;
 }
 
@@ -18,7 +18,7 @@ void StateMachine::update()
   {
   case STATES::START:
     handleStartState();
-    break;
+    break;  
   case STATES::AVOID_OBSTACLE_LEFT:
     handleAvoidObstacleLeftState();
     break;
@@ -208,7 +208,7 @@ void StateMachine::handleGoStraightState()
   }
   else
   {
-    drive_.acceptInput(0, 80, 0);
+    drive_.acceptInput(0, 70, 0);
   }
 }
 
@@ -287,6 +287,7 @@ void StateMachine::handlePickupState()
   }
 
   followLineHybrid(145, 0.02f);
+  // followLineImpulse(150);
 
   auto values = com_.getMatrix();
   int top = values[0];
