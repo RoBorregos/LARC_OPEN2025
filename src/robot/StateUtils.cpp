@@ -122,7 +122,7 @@ void followLineHybrid(float lateralSpeed, float dt)
     if (center)
       lastLineOnRight = false; // If center, bias to left
 
-    targetFrontOutput = center ? 0.0f : (left ? -20.0f : 20.0f); // Sensor-based correction
+    targetFrontOutput = center ? -20.0f : (left ? -30.0f : 20.0f); // Sensor-based correction
   }
   else
   {

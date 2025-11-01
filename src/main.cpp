@@ -47,15 +47,15 @@ void setup()
 void loop()
 {
   drive_.update();
-  // com_.update();
-  // upperIntake_.update();
-  // lowerIntake_.update();
-  // rampIntake_.update();
-  // elevator_.update();
-  // sorter_.update();
-  // stateMachine.update();
+  com_.update();
+  upperIntake_.update();
+  lowerIntake_.update();
+  rampIntake_.update();
+  elevator_.update();
+  sorter_.update();
+  stateMachine.update();
 
-  followLineHybrid(135, 0.02);
+  // followLineHybrid(135, 0.02);
 
   delay(SystemConstants::kUpdateInterval);
 }

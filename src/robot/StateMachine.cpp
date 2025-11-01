@@ -6,7 +6,7 @@ StateMachine::StateMachine()
 
 void StateMachine::begin()
 {
-  currentState = STATES::START;
+  currentState = STATES::PICKUP;
   state_start_time = 0;
 }
 
@@ -18,7 +18,7 @@ void StateMachine::update()
   {
   case STATES::START:
     handleStartState();
-    break;  
+    break;
   case STATES::AVOID_OBSTACLE_LEFT:
     handleAvoidObstacleLeftState();
     break;
@@ -286,7 +286,51 @@ void StateMachine::handlePickupState()
     }
   }
 
-  followLineHybrid(145, 0.02f);
+  followLineHybrid(135, 0.02f);
+
+  // if (action_stage == 0)
+  // {
+  //   action_stage = 1;
+  //   action_start_time = millis();
+  // }
+
+  // if (action_stage == 1)
+  // {
+  //   if (millis() - action_start_time < 3000)
+  //   {
+  //     followLineHybrid(135, 0.02f);
+  //   }
+  //   else
+  //   {
+  //     drive_.acceptInput(0, 0, 0);
+  //     action_stage = 2;
+  //     action_start_time = millis();
+  //   }
+  // }
+
+  // if (action_stage == 2)
+  // {
+  //   if (!line_sensor_.isFrontRightLine())
+  //   {
+  //     drive_.acceptInput(0, -70, 0);
+  //   }
+  //   else
+  //   {
+  //     drive_.acceptInput(0, 0, 0);
+  //     action_stage = 3;
+  //     action_start_time = millis();
+  //   }
+  // }
+
+  // if (action_stage == 3)
+  // {
+  //   if (millis() - action_start_time > 500)
+  //   {
+  //     drive_.acceptInput(0, 0, 0);
+  //     action_stage = 0;
+  //   }
+  // }
+
   // followLineImpulse(150);
 
   auto values = com_.getMatrix();
