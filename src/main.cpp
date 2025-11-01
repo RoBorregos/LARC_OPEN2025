@@ -55,8 +55,7 @@ void loop()
   // sorter_.update();
   // stateMachine.update();
 
-  followLineHybrid(140, 0.02);
-
+  followLineHybrid(135, 0.02);
 
   delay(SystemConstants::kUpdateInterval);
 }

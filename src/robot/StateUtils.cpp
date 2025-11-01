@@ -122,7 +122,7 @@ void followLineHybrid(float lateralSpeed, float dt)
     if (center)
       lastLineOnRight = false; // If center, bias to left
 
-    targetFrontOutput = center ? 0.0f : (left ? -30.0f : 30.0f); // Sensor-based correction
+    targetFrontOutput = center ? 0.0f : (left ? -20.0f : 20.0f); // Sensor-based correction
   }
   else
   {
@@ -130,7 +130,7 @@ void followLineHybrid(float lateralSpeed, float dt)
     estimatedPositionError += correctedAccel * dt;                            // Integrate sideways motion
     estimatedPositionError = std::clamp(estimatedPositionError, -0.6f, 0.6f); // Limit estimate
 
-    float gain = 130.0f;                                   // Convert position error to command
+    float gain = 150.0f;                                   // Convert position error to command
     if (estimatedPositionError == 0.0f && lastLineOnRight) // If ambiguous, bias toward last seen edge
       estimatedPositionError = 0.05f;
 
@@ -157,7 +157,9 @@ void followLineHybrid(float lateralSpeed, float dt)
   if (std::abs(error.getDegrees()) < 20)
   {
     drive_.acceptInput(lateralSpeed, targetFrontOutput + 5.0f, 0.0f); // Apply lateral speed + correction
-  } else {
+  }
+  else
+  {
     drive_.acceptInput(0, 0, 0);
   }
 }
@@ -165,8 +167,8 @@ void followLineHybrid(float lateralSpeed, float dt)
 void followLine(float lateralSpeed)
 {
   auto lineValues = line_sensor_.readSensors();
-  bool left   = lineValues[0];
-  bool right  = lineValues[1];
+  bool left = lineValues[0];
+  bool right = lineValues[1];
   bool center = lineValues[4];
 
   float correction = 0.0f;
@@ -257,7 +259,7 @@ void followLineImpulse(float lateralSpeed)
 
   static unsigned long lastStepTime = 0;
   static bool isMoving = false;
-  const unsigned long stepDuration = 1000;  
+  const unsigned long stepDuration = 1000;
   const unsigned long pauseDuration = 500;
 
   unsigned long now = millis();
@@ -313,7 +315,6 @@ void followLineImpulse(float lateralSpeed)
   drive_.acceptInput(lateralSpeed, 0.0f, correction);
 }
 
-
 void followLineCombined(float lateralSpeed, float dt)
 {
   // --- Persistent IMU state ---
@@ -327,8 +328,8 @@ void followLineCombined(float lateralSpeed, float dt)
 
   // --- Line sensor readings ---
   auto lineValues = line_sensor_.readSensors();
-  bool left   = lineValues[0];
-  bool right  = lineValues[1];
+  bool left = lineValues[0];
+  bool right = lineValues[1];
   bool center = lineValues[4];
 
   // --- IMU data ---
@@ -369,13 +370,13 @@ void followLineCombined(float lateralSpeed, float dt)
       if (last_detected == CENTER && current == LEFT)
         correction = -30.0f; // moving forward
       else if (last_detected == LEFT && current == CENTER)
-        correction = 30.0f;  // moving backward
+        correction = 30.0f; // moving backward
       else if (last_detected == CENTER && current == RIGHT)
-        correction = 30.0f;  // moving forward (other side)
+        correction = 30.0f; // moving forward (other side)
       else if (last_detected == RIGHT && current == CENTER)
         correction = -30.0f; // moving backward (other side)
       else if (last_detected == LEFT && current == RIGHT)
-        correction = 30.0f;  // jumped across line (backward)
+        correction = 30.0f; // jumped across line (backward)
       else if (last_detected == RIGHT && current == LEFT)
         correction = -30.0f; // jumped across line (forward)
     }
