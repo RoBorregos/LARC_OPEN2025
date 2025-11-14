@@ -8,7 +8,7 @@ import time
 from typing import Union
 
 # ------------ Configuration ------------
-MODEL_PATH   = "model/nanoModel.pt"
+MODEL_PATH   = "model/labModel.pt"
 SOURCE       = 0            # Use 0 for Xavier camera
 TIMEOUT_SEC  = 1.0
 SERIAL_PORT  = "/dev/ttyACM0"

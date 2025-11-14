@@ -175,8 +175,8 @@ class Camera:
             side = "top" if cx > mid_x else "bottom"
             idx = 0 if side == "top" else 1
 
-            print(f"[DEBUG] Detected {det.label.upper()} | conf={det.confidence:.2f} | "
-            f"bbox=({x1:.0f},{y1:.0f},{x2:.0f},{y2:.0f}) | cy={cy:.1f} | side={side}")
+            # print(f"[DEBUG] Detected {det.label.upper()} | conf={det.confidence:.2f} | "
+            # f"bbox=({x1:.0f},{y1:.0f},{x2:.0f},{y2:.0f}) | cy={cy:.1f} | side={side}")
 
             current_best = best_for[side]
             # If there's no current best for this side, pick this one
