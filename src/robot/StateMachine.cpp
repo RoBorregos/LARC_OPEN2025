@@ -6,7 +6,7 @@ StateMachine::StateMachine()
 
 void StateMachine::begin()
 {
-  currentState = STATES::PICKUP;
+  currentState = STATES::START;
   state_start_time = 0;
 }
 
@@ -36,9 +36,6 @@ void StateMachine::update()
     break;
   case STATES::RETURN:
     handleReturnState();
-    break;
-  case STATES::AVOID_OBSTACLE_LEFT_RETURN:
-    handleAvoidObstacleLeftReturnState();
     break;
   case STATES::AVOID_OBSTACLE_RIGHT_RETURN:
     handleAvoidObstacleRightReturnState();
@@ -76,11 +73,9 @@ void StateMachine::handleStartState()
 {
   Serial.println("START STATE");
 
-  elevator_.setState(1); // Move elevator to starting position
-
   if (action_stage == 1)
   {
-    if (millis() - action_start_time > 250)
+    if (millis() - action_start_time > 350)
     {
       drive_.acceptInput(0, 0, 0);
       drive_.hardBrake();
@@ -101,16 +96,17 @@ void StateMachine::handleStartState()
     return;
   }
 
-  auto [obstacle, valid] = distance_sensor_.isObstacle();
-  if (obstacle && valid)
+  if (millis() - state_start_time > 1500)
   {
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    drive_.acceptInput(0, -50, 0);
-
-    action_stage = 1;
-    action_start_time = millis();
-    return;
+    auto [obstacle, valid] = distance_sensor_.isObstacle();
+    if (obstacle && valid)
+    {
+      drive_.acceptInput(0, 0, 0);
+      drive_.hardBrake();
+      action_stage = 1;
+      action_start_time = millis();
+      return;
+    }
   }
 }
 
@@ -122,11 +118,12 @@ void StateMachine::handleAvoidObstacleLeftState()
   auto [leftDistance, leftValid] = distance_sensor_.getDistance(0);
   if (leftDistance > DistanceSensorConstants::kObstacleDistance && leftValid)
   {
-    drive_.acceptInput(-80, 0, 0);
+    Serial.println("LEFT SENSOR CLEAR");
+    drive_.acceptInput(-130, 0, 0);
   }
   else
   {
-    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -80);
+    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -130);
   }
 
   if (line_sensor_.isLeftLine())
@@ -138,17 +135,9 @@ void StateMachine::handleAvoidObstacleLeftState()
   }
 
   auto [isObstacle, isValid] = distance_sensor_.isObstacle();
-  Serial.print("Is Obstacle: ");
-  Serial.println(isObstacle ? "Yes" : "No");
-  Serial.print("Is Valid: ");
-  Serial.println(isValid ? "Yes" : "No");
   if (!isObstacle && isValid)
   {
-    delay(700);
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    drive_.acceptInput(0, -50, 0);
-    delay(250);
+    delay(400);
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
     setState(STATES::GO_STRAIGHT);
@@ -160,16 +149,16 @@ void StateMachine::handleAvoidObstacleRightState()
 {
   Serial.println("AVOID OBSTACLE RIGHT STATE");
 
-  auto [distance, valid] = distance_sensor_.getDistance(1);
-  if (distance > DistanceSensorConstants::kObstacleDistance && valid)
+  auto [rightDistance, rightValid] = distance_sensor_.getDistance(1);
+  if (rightDistance > DistanceSensorConstants::kObstacleDistance && rightValid)
   {
     Serial.println("RIGHT SENSOR CLEAR");
-    drive_.acceptInput(80, 0, 0);
+    drive_.acceptInput(130, 0, 0);
   }
   else
   {
     Serial.println("RIGHT SENSOR BLOCKED");
-    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 80);
+    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 130);
   }
 
   if (line_sensor_.isRightLine())
@@ -180,14 +169,10 @@ void StateMachine::handleAvoidObstacleRightState()
     return;
   }
 
-  auto [isObstacle, rightValid] = distance_sensor_.isObstacle();
-  if (!isObstacle && rightValid)
+  auto [isObstacle, isValid] = distance_sensor_.isObstacle();
+  if (!isObstacle && isValid)
   {
-    delay(700);
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    drive_.acceptInput(0, -50, 0);
-    delay(250);
+    delay(400);
     drive_.acceptInput(0, 0, 0);
     drive_.hardBrake();
     setState(STATES::GO_STRAIGHT);
@@ -223,67 +208,171 @@ void StateMachine::handleGoStraightState()
   }
   else
   {
-    drive_.acceptInput(0, 80, 0);
+    drive_.acceptInput(0, 70, 0);
   }
 }
 
 void StateMachine::handleEndlineState()
 {
   Serial.println("ENDLINE STATE");
+  Serial.println("Action Stage: " + String(action_stage));
 
-  followLineHybrid(-70, 0.02f);
-
-  if (line_sensor_.isBackLeftLine())
+  if (action_stage == 0)
   {
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    setState(STATES::PICKUP);
+    drive_.acceptInput(-145, 0, 0);
+
+    if (line_sensor_.isCenterLine())
+    {
+      action_stage = 1;
+      action_start_time = millis();
+      drive_.acceptInput(0, -70, 0);
+    }
+  }
+
+  else if (action_stage == 1)
+  {
+    if (millis() - action_start_time > 700)
+    {
+      action_stage = 0;
+    }
+  }
+  else if (action_stage == 2)
+  {
+    if (line_sensor_.isFrontRightLine() || line_sensor_.isCenterLine())
+    {
+      Serial.println("FRONT RIGHT OR CENTER LINE DETECTED");
+      drive_.acceptInput(0, 0, 0);
+      drive_.hardBrake();
+      setState(STATES::PICKUP);
+    }
+    else
+    {
+      Serial.println("FRONT RIGHT LINE NOT DETECTED");
+      drive_.acceptInput(0, 90, 0);
+    }
+  }
+
+  if (action_stage != 2)
+  {
+
+    if (line_sensor_.isBackLeftLine())
+    {
+      drive_.acceptInput(0, 0, 0);
+      drive_.hardBrake();
+      action_stage = 2;
+    }
   }
 }
 
 void StateMachine::handlePickupState()
 {
-  static int lastTop = -1;     // last valid value for top
-  static int lastBottom = -1;  // last valid value for bottom
+  // static bool visionReady = false;
+  // static int lastTop = -1;
+  // static int lastBottom = -1;
 
-  Serial.println("PICKUP STATE");
-  followLineHybrid(70, 0.02f);
+  // Serial.println("PICKUP STATE");
+  // if (!visionReady)
+  // {
+  //   string cmd = com_.getCommand();
+  //   if (cmd == "XAVIER RUNNING VISION")
+  //   {
+  //     visionReady = true;
+  //     Serial.println("[INFO] Xavier vision online — starting movement");
+  //   }
+  //   else
+  //   {
+  //     drive_.acceptInput(0, 0, 0);
+  //     return;
+  //   }
+  // }
 
-  auto values = com_.getMatrix();
-  int top = values[0];
-  int bottom = values[1];
+  followLineHybrid(140, 0.02f);
 
-  // --- Upper part control ---
-  if (top != -1 && top != lastTop) {
-    if (top == 2 || top == 1) {
-      intake_.setState(4);   // e.g.: pick up upper part
-    } 
-    else if (top == 0) {
-      intake_.setState(2);   // retract upper part
-    }
-    lastTop = top;
+  if (action_stage == 0)
+  {
+    action_stage = 1;
+    action_start_time = millis();
   }
 
-  // --- Lower part control ---
-  if (bottom != -1 && bottom != lastBottom) {
-    if (bottom == 2 || bottom == 1) {
-      intake_.setState(5);   // pick up lower part
-    } 
-    else if (bottom == 0) {
-      intake_.setState(3);   // retract lower part
+  if (action_stage == 1)
+  {
+    if (millis() - action_start_time < 3000)
+    {
+      followLineHybrid(140, 0.02f);
     }
-    lastBottom = bottom;
+    else
+    {
+      drive_.acceptInput(0, 0, 0);
+      action_stage = 2;
+      action_start_time = millis();
+    }
   }
+
+  if (action_stage == 2)
+  {
+    if (!line_sensor_.isFrontRightLine())
+    {
+      drive_.acceptInput(0, -70, 0);
+    }
+    else
+    {
+      drive_.acceptInput(0, 0, 0);
+      action_stage = 3;
+      action_start_time = millis();
+    }
+  }
+
+  if (action_stage == 3)
+  {
+    if (millis() - action_start_time > 500)
+    {
+      drive_.acceptInput(0, 0, 0);
+      action_stage = 0;
+    }
+  }
+
+  upperIntake_.setState(1);
+  lowerIntake_.setState(1);
+
+  // auto values = com_.getMatrix();
+  // int top = values[0];
+  // int bottom = values[1];
+  // Serial.println("TOP: " + String(top) + " BOTTOM: " + String(bottom));
+
+  // if (top != -1 && top != lastTop)
+  // {
+  //   if (top == 2 || top == 1)
+  //   {
+  //     upperIntake_.setState(1);
+  //   }
+  //   else if (top == 3)
+  //   {
+  //     upperIntake_.setState(0);
+  //   }
+  //   lastTop = top;
+  // }
+
+  // if (bottom != -1 && bottom != lastBottom)
+  // {
+  //   if (bottom == 2 || bottom == 1)
+  //   {
+  //     lowerIntake_.setState(1);
+  //   }
+  //   else if (bottom == 3)
+  //   {
+  //     lowerIntake_.setState(0);
+  //   }
+  //   lastBottom = bottom;
+  // }
 
   if (line_sensor_.isBackRightLine())
   {
     drive_.acceptInput(0, 0, 0);
+    delay(500);
     setState(STATES::STOP);
     return;
   }
 }
-
-
 
 // ================ RETURNING STATES ===================
 // Keep in mind that when returning, left and right are swapped
@@ -295,11 +384,13 @@ void StateMachine::handleReturnState()
 
   if (action_stage == 1)
   {
-    if (millis() - action_start_time > 650)
+    if (millis() - action_start_time > 1050)
     {
       drive_.acceptInput(0, 0, 0);
-      drive_.acceptHeadingInput(Rotation2D::fromDegrees(180));
+      drive_.acceptHeadingInput(Rotation2D::fromDegrees(90));
+      // elevator_.setState(2); TODO: uncomment when elevator is ready
       action_stage = 2;
+      action_start_time = millis();
     }
     return;
   }
@@ -307,83 +398,77 @@ void StateMachine::handleReturnState()
   {
     if (drive_.isAtHeadingTarget())
     {
+      if (millis() - action_start_time > 2000)
+      {
+        drive_.acceptInput(0, 0, 0);
+        action_stage = 3;
+      }
+      else
+      {
+        drive_.acceptInput(100, 60, 0);
+      }
+    }
+  }
+  else if (action_stage == 3)
+  {
+    drive_.acceptInput(0, 0, 0);
+    drive_.hardBrake();
+    drive_.acceptHeadingInput(Rotation2D::fromDegrees(180));
+    action_stage = 4;
+    action_start_time = millis();
+  }
+  else if (action_stage == 4)
+  {
+    if (drive_.isAtHeadingTarget())
+    {
       drive_.acceptInput(0, 0, 0);
       drive_.hardBrake();
-      setState(STATES::AVOID_OBSTACLE_LEFT_RETURN);
+      action_stage = 5;
+      action_start_time = millis();
+      distance_sensor_.clearReadings();
     }
+    return;
+  }
+  else if (action_stage == 5)
+  {
+    if (millis() - action_start_time > 450)
+    {
+      drive_.acceptInput(0, 0, 0);
+      drive_.hardBrake();
+      setState(STATES::STOP);
+    }
+
     return;
   }
   else if (action_stage == 0)
   {
-    drive_.acceptInput(-60, -60, 0);
+    drive_.acceptInput(-100, -50, 0);
     action_stage = 1;
     action_start_time = millis();
   }
 }
 
 // Keep in mind that when returning, left and right are swapped
-void StateMachine::handleAvoidObstacleLeftReturnState()
-{
-  Serial.println("AVOID OBSTACLE LEFT STATE");
-
-  // if the distance is greater than the max target distance, it means we've reached the edge of the pool with one sensor, so we should keep moving until both sensors dont see the pool
-  auto [leftDistance, leftValid] = distance_sensor_.getDistance(0);
-  if (leftDistance > DistanceSensorConstants::kObstacleDistance && leftValid)
-  {
-    drive_.acceptInput(-80, 0, 0);
-  }
-  else
-  {
-    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, -80);
-  }
-
-  if (line_sensor_.isLeftLine())
-  {
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    setState(STATES::AVOID_OBSTACLE_RIGHT_RETURN);
-    return;
-  }
-
-  auto [isObstacle, isValid] = distance_sensor_.isObstacle();
-  if (!isObstacle && isValid)
-  {
-    delay(700);
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    drive_.acceptInput(0, -50, 0);
-    delay(250);
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    setState(STATES::GO_BEGINNING);
-    return;
-  }
-}
-
+// this function is somewhat hardcoded, im sorry
 void StateMachine::handleAvoidObstacleRightReturnState()
 {
   Serial.println("AVOID OBSTACLE RIGHT STATE");
 
-  auto [distance, valid] = distance_sensor_.getDistance(1);
-  if (distance > DistanceSensorConstants::kObstacleDistance && valid)
+  auto [rightDistance, rightValid] = distance_sensor_.getDistance(1);
+  if (rightDistance > 50 && rightValid)
   {
-    drive_.acceptInput(80, 0, 0);
+    Serial.println("MANUAL");
+    drive_.acceptInput(120, 0, 0);
   }
   else
   {
-    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 80);
+    Serial.println("AUTOMATIC");
+    maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 120);
   }
 
-  if (line_sensor_.isRightLine())
-  {
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    setState(STATES::AVOID_OBSTACLE_LEFT_RETURN);
-    return;
-  }
-
-  auto [isObstacle, rightValid] = distance_sensor_.isObstacle();
-  if (!isObstacle && rightValid)
+  // we use only the left sensor, we're moving to the right, so when the left sensor is clear, we are clear of the obstacle
+  auto [leftDistance, leftValid] = distance_sensor_.getDistance(0);
+  if (leftDistance > 50)
   {
     delay(700);
     drive_.acceptInput(0, 0, 0);
@@ -401,32 +486,49 @@ void StateMachine::handleGoBeginningState()
 {
   Serial.println("GO_BEGINNING STATE");
 
-  if (action_stage == 1)
+  if (action_stage == 0)
+  {
+    drive_.acceptInput(0, 100, 0);
+
+    if (line_sensor_.isLeftLine())
+    {
+      action_stage = 1;
+      action_start_time = millis();
+      drive_.acceptInput(80, 0, 0);
+    }
+  }
+  else if (action_stage == 1)
+  {
+    if (millis() - action_start_time > 700)
+    {
+      action_stage = 0;
+    }
+  }
+  else if (action_stage == 2)
   {
     if (millis() - action_start_time > 250)
     {
       drive_.acceptInput(0, 0, 0);
       drive_.hardBrake();
       action_stage = 0;
-      elevator_.setState(2); // Lower elevator
       setState(STATES::STOP);
     }
     return;
   }
 
-  if (line_sensor_.isFrontLine())
+  if (action_stage != 2)
   {
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    drive_.acceptInput(0, -100, 0);
+    if (line_sensor_.isCenterLine())
+    {
+      drive_.acceptInput(0, 0, 0);
+      drive_.hardBrake();
+      drive_.acceptInput(0, -100, 0);
 
-    action_stage = 1;
-    action_start_time = millis();
-    return;
-  }
-  else
-  {
-    drive_.acceptInput(0, 80, 0);
+      action_stage = 2;
+      action_start_time = millis();
+      Serial.println("SHUTDOWN");
+      return;
+    }
   }
 }
 

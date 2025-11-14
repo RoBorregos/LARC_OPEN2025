@@ -11,23 +11,24 @@ void setup()
 
 void loop()
 {
-  drive_.update();
-  drive_.moveForward(80);
-  if (line_sensor_.isFrontLine())
-  {
-    Serial.println("LINE DETECTED");
-    drive_.acceptInput(0, 0, 0);
-    drive_.hardBrake();
-    delay(1000);
-  }
+  drive_.moveForward(255);
+  delay(5000);
+  drive_.moveBackward(255);
+  delay(5000);
+  // if (line_sensor_.isFrontLine())
+  // {
+  //   Serial.println("LINE DETECTED");
+  //   drive_.acceptInput(0, 0, 0);
+  //   drive_.hardBrake();
+  //   delay(1000);
+  // }
   // delay(2000);
   // drive_.brake();
-  // drive_.moveBackward(100);
   // delay(2000);
   // drive_.brake();
   // drive_.moveLeft(100);
   // delay(2000);
   // drive_.brake();
   // drive_.moveRight(100);
-  // delay(2000);  
+  // delay(2000);
 }

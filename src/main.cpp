@@ -29,11 +29,18 @@ void setup()
   stateMachine.begin();
   elevator_.begin();
   sorter_.begin();
-  intake_.begin();
+  upperIntake_.begin();
+  lowerIntake_.begin();
+  rampIntake_.begin();
   Serial.println("All systems initialized...");
 
   drive_.setState(0);
   drive_.acceptHeadingInput(Rotation2D(0.0f));
+
+  elevator_.setState(1);
+  elevator_.update();
+
+  delay(32000); // WAIT FOR ELEVATOR 1 FOR UP, 2 FOR DOWN
   delay(1000);
 }
 
@@ -41,7 +48,9 @@ void loop()
 {
   drive_.update();
   com_.update();
-  intake_.update();
+  upperIntake_.update();
+  lowerIntake_.update();
+  rampIntake_.update();
   elevator_.update();
   sorter_.update();
   stateMachine.update();

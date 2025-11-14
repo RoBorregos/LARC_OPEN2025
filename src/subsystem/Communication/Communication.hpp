@@ -21,11 +21,10 @@ class Communication : public System {
         vector<int> getMatrix();
         vector<int> getBenefitsPositions();
 
-        void sendStartPicking();
-        void sendStopPicking();
-
         void sendStartSearching();
         void sendStopSearching();
+
+        void sendPowerOff();
     private:
-        string readCommunication();
+        String readCommunication();
 };

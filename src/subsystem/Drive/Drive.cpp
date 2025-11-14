@@ -52,6 +52,14 @@ void Drive::update()
     break;
     }
 
+    Serial.print("Vx: ");
+    Serial.print(drive_speed.vx);
+    Serial.print(" Vy: ");
+    Serial.print(drive_speed.vy);
+    Serial.print(" Omega: ");
+    Serial.print(drive_speed.omega);
+    Serial.println();
+
     move(drive_speed);
 }
 

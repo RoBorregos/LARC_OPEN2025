@@ -29,11 +29,11 @@ namespace Constants
         constexpr float kPoolTargetDistance = 20.0;
         constexpr float kTreeTargetDistance = 10.0;
 
-        constexpr float kApproachDistanceTargetControllerKp = 2.5;
+        constexpr float kApproachDistanceTargetControllerKp = 4.5;
         constexpr float kApproachDistanceTargetControllerKi = 0.00;
         constexpr float kApproachDistanceTargetControllerKd = 0.00;
 
-        constexpr float kRetreatDistanceTargetControllerKp = 2.0;
+        constexpr float kRetreatDistanceTargetControllerKp = 4.0;
         constexpr float kRetreatDistanceTargetControllerKi = 0.00;
         constexpr float kRetreatDistanceTargetControllerKd = 0.00;
     }
@@ -47,21 +47,23 @@ namespace Constants
 
         constexpr float kHeadingToleranceDegrees = 5.0f;
 
-        constexpr float kHeadingControllerKp = 165.0f; //165.0f;
-        constexpr float kHeadingControllerKi = 0.0f;
+        constexpr float kHeadingControllerKp = 205.0f; //165.0f;
+        constexpr float kHeadingControllerKi = 10.0f;
         constexpr float kHeadingControllerKd = 10.0f;
     }
 
     namespace IntakeConstants
     {
-        constexpr int kGrabBallUpperServoPosition = 130;
-        constexpr int kAvoidBallUpperServoPosition = 40;
+        constexpr int kGrabBallUpperServoPosition = 55;
+        constexpr int kAvoidBallUpperServoPosition = 100;
+        constexpr int kStoredUpperIntakeServoPosition = 0;
 
-        constexpr int kGrabBallLowerServoPosition = 95;
-        constexpr int kAvoidBallLowerServoPosition = 140;
+        constexpr int kGrabBallLowerServoPosition = 35;
+        constexpr int kAvoidBallLowerServoPosition = 70;
+        constexpr int kStoredLowerIntakeServoPosition = 130;
 
-        constexpr int kIntakeRampPositioned = 130;
-        constexpr int kIntakeRampStored = 40;
+        constexpr int kIntakeRampPositioned = 30;
+        constexpr int kIntakeRampStored = 0;
     }
 
     namespace BeanConstants

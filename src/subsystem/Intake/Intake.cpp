@@ -1,65 +1,49 @@
 #include "Intake.h"
 
-Intake::Intake()
-    : UpperIntakeServo(),
-      LowerIntakeServo(),
-      IntakeRampEnableServo()
+Intake::Intake(int pin, int storedPosition_, int grabPosition_, int avoidPosition_)
+    : servo(),
+      pin(pin), grabPosition(grabPosition_), storedPosition(storedPosition_), avoidPosition(avoidPosition_)
 {
 }
 
 void Intake::begin()
 {
-    UpperIntakeServo.attach(Pins::kUpperIntakeServo);
-    LowerIntakeServo.attach(Pins::kLowerIntakeServo);
-    IntakeRampEnableServo.attach(Pins::kIntakeRampEnable);
+    servo.attach(pin);
 
-    setIntakeServoPosition(UpperIntakeServo, IntakeConstants::kAvoidBallUpperServoPosition);
-    setIntakeServoPosition(LowerIntakeServo, IntakeConstants::kAvoidBallLowerServoPosition);
-    setIntakeServoPosition(IntakeRampEnableServo, IntakeConstants::kIntakeRampPositioned);
-
-    setState(0);
+    update();
 }
 
 void Intake::update()
 {
-    switch (intake_state_)
-    {
-    case IntakeState::ALL_SERVOS_STORED:
-        setIntakeServoPosition(UpperIntakeServo, IntakeConstants::kAvoidBallUpperServoPosition);
-        setIntakeServoPosition(LowerIntakeServo, IntakeConstants::kAvoidBallLowerServoPosition);
-        setIntakeServoPosition(IntakeRampEnableServo, IntakeConstants::kIntakeRampStored);
-        break;
-    case IntakeState::ALL_SERVOS_POSITIONED:
-        setIntakeServoPosition(UpperIntakeServo, IntakeConstants::kGrabBallUpperServoPosition);
-        setIntakeServoPosition(LowerIntakeServo, IntakeConstants::kGrabBallLowerServoPosition);
-        setIntakeServoPosition(IntakeRampEnableServo, IntakeConstants::kIntakeRampPositioned);
-        break;
-    case IntakeState::UPPER_SERVO_ONLY_STORED:
-        setIntakeServoPosition(UpperIntakeServo, IntakeConstants::kAvoidBallUpperServoPosition);
-        break;
-    case IntakeState::LOWER_SERVO_ONLY_STORED:
-        setIntakeServoPosition(LowerIntakeServo, IntakeConstants::kAvoidBallLowerServoPosition);
-        break;
-    case IntakeState::UPPER_SERVO_ONLY_POSITIONED:
-        setIntakeServoPosition(UpperIntakeServo, IntakeConstants::kGrabBallUpperServoPosition);
-        break;
-    case IntakeState::LOWER_SERVO_ONLY_POSITIONED:
-        setIntakeServoPosition(LowerIntakeServo, IntakeConstants::kGrabBallLowerServoPosition);
-        break;
-    default:
-        setIntakeServoPosition(UpperIntakeServo, IntakeConstants::kAvoidBallUpperServoPosition);
-        setIntakeServoPosition(LowerIntakeServo, IntakeConstants::kAvoidBallLowerServoPosition);
-        setIntakeServoPosition(IntakeRampEnableServo, IntakeConstants::kIntakeRampStored);
-        break;
-    }
 }
 
 void Intake::setState(int state)
 {
-    intake_state_ = static_cast<IntakeState>(state);
+    IntakeState newState = static_cast<IntakeState>(state);
+    if (newState == intake_state_)
+        return; // no change — don’t rewrite servo signal
+
+    intake_state_ = newState;
+
+    // Only update servo when state actually changes
+    switch (intake_state_)
+    {
+    case IntakeState::STORED:
+        Serial.print("Moved servo to STORED - PIN: " + String(pin));
+        setIntakeServoPosition(storedPosition);
+        break;
+    case IntakeState::POSITIONED:
+        Serial.print("Moved servo to POSITIONED - PIN: " + String(pin));
+        setIntakeServoPosition(grabPosition);
+        break;
+    case IntakeState::AVOID:
+        Serial.print("Moved servo to AVOID - PIN: " + String(pin));
+        setIntakeServoPosition(avoidPosition);
+        break;
+    }
 }
 
-void Intake::setIntakeServoPosition(Servo &servo, int position)
+void Intake::setIntakeServoPosition(int position)
 {
     servo.write(position);
 }
