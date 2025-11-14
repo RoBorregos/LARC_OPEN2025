@@ -12,10 +12,11 @@ yolovenv
 
 runs
 
-vision/model/larc-2
-vision/model/larc-3
-vision/model/larc-internacional*
+vision/model/larc-*
 
 .venv
 
 larc_venv
+
+env
+

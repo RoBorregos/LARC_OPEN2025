@@ -31,6 +31,7 @@ String Communication::readCommunication() {
         Serial.println("MESSAGE : " + msg);
         return msg;
     }
+    
     return "";
 }
 
