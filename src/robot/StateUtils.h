@@ -17,8 +17,6 @@
 using namespace Constants;
 
 // Declare external PID controllers (defined in StateUtils.cpp)
-extern PIDController leftDistancePID;
-extern PIDController rightDistancePID;
 extern PIDController followLinePID;
 extern PIDController lateralPID;
 
@@ -27,5 +25,15 @@ extern const float LATERAL_SPEED;
 
 // Function declarations
 void maintainDistance(float distance, float lateralSpeed);
+void followLineHybrid(float lateralSpeed, float dt);
+void followLineImpulse(float lateralSpeed);
+
+
+// Global or static variable to remember the last detected sensor
+enum LastSensor { NONE, LEFT, CENTER, RIGHT };
+// Declaration only: single definition lives in StateUtils.cpp
+extern LastSensor last_detected;
+
+// Function prototype (fixed parameter name)
 void followLine(float lateralSpeed);
-void evadeLine(float lateralSpeed);
+void followLineCombined(float lateralSpeed, float dt);

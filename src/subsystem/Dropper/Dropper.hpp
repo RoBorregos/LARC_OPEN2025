@@ -11,36 +11,29 @@ using namespace Constants;
 
 class Dropper : public System {
 private:
-    Servo servo_;
-    const int servo_pin_;
-    
-    static constexpr int POSITION_0 = 0;
-    static constexpr int POSITION_180 = 180;
-    
+
     int current_position_;
+    const uint8_t CLOSED_POSITION = 180; // Adjust these values as needed
+    const uint8_t OPEN_POSITION = 0;
     
 public:
+
+    Servo dropper_servo_;
+
     Dropper();
 
     void begin() override;
     void update() override;
     void setState(int state) override;
-
-    void setPosition(int position);
-    void setTo0();
-    void setTo180();
+    void setDropperPosition(int position);
+    int getDropperPosition();
     
-    int getCurrentPosition() const;
-    
-    bool isAt0() const;
-    bool isAt180() const;
-
     enum class DropperState {
-        POSITION_0 = 0,
-        POSITION_180 = 1
+        DROPPER_CLOSED = 0,
+        DROPPER_OPEN = 1
     };
 
-    DropperState dropper_state_ = DropperState::POSITION_0;
+    DropperState dropper_state_ = DropperState::DROPPER_CLOSED;
 };
 
 #endif // DROPPER_H

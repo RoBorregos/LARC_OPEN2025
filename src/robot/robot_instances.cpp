@@ -3,12 +3,14 @@
 
 using namespace Constants;
 
-// Define global instances of robot subsystems
 Drive drive_;
-// Elevator elevator_;
 Sorter sorter_;
 LineSensor line_sensor_;
 DistanceSensor distance_sensor_;
+Elevator elevator_;
 Communication com_;
+Intake upperIntake_(Pins::kUpperIntakeServo, IntakeConstants::kAvoidBallUpperServoPosition, IntakeConstants::kGrabBallUpperServoPosition, IntakeConstants::kAvoidBallUpperServoPosition);
+Intake lowerIntake_(Pins::kLowerIntakeServo, IntakeConstants::kAvoidBallLowerServoPosition, IntakeConstants::kGrabBallLowerServoPosition, IntakeConstants::kAvoidBallLowerServoPosition);
+Intake rampIntake_(Pins::kRampIntakeServo, IntakeConstants::kIntakeRampStored, IntakeConstants::kIntakeRampPositioned, IntakeConstants::kIntakeRampStored);
 BNO bno_;
-Monitor monitor_(0, 1);
+Dropper dropper_;

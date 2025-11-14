@@ -1,57 +1,166 @@
-from src.communication import Function, send_message, receive_response, process_command
-from src.camera import Camera
+from src.complete_parse_data import *  # provides Camera, CameraState, etc.
+import serial
+import cv2
+from ultralytics import YOLO
+import subprocess
+import sys
+import time
+from typing import Union
 
-class SystemController:
-    def __init__(self):
-        self.started = False
-        self.camera_state = Function.NONE
-        self.camera = Camera(camera1=0, camera2=1)  # Initialize camera system
+# ------------ Configuration ------------
+MODEL_PATH   = "model/labModel.pt"
+SOURCE       = 0            # Use 0 for Xavier camera
+TIMEOUT_SEC  = 1.0
+SERIAL_PORT  = "/dev/ttyACM0"
+BAUDRATE     = 9600
 
-    def initialize_system(self) -> bool:
-        '''Initialize all system components.'''
-        if self.camera.initialize():
-            if send_message("START"):
-                return receive_response() == "STARTED"
-        return False
+has_sent_running_msg = False
 
-    def process_camera_data(self, function: Function) -> None:
-        '''Process camera data based on current function.'''
-        if function == Function.NONE:
-            return
+def handle_serial_command(cmd: str, cam: Camera):
+    """Handle a single command coming from Teensy."""
+    cmd = cmd.strip()
+    command_actions = {
+        "PICKUP STATE":        lambda: cam.set_state(CameraState.DETECT_BEANS),
+        "DETECT_RED_STORAGE":  lambda: cam.set_state(CameraState.DETECT_RED_STORAGE),
+        "DETECT_BLUE_STORAGE": lambda: cam.set_state(CameraState.DETECT_BLUE_STORAGE),
+        "STOP_DETECTING":      lambda: cam.set_state(CameraState.STOP),
+        "SHUTDOWN":            lambda: (
+            print("[INFO] Powering off Xavier..."),
+            subprocess.run("sudo shutdown now", shell=True)
+        ),
+    }
+    action = command_actions.get(cmd)
+    if action:
+        action()
+        print(f"[INFO] Command handled: {cmd}")
+    else:
+        print(f"[WARN] Unknown command from serial: {cmd}")
 
-        # Determine which detection function to use
-        detection_func = {
-            Function.DETECT_BEAN: self.camera.detect_bean,
-            Function.DETECT_OBJECT: self.camera.detect_obstacle
-        }.get(function)
+def map_value(value: Union[str, int, float, None]) -> Union[int, float]:
+    if isinstance(value, (int, float)):
+        return value
+    if value is None:
+        return -1
 
-        if not detection_func:
-            return
+    key = str(value).strip().lower()
+    mapping_dict = {
+        # beans
+        "inmature": 0,
+        "mature": 1,
+        "overmature": 2,
+        # storage
+        "blue_benefit": 0,
+        "red_benefit": 1,
 
-        # Get detection results
-        detected, obj_type, offset_x, offset_y = detection_func()
-        
-        # Format message using f-strings for better performance
-        prefix = "BEAN" if function == Function.DETECT_BEAN else "OBJECT"
-        msg = f"{prefix}: {detected} Type: {obj_type} x: {offset_x} y: {offset_y}"
-        
-        send_message(msg)
+        #Float : number
+    }
+    print(f"[DEBUG] Mapping value: {value} -> {mapping_dict.get(key, -1)}")
+    return mapping_dict.get(key, -1)
 
-    def main_loop(self):
-        '''Main system control loop.'''
+# ------------ Main loop ------------
+def run():
+    global has_sent_running_msg
+    # Load model
+    model = YOLO(MODEL_PATH, task="detect")
+    cam = Camera(model=model, timeout=TIMEOUT_SEC)
+
+    # Open camera
+    cap = cv2.VideoCapture(SOURCE)
+    if not cap.isOpened():
+        raise RuntimeError(f"Could not open video source: {SOURCE}")
+
+    # Try to keep latency low
+    try:
+        cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+    except Exception:
+        pass
+    try:
+        cap.set(cv2.CAP_PROP_FPS, 30)
+    except Exception:
+        pass
+
+    # Open serial port
+    ser = serial.Serial(SERIAL_PORT, BAUDRATE, timeout=0.05)
+    print(f"[INFO] Listening for Teensy commands on {SERIAL_PORT} WAITING ON THE PICKUP STATE...")
+
+    while ser.readline().decode(errors="ignore").strip() != "PICKUP STATE":
+        continue
+    ser.write(b"XAVIER READY\n")
+
+    # Default initial state
+    cam.set_state(CameraState.DETECT_BEANS)
+
+    try:
         while True:
-            if not self.started:
-                self.started = self.initialize_system()
+            # --- Handle Teensy commands (non-blocking) ---
+            try:
+                if ser.in_waiting:
+                    line = ser.readline().decode(errors="ignore").strip()
+                    if line:
+                        handle_serial_command(line, cam)
+            except Exception as e:
+                print(f"[WARN] Serial read error: {e}")
+
+            # --- Capture frame ---
+            ok, frame = cap.read()
+            if not ok or frame is None:
+                print("[WARN] Failed to read frame. Retrying...")
+                time.sleep(0.01)
                 continue
 
-            # Process commands
-            command = receive_response()
-            if command:
-                current_function = process_command(command)
-                if current_function != Function.NONE:
-                    send_message("DONE")
-                    self.process_camera_data(current_function)
+            # --- Run detection state machine ---
+            try:
+                # ZED CAMERA
+                # ======================================================
+                h, w = frame.shape[:2]
+                frame = frame[:, w//2:w]  # Crop to right half
+                # ======================================================
+                cam.run(frame, verbose=False)
+                if not has_sent_running_msg:
+                    ser.write(b"XAVIER RUNNING VISION\n")
+                    has_sent_running_msg = True
+            except Exception as e:
+                # Keep loop alive even if a single inference fails
+                print(f"[WARN] cam.run failed: {e}")
+                continue
+
+            # Ensure detection_matrix is 2-length
+            out0 = cam.detection_matrix[0] if len(cam.detection_matrix) > 0 else None
+            out1 = cam.detection_matrix[1] if len(cam.detection_matrix) > 1 else None
+
+            # Convert to protocol and send over serial
+            v0 = map_value(out0)
+            v1 = map_value(out1)
+            sending_msg = f"{v0},{v1}\n".encode()
+
+            #print(f"[DEBUG] Sending message: {sending_msg}")
+
+            try:
+                
+                ser.write(sending_msg)
+                # Optional: flush to minimize latency
+                ser.flush()
+            except Exception as e:
+                #print(f"[WARN] Serial write error: {e}")
+                pass
+
+            # Escape on ESC (only useful if you display a window elsewhere)
+            if cv2.waitKey(1) & 0xFF == 27:
+                break
+
+    except KeyboardInterrupt:
+        pass    
+        #print("\n[INFO] Interrupted by user. Exiting...")
+    finally:
+        try:
+            cap.release()
+        except Exception:
+            pass
+        try:
+            ser.close()
+        except Exception:
+            pass
+        cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    controller = SystemController()
-    controller.main_loop()
+    run()

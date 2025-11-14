@@ -7,10 +7,14 @@
  */
 
 #include "StateUtils.h"
-
+// Define the one and only instance of the last-detected sensor flag
+LastSensor last_detected = NONE;
 // Define the PID controllers
-PIDController leftDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);
-PIDController rightDistancePID(DistanceSensorConstants::kDistanceTargetControllerKp, DistanceSensorConstants::kDistanceTargetControllerKi, DistanceSensorConstants::kDistanceTargetControllerKd, -150.0, 150.0);
+PIDController approachLeftDistancePID(DistanceSensorConstants::kApproachDistanceTargetControllerKp, DistanceSensorConstants::kApproachDistanceTargetControllerKi, DistanceSensorConstants::kApproachDistanceTargetControllerKd, -150.0, 150.0);
+PIDController approachRightDistancePID(DistanceSensorConstants::kApproachDistanceTargetControllerKp, DistanceSensorConstants::kApproachDistanceTargetControllerKi, DistanceSensorConstants::kApproachDistanceTargetControllerKd, -150.0, 150.0);
+
+PIDController retreatLeftDistancePID(DistanceSensorConstants::kRetreatDistanceTargetControllerKp, DistanceSensorConstants::kRetreatDistanceTargetControllerKi, DistanceSensorConstants::kRetreatDistanceTargetControllerKd, -150.0, 150.0);
+PIDController retreatRightDistancePID(DistanceSensorConstants::kRetreatDistanceTargetControllerKp, DistanceSensorConstants::kRetreatDistanceTargetControllerKi, DistanceSensorConstants::kRetreatDistanceTargetControllerKd, -150.0, 150.0);
 
 PIDController lateralPID(20.0, 1.0, 2.0, -100.0, 100.0);
 
@@ -18,98 +22,407 @@ PIDController followLinePID(20.0, 0.0, 1.0, -80.0, 80.0);
 
 void maintainDistance(float distance, float lateralSpeed)
 {
-    float leftDistance = distance_sensor_.getDistance(0);
-    float rightDistance = distance_sensor_.getDistance(1);
+  auto [leftDistance, leftValid] = distance_sensor_.getDistance(0);
+  auto [rightDistance, rightValid] = distance_sensor_.getDistance(1);
 
-    float leftOutput = leftDistancePID.update(leftDistance, distance);
-    float rightOutput = rightDistancePID.update(rightDistance, distance);
+  float currentDistance = (leftDistance + rightDistance) / 2.0;
 
-    float forwardOutput = (leftOutput + rightOutput) / 2.0 * -1;
+  float leftOutput;
+  float rightOutput;
 
-    drive_.acceptInput(lateralSpeed, forwardOutput, 0.0);
+  if (currentDistance < distance)
+  {
+    Serial.print("Too close: ");
+    // If we are too close, we need to back up
+    leftOutput = retreatLeftDistancePID.update(leftDistance, distance) * -1;
+    rightOutput = retreatRightDistancePID.update(rightDistance, distance) * -1;
+  }
+  else
+  {
+    Serial.print("Too far: ");
+    // If we are too far, we need to approach
+    leftOutput = approachLeftDistancePID.update(leftDistance, distance) * -1;
+    rightOutput = approachRightDistancePID.update(rightDistance, distance) * -1;
+  }
 
-    monitor_.print("L: ");
-    monitor_.print(leftDistance);
-    monitor_.print("cm (");
-    monitor_.print(leftOutput);
-    monitor_.print(") R: ");
-    monitor_.print(rightDistance);
-    monitor_.print("cm (");
-    monitor_.print(rightOutput);
-    monitor_.print(") Fwd: ");
-    monitor_.print(forwardOutput);
+  float forwardOutput = (leftOutput + rightOutput) / 2.0;
+
+  Rotation2D error = drive_.getHeadingError();
+
+  // Only correct if theading error is within 30 degrees
+  if (std::abs(error.getDegrees()) < 30)
+  {
+    // if the difference between both sensors is less than 10, and both their measurements are valid, then correct
+    if (std::abs(leftDistance - rightDistance) < 10 && leftValid && rightValid)
+    {
+      drive_.acceptInput(lateralSpeed, forwardOutput, 0.0);
+      // else, move backwards a little to allow for heading correction
+    }
+  }
+
+  Serial.print("L: ");
+  Serial.print(leftDistance);
+  Serial.print("cm (");
+  Serial.print(leftOutput);
+  Serial.print(") R: ");
+  Serial.print(rightDistance);
+  Serial.print("cm (");
+  Serial.print(rightOutput);
+  Serial.print(") Fwd: ");
+  Serial.print(forwardOutput);
+  Serial.print(" Error: ");
+  Serial.print(error.getDegrees());
+
+  Serial.println();
+}
+
+struct LowPassFilter
+{
+  float alpha;
+  float value;
+
+  LowPassFilter(float alpha = 0.2f) : alpha(alpha), value(0.0f) {}
+
+  float update(float input)
+  {
+    value += alpha * (input - value);
+    return value;
+  }
+};
+
+LowPassFilter accelFilterX(0.15f); // 0.05–0.2 typical range
+LowPassFilter accelFilterY(0.15f); // 0.05–0.2 typical range
+
+void followLineHybrid(float lateralSpeed, float dt)
+{
+  static float estimatedPositionError = 0.0f; // IMU-based lateral offset estimate (meters)
+  static float accelBiasY = 0.0f;             // Slow bias tracker for sideways acceleration drift
+  static bool lastLineOnRight = false;        // Remember which edge saw the line last
+
+  dt = std::max(0.0f, dt);  // Reject negative sampling intervals
+  dt = std::min(dt, 0.05f); // Cap dt to avoid huge integration jumps
+
+  auto lineValues = line_sensor_.readSensors();
+  bool left = lineValues[0];
+  bool right = lineValues[1];
+  bool center = lineValues[4];
+
+  auto accel = drive_.getLinearAcceleration();              // Raw acceleration in robot body frame (m/s²)
+  float yawRad = drive_.getYaw() * M_PI / 180.0f;           // Robot heading in radians
+  float a_body_y = accelFilterY.update(std::get<1>(accel)); // Filtered forward-axis accel (robot frame)
+  float a_world_sideways = cosf(yawRad) * a_body_y;         // Rotate to field sideways axis
+
+  float targetFrontOutput = 0.0f; // Command along robot front/back (controls recentering)
+
+  if (center || left || right)
+  {
+    accelBiasY += 0.05f * (a_world_sideways - accelBiasY); // Update bias while sensors are trusted
+    estimatedPositionError = 0.0f;                         // Reset IMU integral when line is visible
+    lastLineOnRight = right && !left;                      // Record which side had the line
+    if (center)
+      lastLineOnRight = false; // If center, bias to left
+
+    targetFrontOutput = center ? -20.0f : (left ? -30.0f : 20.0f); // Sensor-based correction
+  }
+  else
+  {
+    float correctedAccel = a_world_sideways - accelBiasY;                     // Remove bias to reduce drift
+    estimatedPositionError += correctedAccel * dt;                            // Integrate sideways motion
+    estimatedPositionError = std::clamp(estimatedPositionError, -0.6f, 0.6f); // Limit estimate
+
+    float gain = 150.0f;                                   // Convert position error to command
+    if (estimatedPositionError == 0.0f && lastLineOnRight) // If ambiguous, bias toward last seen edge
+      estimatedPositionError = 0.05f;
+
+    targetFrontOutput = std::clamp(estimatedPositionError * gain, -80.0f, 80.0f); // Clamp output
+  }
+
+  Serial.print("Line L:");
+  Serial.print(left);
+  Serial.print(" R:");
+  Serial.print(right);
+  Serial.print(" C:");
+  Serial.print(center);
+  Serial.print(" | a_y:");
+  Serial.print(a_world_sideways, 3);
+  Serial.print(" estErr:");
+  Serial.print(estimatedPositionError, 3);
+  Serial.print(" tgtF:");
+  Serial.println(targetFrontOutput, 1);
+  Serial.println();
+
+  Rotation2D error = drive_.getHeadingError();
+
+  // Only correct if theading error is within 30 degrees
+  if (std::abs(error.getDegrees()) < 20)
+  {
+    drive_.acceptInput(lateralSpeed, targetFrontOutput + 5.0f, 0.0f); // Apply lateral speed + correction
+  }
+  else
+  {
+    drive_.acceptInput(0, 0, 0);
+  }
 }
 
 void followLine(float lateralSpeed)
 {
   auto lineValues = line_sensor_.readSensors();
-  bool frontLeft = lineValues[0];
-  bool frontRight = lineValues[1];
+  bool left = lineValues[0];
+  bool right = lineValues[1];
+  bool center = lineValues[4];
 
-  float frontError = 0.0;
-  if (frontLeft && !frontRight)
-    frontError = -1.0;
-  else if (!frontLeft && frontRight)
-    frontError = 1.0;
+  float correction = 0.0f;
+  LastSensor current = NONE;
 
-  bool isLineDetected = frontLeft || frontRight;
+  // Determine which sensor currently sees the line
+  if (center)
+    current = CENTER;
+  else if (left)
+    current = LEFT;
+  else if (right)
+    current = RIGHT;
 
-  static float lastKnownError = 0.0;
-  static float lastVyCorrection = 0.0;
-  static unsigned long lastDetectionTime = 0;
-
-  float vy_correction = 0.0;
-
-  if (isLineDetected)
+  // --- Default correction based on current sensor ---
+  if (center)
   {
-    vy_correction = followLinePID.update(frontError, 0.0);
-    lastKnownError = frontError;
-    lastVyCorrection = vy_correction;
-    lastDetectionTime = millis();
+    correction = 0.0f;
   }
-  else if (millis() - lastDetectionTime < 150) // persistencia corta
+  else if (left)
   {
-    // Mantén el último control brevemente
-    vy_correction = lastVyCorrection;
+    correction = -30.0f; // line to left → move right
+  }
+  else if (right)
+  {
+    correction = 30.0f; // line to right → move left
   }
   else
   {
-    // Busca lateralmente sin retroceder
-    vy_correction = (lastKnownError > 0) ? 30.0 : -30.0;
+    correction = 0.0f; // line lost
   }
 
-  drive_.acceptInput(lateralSpeed, vy_correction, 0.0);
+  // --- Add directional logic (based on detection order) ---
+  if (last_detected != NONE && current != NONE && last_detected != current)
+  {
+    // Left → Center → Right means line moving backward under robot
+    // Right → Center → Left means line moving forward under robot
+    // The correction sign flips accordingly
+
+    if (last_detected == CENTER && current == LEFT)
+    {
+      correction = -30.0f; // moving forward
+    }
+    else if (last_detected == LEFT && current == CENTER)
+    {
+      correction = 30.0f; // moving backward
+    }
+    else if (last_detected == CENTER && current == RIGHT)
+    {
+      correction = 30.0f; // moving forward (other side)
+    }
+    else if (last_detected == RIGHT && current == CENTER)
+    {
+      correction = -30.0f; // moving backward (other side)
+    }
+    else if (last_detected == LEFT && current == RIGHT)
+    {
+      correction = 30.0f; // jumped across line (treat as moving backward)
+    }
+    else if (last_detected == RIGHT && current == LEFT)
+    {
+      correction = -30.0f; // jumped across line (treat as moving forward)
+    }
+  }
+
+  // --- Update last detected sensor ---
+  if (current != NONE)
+    last_detected = current;
+
+  // --- Debug info ---
+  Serial.print("[PID] L:");
+  Serial.print(left);
+  Serial.print(" R:");
+  Serial.print(right);
+  Serial.print(" C:");
+  Serial.print(center);
+  Serial.print(" Corr:");
+  Serial.println(correction);
+
+  drive_.acceptInput(lateralSpeed, 0.0f, correction);
 }
 
-
-void evadeLine(float lateralSpeed)
+void followLineImpulse(float lateralSpeed)
 {
   auto lineValues = line_sensor_.readSensors();
-  bool frontLeft = lineValues[0];
-  bool frontRight = lineValues[1];
-  bool isLineDetected = frontLeft || frontRight;
+  bool left = lineValues[0];
+  bool right = lineValues[1];
+  bool center = lineValues[4];
 
-  float frontError = 0.0;
-  if (frontLeft && !frontRight)
-    frontError = -1.0;
-  else if (!frontLeft && frontRight)
-    frontError = 1.0;
+  static unsigned long lastStepTime = 0;
+  static bool isMoving = false;
+  const unsigned long stepDuration = 1000;
+  const unsigned long pauseDuration = 500;
 
-  if (isLineDetected)
+  unsigned long now = millis();
+  float correction = 0.0f;
+
+  if (isMoving && now - lastStepTime > stepDuration)
   {
-    float backSpeed = -fabs(lateralSpeed) * 0.5;
-    float vy_correction = lateralPID.update(-frontError, 0.0);
+    isMoving = false;
+    lastStepTime = now;
+    drive_.acceptInput(0.0f, 0.0f, 0.0f);
+    return;
+  }
+  else if (!isMoving && now - lastStepTime > pauseDuration)
+  {
+    isMoving = true;
+    lastStepTime = now;
+  }
 
-    drive_.acceptInput(backSpeed, vy_correction, 0.0);
+  if (!isMoving)
+  {
+    drive_.acceptInput(0.0f, 0.0f, 0.0f);
+    return;
+  }
 
-    monitor_.print("Line detected | Error: ");
-    monitor_.print(frontError);
-    monitor_.print(" | vy_corr: ");
-    monitor_.println(vy_correction);
+  if (center)
+  {
+    correction = 0.0f;
+  }
+  else if (left)
+  {
+    correction = -80.0f;
+  }
+  else if (right)
+  {
+    correction = 80.0f;
   }
   else
   {
-    drive_.acceptInput(lateralSpeed, 0.0, 0.0);
-    monitor_.println("No line detected - moving lateral");
+    correction = 0.0f;
+  }
+
+  Serial.print("[IMPULSE] L:");
+  Serial.print(left);
+  Serial.print(" R:");
+  Serial.print(right);
+  Serial.print(" C:");
+  Serial.print(center);
+  Serial.print(" Corr:");
+  Serial.print(correction);
+  Serial.print(" Moving:");
+  Serial.println(isMoving ? "YES" : "NO");
+
+  drive_.acceptInput(lateralSpeed, 0.0f, correction);
+}
+
+void followLineCombined(float lateralSpeed, float dt)
+{
+  // --- Persistent IMU state ---
+  static float estimatedPositionError = 0.0f; // IMU-based lateral offset estimate (meters)
+  static float accelBiasY = 0.0f;             // Slow bias tracker for sideways acceleration drift
+  static bool lastLineOnRight = false;        // Remember which edge saw the line last
+
+  // --- Safety on dt ---
+  dt = std::max(0.0f, dt);
+  dt = std::min(dt, 0.05f);
+
+  // --- Line sensor readings ---
+  auto lineValues = line_sensor_.readSensors();
+  bool left = lineValues[0];
+  bool right = lineValues[1];
+  bool center = lineValues[4];
+
+  // --- IMU data ---
+  auto accel = drive_.getLinearAcceleration();              // Raw acceleration in robot body frame (m/s²)
+  float yawRad = drive_.getYaw() * M_PI / 180.0f;           // Robot heading in radians
+  float a_body_y = accelFilterY.update(std::get<1>(accel)); // Filtered forward-axis accel (robot frame)
+  float a_world_sideways = cosf(yawRad) * a_body_y;         // Rotate to field sideways axis
+
+  float correction = 0.0f;
+  LastSensor current = NONE;
+
+  // --- Determine current sensor state ---
+  if (center)
+    current = CENTER;
+  else if (left)
+    current = LEFT;
+  else if (right)
+    current = RIGHT;
+
+  // --- If any line sensor sees the line ---
+  if (center || left || right)
+  {
+    // 1. Update IMU bias and reset IMU-based offset
+    accelBiasY += 0.05f * (a_world_sideways - accelBiasY);
+    estimatedPositionError = 0.0f;
+
+    // 2. Base correction from sensors
+    if (center)
+      correction = 0.0f;
+    else if (left)
+      correction = -30.0f;
+    else if (right)
+      correction = 30.0f;
+
+    // 3. Apply detection order logic for direction-aware correction
+    if (last_detected != NONE && current != NONE && last_detected != current)
+    {
+      if (last_detected == CENTER && current == LEFT)
+        correction = -30.0f; // moving forward
+      else if (last_detected == LEFT && current == CENTER)
+        correction = 30.0f; // moving backward
+      else if (last_detected == CENTER && current == RIGHT)
+        correction = 30.0f; // moving forward (other side)
+      else if (last_detected == RIGHT && current == CENTER)
+        correction = -30.0f; // moving backward (other side)
+      else if (last_detected == LEFT && current == RIGHT)
+        correction = 30.0f; // jumped across line (backward)
+      else if (last_detected == RIGHT && current == LEFT)
+        correction = -30.0f; // jumped across line (forward)
+    }
+
+    // 4. Update last sensor info
+    last_detected = current;
+    lastLineOnRight = right && !left;
+    if (center)
+      lastLineOnRight = false;
+  }
+  else
+  {
+    // --- No sensor detects line: use IMU estimation ---
+    float correctedAccel = a_world_sideways - accelBiasY;
+    estimatedPositionError += correctedAccel * dt;
+    estimatedPositionError = std::clamp(estimatedPositionError, -0.6f, 0.6f);
+
+    float gain = 130.0f;
+    if (estimatedPositionError == 0.0f && lastLineOnRight)
+      estimatedPositionError = 0.05f;
+
+    correction = std::clamp(estimatedPositionError * gain, -80.0f, 80.0f);
+  }
+
+  // --- Output for debugging ---
+  Serial.print("L:");
+  Serial.print(left);
+  Serial.print(" R:");
+  Serial.print(right);
+  Serial.print(" C:");
+  Serial.print(center);
+  Serial.print(" | a_y:");
+  Serial.print(a_world_sideways, 3);
+  Serial.print(" estErr:");
+  Serial.print(estimatedPositionError, 3);
+  Serial.print(" corr:");
+  Serial.println(correction, 1);
+
+  // --- Apply correction only if heading is within limit ---
+  Rotation2D error = drive_.getHeadingError();
+  if (std::abs(error.getDegrees()) < 20)
+  {
+    drive_.acceptInput(lateralSpeed, correction + 5.0f, 0.0f);
+  }
+  else
+  {
+    drive_.acceptInput(0, 0, 0);
   }
 }

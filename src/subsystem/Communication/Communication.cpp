@@ -1,68 +1,86 @@
 #include "Communication.hpp"
 #include <string.h>
+#include <algorithm>
 using namespace std;
 
 Communication::Communication(){
-    Serial.begin(115200);       // USB serial (para debuggear)
-
-    // UARTs on Teensy 4.1
-    Serial1.begin(115200);      // UART on pins 0 (RX) and 1 (TX), UART1
-    Serial2.begin(115200);      // UART on pins 7 (RX) and 8 (TX), UART2
-    Serial3.begin(115200);      // UART on pins 15 (RX) and 14 (TX), UART3
+    Serial.begin(9600);
 }
 
 void Communication::begin() {
-
-}
-
-string Communication::getCommand() {
-    string msg = readCommunication();
-
-    if (msg == "TREE") {
-        // TODO Whats the logic behind
-    } else if (msg == "BEAN") {
-        
-    }
-    else {
-    }
-
-    return msg;
-}
-
-
-string Communication::readCommunication() {
-    String msg;
-    if (Serial1.available()) {
-        msg = Serial1.readStringUntil('\n');
-        Serial1.print("Teensy receive: ");
-        Serial1.println(msg);
-        Serial.print("Debug USB: ");
-        Serial.println(msg);
-        return msg.c_str();
-    }
-    if (Serial2.available()) {
-        msg = Serial2.readStringUntil('\n');
-        Serial2.print("Teensy receive: ");
-        Serial2.println(msg);
-        Serial.print("Debug USB: ");
-        Serial.println(msg);
-        return msg.c_str();
-    }
-    if (Serial3.available()) {
-        msg = Serial3.readStringUntil('\n');
-        Serial3.print("Teensy receive: ");
-        Serial3.println(msg);
-        Serial.print("Debug USB: ");
-        Serial.println(msg);
-        return msg.c_str();
-    }
-    return "";
+    Serial.println("TEENSY READY");
 }
 
 void Communication::update() {
-    // Communication update logic if needed
 }
 
 void Communication::setState(int state) {
     (void)state;
+}
+
+string Communication::getCommand() {
+    String msg = readCommunication();
+
+    return msg.c_str();
+}
+
+String Communication::readCommunication() {
+    if (Serial.available()) {
+        String msg = Serial.readStringUntil('\n');
+        msg.trim();
+        Serial.println("MESSAGE : " + msg);
+        return msg;
+    }
+    
+    return "";
+}
+
+void Communication::sendStartSearching() {
+    Serial.println("START_SEARCHING");
+}
+
+void Communication::sendStopSearching() {
+    Serial.println("STOP_SEARCHING");
+}
+
+void Communication::sendPowerOff() {
+    Serial.println("SHUTDOWN");
+}
+
+vector<int> Communication::getMatrix() {
+    string s = getCommand();
+    if (s.empty()) return {-1, -1};
+
+    s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+
+    size_t comma = s.find(',');
+    if (comma == string::npos) return {0, 0};
+
+    string top_str = s.substr(0, comma);
+    string bottom_str = s.substr(comma + 1);
+
+    int top = 0;
+    int bottom = 0;
+
+    if (!top_str.empty() && all_of(top_str.begin(), top_str.end(), ::isdigit)) {
+        top = stoi(top_str);
+    }
+
+    if (!bottom_str.empty() && all_of(bottom_str.begin(), bottom_str.end(), ::isdigit)) {
+        bottom = stoi(bottom_str);
+    }
+
+    top = max(0, min(top, 3));
+    bottom = max(0, min(bottom, 3));
+    
+    return {top, bottom};
+}
+
+
+vector<int> Communication::getBenefitsPositions() {
+    string s = getCommand();
+    vector<int> positions;
+
+
+    return positions;
 }

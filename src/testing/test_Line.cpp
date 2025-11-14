@@ -19,5 +19,7 @@ void loop()
   Serial.print(line_sensor_.isLeftLine() ? "left yes" : "left no");
   Serial.print(",");
   Serial.println(line_sensor_.isRightLine() ? "right yes" : "right no");
+
+  Serial.print(line_sensor_.isCenterLine() ? "center yes" : "center no");
   delay(100);
 }

@@ -8,66 +8,52 @@
 #include <Wire.h>
 
 #include "robot/robot_instances.h"
-#include "robot/StateMachine.hpp"
-#include <SoftwareSerial.h>
-#include "../../lib/controllers/PIDController.hpp"
+#include "robot/StateMachine.h"
 #include "constants/constants.h"
 
 using namespace Constants;
 
-// State machine instance
-StateMachine stateMachine(monitor_);
+StateMachine stateMachine;
 
 void setup()
 {
-  monitor_.begin();
+  Serial.begin(9600);
   Wire.begin();
 
   // All systems must begin after initializing the serial and as the code starts running
-  monitor_.println("Initializing systems...");
+  Serial.println("Initializing systems...");
   drive_.begin();
   com_.begin();
   line_sensor_.begin();
   distance_sensor_.begin();
   stateMachine.begin();
-  monitor_.println("All systems initialized...");
+  elevator_.begin();
+  sorter_.begin();
+  upperIntake_.begin();
+  lowerIntake_.begin();
+  rampIntake_.begin();
+  Serial.println("All systems initialized...");
 
   drive_.setState(0);
-  drive_.acceptHeadingInput(Rotation2D::fromDegrees(0));
+  drive_.acceptHeadingInput(Rotation2D(0.0f));
 
-  // Wait for "r" message from Bluetooth before continuing
-  monitor_.println("Waiting for ready command (r)...");
-  
-  String btInput = "";
-  // while (true)
-  // {
-  //   if (bluetooth.available())
-  //   {
-  //     char c = bluetooth.read();
-  //     if (c == '\n' || c == '\r')
-  //     {
-  //       btInput.trim();
-  //       if (btInput.equalsIgnoreCase("r"))
-  //       {
-  //         Serial.println("Bluetooth ready received.");
-  //         break;
-  //       }
-  //       btInput = "";
-  //     }
-  //     else
-  //     {
-  //       btInput += c;
-  //     }
-  //   }
-  // }
+  elevator_.setState(1);
+  elevator_.update();
+
+  delay(32000); // WAIT FOR ELEVATOR 1 FOR UP, 2 FOR DOWN
+  delay(1000);
 }
 
 void loop()
 {
   drive_.update();
-
+  com_.update();
+  upperIntake_.update();
+  lowerIntake_.update();
+  rampIntake_.update();
+  elevator_.update();
+  sorter_.update();
   stateMachine.update();
 
-  // maintainDistance(DistanceSensorConstants::kPoolTargetDistance, 110);
-  
+  delay(SystemConstants::kUpdateInterval);
 }

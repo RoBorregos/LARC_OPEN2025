@@ -6,8 +6,7 @@
  * @brief Drive class, which controls the robot's drive system.
  */
 
-#include "Drive.hpp"
-#include "../../robot/robot_instances.h"
+#include "Drive.h"
 
 Drive::Drive() : front_left_(Pins::kUpperMotors[0], Pins::kUpperMotors[1], Pins::kPwmPin[0], true, Pins::kEncoders[0], Pins::kEncoders[1], DriveConstants::kWheelDiameter),
                  front_right_(Pins::kUpperMotors[2], Pins::kUpperMotors[3], Pins::kPwmPin[1], false, Pins::kEncoders[2], Pins::kEncoders[3], DriveConstants::kWheelDiameter),
@@ -38,7 +37,7 @@ void Drive::update()
     case DriveState::HEADING_LOCK:
     {
         drive_speed = drive_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()), false);
-        drive_speed.setOmega(heading_controller_.update(Rotation2D::fromDegrees(bno_.getYaw())));
+        drive_speed.omega = heading_controller_.update(Rotation2D::fromDegrees(bno_.getYaw()));
     }
     break;
     case DriveState::FIELD_ORIENTED:
@@ -52,6 +51,14 @@ void Drive::update()
     }
     break;
     }
+
+    Serial.print("Vx: ");
+    Serial.print(drive_speed.vx);
+    Serial.print(" Vy: ");
+    Serial.print(drive_speed.vy);
+    Serial.print(" Omega: ");
+    Serial.print(drive_speed.omega);
+    Serial.println();
 
     move(drive_speed);
 }
@@ -73,21 +80,22 @@ void Drive::acceptHeadingInput(Rotation2D heading)
 
 void Drive::move(ChassisSpeed chassis_speed)
 {
-    int front_left_speed = chassis_speed.getVx() + chassis_speed.getVy() + chassis_speed.getOmega();
-    int front_right_speed = -chassis_speed.getVx() + chassis_speed.getVy() - chassis_speed.getOmega();
-    int back_left_speed = -chassis_speed.getVx() + chassis_speed.getVy() + chassis_speed.getOmega();
-    int back_right_speed = chassis_speed.getVx() + chassis_speed.getVy() - chassis_speed.getOmega();
-
-    monitor_.println("Front Left Speed: " + String(front_left_speed));
-    monitor_.println(" Front Right Speed: " + String(front_right_speed));
-    monitor_.println(" Back Left Speed: " + String(back_left_speed));
-    monitor_.println(" Back Right Speed: " + String(back_right_speed));
-    monitor_.println("Omega: " + String(chassis_speed.getOmega()));
+    int front_left_speed = chassis_speed.vx + chassis_speed.vy + chassis_speed.omega;
+    int front_right_speed = -chassis_speed.vx + chassis_speed.vy - chassis_speed.omega;
+    int back_left_speed = -chassis_speed.vx + chassis_speed.vy + chassis_speed.omega;
+    int back_right_speed = chassis_speed.vx + chassis_speed.vy - chassis_speed.omega;
 
     front_left_.move(front_left_speed);
     front_right_.move(front_right_speed);
     back_left_.move(back_left_speed);
     back_right_.move(back_right_speed);
+}
+
+bool Drive::isAtHeadingTarget()
+{
+    Rotation2D error = getHeadingError();
+    float error_degrees = fabs(error.getDegrees());
+    return error_degrees < DriveConstants::kHeadingToleranceDegrees;
 }
 
 /* Basic Movement Functions */
@@ -191,77 +199,4 @@ void Drive::motorTest()
     delay(3000);
     back_right_.move(0);
     delay(3000);
-}
-
-/* Movement with cm */
-// @brief: This will be used when the robot is align with the endline,
-// the actual error of distance is around 1-2 cm, need a tunning
-void Drive::moveForwardCm(float distance_cm, int speed)
-{
-    resetEncoders();
-    float target_distance = distance_cm / 100.0f;
-
-    while (getAverageDistanceTraveled() < target_distance)
-    {
-        moveForward(speed);
-        delay(10); // Small delay for stability
-    }
-    brake();
-}
-
-void Drive::moveBackwardCm(float distance_cm, int speed)
-{
-    resetEncoders();
-    float target_distance = distance_cm / 100.0f;
-
-    while (getAverageDistanceTraveled() < target_distance)
-    {
-        moveBackward(speed);
-        delay(10);
-    }
-    brake();
-}
-
-void Drive::moveLeftCm(float distance_cm, int speed)
-{
-    resetEncoders();
-    float target_distance = distance_cm / 100.0f;
-
-    while (getAverageDistanceTraveled() < target_distance)
-    {
-        moveLeft(speed);
-        delay(10);
-    }
-    brake();
-}
-
-void Drive::moveRightCm(float distance_cm, int speed)
-{
-    resetEncoders();
-    float target_distance = distance_cm / 100.0f;
-
-    while (getAverageDistanceTraveled() < target_distance)
-    {
-        moveRight(speed);
-        delay(10);
-    }
-    brake();
-}
-
-void Drive::resetEncoders()
-{
-    front_left_.getEncoderCount();
-    front_right_.getEncoderCount();
-    back_left_.getEncoderCount();
-    back_right_.getEncoderCount();
-}
-
-float Drive::getAverageDistanceTraveled()
-{
-    float fl_distance = abs(front_left_.getPositionMeters());
-    float fr_distance = abs(front_right_.getPositionMeters());
-    float bl_distance = abs(back_left_.getPositionMeters());
-    float br_distance = abs(back_right_.getPositionMeters());
-
-    return (fl_distance + fr_distance + bl_distance + br_distance) / 4.0f;
 }
