@@ -62,8 +62,8 @@ namespace Constants
         constexpr int kAvoidBallLowerServoPosition = 70;
         constexpr int kStoredLowerIntakeServoPosition = 130;
 
-        constexpr int kIntakeRampPositioned = 10;
-        constexpr int kIntakeRampStored = 70;
+        constexpr int kIntakeRampPositioned = 30;
+        constexpr int kIntakeRampStored = 0;
     }
 
     namespace BeanConstants

@@ -6,7 +6,7 @@ StateMachine::StateMachine()
 
 void StateMachine::begin()
 {
-  currentState = STATES::PICKUP;
+  currentState = STATES::START;
   state_start_time = 0;
 }
 
@@ -266,103 +266,104 @@ void StateMachine::handleEndlineState()
 
 void StateMachine::handlePickupState()
 {
-  static bool visionReady = false;
-  static int lastTop = -1;
-  static int lastBottom = -1;
+  // static bool visionReady = false;
+  // static int lastTop = -1;
+  // static int lastBottom = -1;
 
-  Serial.println("PICKUP STATE");
-  if (!visionReady)
+  // Serial.println("PICKUP STATE");
+  // if (!visionReady)
+  // {
+  //   string cmd = com_.getCommand();
+  //   if (cmd == "XAVIER RUNNING VISION")
+  //   {
+  //     visionReady = true;
+  //     Serial.println("[INFO] Xavier vision online — starting movement");
+  //   }
+  //   else
+  //   {
+  //     drive_.acceptInput(0, 0, 0);
+  //     return;
+  //   }
+  // }
+
+  followLineHybrid(140, 0.02f);
+
+  if (action_stage == 0)
   {
-    string cmd = com_.getCommand();
-    if (cmd == "XAVIER RUNNING VISION")
+    action_stage = 1;
+    action_start_time = millis();
+  }
+
+  if (action_stage == 1)
+  {
+    if (millis() - action_start_time < 3000)
     {
-      visionReady = true;
-      Serial.println("[INFO] Xavier vision online — starting movement");
+      followLineHybrid(140, 0.02f);
     }
     else
     {
       drive_.acceptInput(0, 0, 0);
-      return;
+      action_stage = 2;
+      action_start_time = millis();
     }
   }
 
-  followLineHybrid(135, 0.02f);
-
-  // if (action_stage == 0)
-  // {
-  //   action_stage = 1;
-  //   action_start_time = millis();
-  // }
-
-  // if (action_stage == 1)
-  // {
-  //   if (millis() - action_start_time < 3000)
-  //   {
-  //     followLineHybrid(135, 0.02f);
-  //   }
-  //   else
-  //   {
-  //     drive_.acceptInput(0, 0, 0);
-  //     action_stage = 2;
-  //     action_start_time = millis();
-  //   }
-  // }
-
-  // if (action_stage == 2)
-  // {
-  //   if (!line_sensor_.isFrontRightLine())
-  //   {
-  //     drive_.acceptInput(0, -70, 0);
-  //   }
-  //   else
-  //   {
-  //     drive_.acceptInput(0, 0, 0);
-  //     action_stage = 3;
-  //     action_start_time = millis();
-  //   }
-  // }
-
-  // if (action_stage == 3)
-  // {
-  //   if (millis() - action_start_time > 500)
-  //   {
-  //     drive_.acceptInput(0, 0, 0);
-  //     action_stage = 0;
-  //   }
-  // }
-
-  // followLineImpulse(150);
-
-  auto values = com_.getMatrix();
-  int top = values[0];
-  int bottom = values[1];
-  Serial.println("TOP: " + String(top) + " BOTTOM: " + String(bottom));
-
-  if (top != -1 && top != lastTop)
+  if (action_stage == 2)
   {
-    if (top == 2 || top == 1)
+    if (!line_sensor_.isFrontRightLine())
     {
-      upperIntake_.setState(1);
+      drive_.acceptInput(0, -70, 0);
     }
-    else if (top == 3)
+    else
     {
-      upperIntake_.setState(0);
+      drive_.acceptInput(0, 0, 0);
+      action_stage = 3;
+      action_start_time = millis();
     }
-    lastTop = top;
   }
 
-  if (bottom != -1 && bottom != lastBottom)
+  if (action_stage == 3)
   {
-    if (bottom == 2 || bottom == 1)
+    if (millis() - action_start_time > 500)
     {
-      lowerIntake_.setState(1);
+      drive_.acceptInput(0, 0, 0);
+      action_stage = 0;
     }
-    else if (bottom == 3)
-    {
-      lowerIntake_.setState(0);
-    }
-    lastBottom = bottom;
   }
+
+  upperIntake_.setState(1);
+  lowerIntake_.setState(1);
+
+  // auto values = com_.getMatrix();
+  // int top = values[0];
+  // int bottom = values[1];
+  // Serial.println("TOP: " + String(top) + " BOTTOM: " + String(bottom));
+
+  // if (top != -1 && top != lastTop)
+  // {
+  //   if (top == 2 || top == 1)
+  //   {
+  //     upperIntake_.setState(1);
+  //   }
+  //   else if (top == 3)
+  //   {
+  //     upperIntake_.setState(0);
+  //   }
+  //   lastTop = top;
+  // }
+
+  // if (bottom != -1 && bottom != lastBottom)
+  // {
+  //   if (bottom == 2 || bottom == 1)
+  //   {
+  //     lowerIntake_.setState(1);
+  //   }
+  //   else if (bottom == 3)
+  //   {
+  //     lowerIntake_.setState(0);
+  //   }
+  //   lastBottom = bottom;
+  // }
 
   if (line_sensor_.isBackRightLine())
   {

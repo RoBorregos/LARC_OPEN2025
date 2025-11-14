@@ -40,7 +40,7 @@ void setup()
   elevator_.setState(1);
   elevator_.update();
 
-  // delay(32000); // WAIT FOR ELEVATOR 1 FOR UP, 2 FOR DOWN
+  delay(32000); // WAIT FOR ELEVATOR 1 FOR UP, 2 FOR DOWN
   delay(1000);
 }
 
@@ -54,8 +54,6 @@ void loop()
   elevator_.update();
   sorter_.update();
   stateMachine.update();
-
-  // followLineHybrid(135, 0.02);
 
   delay(SystemConstants::kUpdateInterval);
 }
